@@ -47,11 +47,11 @@ AddEventHandler('cuff', function(target)
   local xPlayer = ESX.GetPlayerFromId(source)
   if not (xPlayer.job.name == 'police' or xPlayer.job.name == 'fib' or xPlayer.job.name == 'medical' or xPlayer.job.name == 'sheriff') then
     if xPlayer.getInventoryItem('handcuffs').count >= 1 then
-      TriggerClientEvent('getcuffed', target)
+      TriggerClientEvent('yp_userinteraction:getcuffed', target)
       xPlayer.removeInventoryItem('handcuffs', 1)
     end
   else
-    TriggerClientEvent('getcuffed', target)
+    TriggerClientEvent('yp_userinteraction:getcuffed', target)
   end
 end)
 
@@ -61,18 +61,18 @@ AddEventHandler('uncuff', function(target)
   local xPlayer = ESX.GetPlayerFromId(source)
   if not (xPlayer.job.name == 'police' or xPlayer.job.name == 'fib' or xPlayer.job.name == 'medical' or xPlayer.job.name == 'sheriff') then
     if xPlayer.getInventoryItem('handcuffkey').count >= 1 then
-      TriggerClientEvent('getuncuffed', target)
+      TriggerClientEvent('yp_userinteraction:getuncuffed', target)
       xPlayer.addInventoryItem('handcuffs', 1)
     end
   else
-    TriggerClientEvent('getuncuffed', target)
+    TriggerClientEvent('yp_userinteraction:getuncuffed', target)
   end
 end)
 
 RegisterServerEvent('escort')
 AddEventHandler('escort', function(target)
   local source = source
-  TriggerClientEvent('escort', target, source)
+  TriggerClientEvent('yp_userinteractin:escort', target, source)
   
 end)
 

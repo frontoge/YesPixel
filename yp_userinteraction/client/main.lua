@@ -87,8 +87,8 @@ AddEventHandler('userinteraction:windowcommand', function(windowNum, state)
     
 end)
 
-RegisterNetEvent('getcuffed')
-AddEventHandler('getcuffed', function()
+RegisterNetEvent('yp_userinteraction:getcuffed')
+AddEventHandler('yp_userinteraction:getcuffed', function()
   isCuffed = true
   local playerPed = PlayerPedId()
   RequestAnimDict('mp_arresting')
@@ -107,8 +107,8 @@ AddEventHandler('getcuffed', function()
 
 end)
 
-RegisterNetEvent('getuncuffed')
-AddEventHandler('getuncuffed', function()
+RegisterNetEvent('yp_userinteraction:getuncuffed')
+AddEventHandler('yp_userinteraction:getuncuffed', function()
   isCuffed = false
   local playerPed = PlayerPedId()
   ClearPedSecondaryTask(playerPed)
@@ -119,8 +119,8 @@ AddEventHandler('getuncuffed', function()
   DisplayRadar(true)
 end)
 
-RegisterNetEvent('escort')
-AddEventHandler('escort', function(dragger)
+RegisterNetEvent('yp_userinteraction:escort')
+AddEventHandler('yp_userinteraction:escort', function(dragger)
 	if not isCuffed then
 		return
 	end
