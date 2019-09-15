@@ -8,6 +8,7 @@ AddEventHandler('yp_base:playerReady', function()
   TriggerClientEvent('yp_jewelry:playerReady', src)
   TriggerClientEvent('yp_bankrob:playerReady', src)
   TriggerClientEvent('yp_swedbank:playerReady', src)
+  TriggerClientEvent('yp_police:playerReady', src)
 end)
 
 RegisterCommand('job', function(source, args)

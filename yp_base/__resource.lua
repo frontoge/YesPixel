@@ -7,5 +7,6 @@ server_scripts {
 dependencies {
   "yp_jewelry",
   "yp_bankrob",
-  "yp_swedbank"
+  "yp_swedbank",
+  "yp_police"
 }
