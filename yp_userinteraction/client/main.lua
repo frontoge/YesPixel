@@ -386,24 +386,24 @@ function OpenInteractionMenu()
             elseif action2 == 'put_vehicle' then
               local closestPlayer, distance = ESX.Game.GetClosestPlayer()
               if closestPlayer ~= -1 and distance <= 2 then
-                TriggerServerEvent('putInVehicle', GetPlayerServerId(closestPlayer))
+                TriggerServerEvent('yp_userinteraction:putInVehicle', GetPlayerServerId(closestPlayer))
               end
             elseif action2 == 'pull_vehicle' then
               local closestPlayer, distance = ESX.Game.GetClosestPlayer()
               if closestPlayer ~= -1 and distance <= 2 then
-                TriggerServerEvent('pullOutVehicle', GetPlayerServerId(closestPlayer))
+                TriggerServerEvent('yp_userinteraction:pullOutVehicle', GetPlayerServerId(closestPlayer))
               end
             elseif action2 == 'search' then
               local closestPlayer, distance = ESX.Game.GetClosestPlayer()
               if closestPlayer ~= -1 and distance <= 3 then
                 if cuffsToSearch then
                   if IsPedCuffed(GetPlayerPed(closestPlayer)) then
-                    TriggerServerEvent('getPlayerInventory', closestPlayer)
+                    TriggerServerEvent('yp_userinteraction:getPlayerInventory', closestPlayer)
                   else
                     exports['mythic_notify']:DoHudText('error', 'Player not Cuffed!')
                   end
                 else
-                  TriggerServerEvent('getPlayerInventory', closestPlayer)
+                  TriggerServerEvent('yp_userinteraction:getPlayerInventory', closestPlayer)
                 end
               else
                 exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')

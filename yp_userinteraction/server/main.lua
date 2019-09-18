@@ -72,26 +72,26 @@ end)
 RegisterServerEvent('escort')
 AddEventHandler('escort', function(target)
   local source = source
-  TriggerClientEvent('yp_userinteractin:escort', target, source)
+  TriggerClientEvent('yp_userinteraction:escort', target, source)
   
 end)
 
-RegisterServerEvent('putInVehicle')
-AddEventHandler('putInVehicle', function(target)
+RegisterServerEvent('yp_userinteraction:putInVehicle')
+AddEventHandler('yp_userinteraction:putInVehicle', function(target)
   local source = source
   TriggerClientEvent('putInVehicle', target)
   
 end)
 
-RegisterServerEvent('pullOutVehicle')
-AddEventHandler('pullOutVehicle', function(target)
+RegisterServerEvent('yp_userinteraction:pullOutVehicle')
+AddEventHandler('yp_userinteraction:pullOutVehicle', function(target)
   local source = source
   TriggerClientEvent('pullOutVehicle', target)
   
 end)
 
-RegisterServerEvent('getPlayerInventory')
-AddEventHandler('getPlayerInventory', function(target)
+RegisterServerEvent('yp_userinteraction:getPlayerInventory')
+AddEventHandler('yp_userinteraction:getPlayerInventory', function(target)
   local source = source
   local xPlayer = ESX.GetPlayerFromId(target + 1)
   local targetInv = {inventory = xPlayer.inventory, weapons = xPlayer.loadout, accounts = xPlayer.accounts}

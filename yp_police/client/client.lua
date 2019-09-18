@@ -60,16 +60,35 @@ function openJobMenu()
 				elseif action2 == 'viewid' then
 					--Viewid code
 				elseif action2 == 'search' then
-					--Search code
+					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+		            if closestPlayer ~= -1 and distance <= 3 then
+		                if cuffsToSearch then
+		                  	if IsPedCuffed(GetPlayerPed(closestPlayer)) then
+		                    	TriggerServerEvent('yp_userinteraction:getPlayerInventory', closestPlayer)
+		                  	else
+		                    	exports['mythic_notify']:DoHudText('error', 'Player not Cuffed!')
+		                  	end
+		                else
+		                  	TriggerServerEvent('yp_userinteraction:getPlayerInventory', closestPlayer)
+		                end
+		            else
+		             	exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')
+		            end
 				elseif action2 == 'escort' then
 					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
 					if closestPlayer ~= -1 and distance < 3.0 then
 						TriggerServerEvent('yp_police:escort', GetPlayerServerId(closestPlayer))
 					end
 				elseif action2 == 'putveh' then
-					--Put player in vehicle
+					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+		            if closestPlayer ~= -1 and distance <= 2 then
+		            	TriggerServerEvent('yp_userinteraction:putInVehicle', GetPlayerServerId(closestPlayer))
+		            end
 				elseif action2 == 'pullveh' then
-					--Pull from vehicle
+					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+		            if closestPlayer ~= -1 and distance <= 2 then
+		            	TriggerServerEvent('yp_userinteraction:pullOutVehicle', GetPlayerServerId(closestPlayer))
+		            end
 				elseif action2 == 'fine' then
 					--Issue a player a fine
 				else
@@ -140,15 +159,15 @@ Citizen.CreateThread(function()
 
 		--Draw Markers
 		if Vdist(pos.x, pos.y, pos.z, 477.8778, -984.2165, 24.9147) < 20 then --Evidence Locker
-			DrawMarker(1, 477.8778, -984.2165, 23.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			DrawMarker(1, 477.8778, -984.2165, 23.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
 		end
 
 		if Vdist(pos.x, pos.y, pos.z, 452.0335, -980.3474, 30.6896) < 20 then -- Armory
-			DrawMarker(1, 452.0335, -980.3474, 29.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			DrawMarker(1, 452.0335, -980.3474, 29.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
 		end
 
 		if Vdist(pos.x, pos.y, pos.z, 451.0890, -992.4544, 30.6896) < 20 then
-			DrawMarker(1, 451.0890, -992.4544, 29.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			DrawMarker(1, 451.0890, -992.4544, 29.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
 		end
 
 		--Listners
