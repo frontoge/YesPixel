@@ -58,7 +58,10 @@ function openJobMenu()
 						TriggerServerEvent('yp_police:uncuffPlayer', GetPlayerServerId(closestPlayer))
 					end
 				elseif action2 == 'viewid' then
-					--Viewid code
+					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+					if closestPlayer ~= -1 and distance < 3.0 then
+						TriggerServerEvent('yp_police:getPlayerInfo', GetPlayerServerId(closestPlayer))
+					end
 				elseif action2 == 'search' then
 					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
 		            if closestPlayer ~= -1 and distance <= 3 then
@@ -106,7 +109,8 @@ function openJobMenu()
 					{label = 'Get Registration', value = 'registration'},
 					{label = 'Impound Vehicle', value = 'impound'},
 					{label = 'Search Trunk', value = 'search_trunk'},
-					{label = 'Search Glovebox', value = 'search_glovebox'}
+					{label = 'Search Glovebox', value = 'search_glovebox'},
+					{label = 'Lockpick', value = 'lockpick'}
 				}},
 			function(data2, menu2)
 				local action2 = data2.current.value
@@ -117,8 +121,10 @@ function openJobMenu()
 
 				elseif action2 == 'search_trunk' then
 
-				else
+				elseif action2 == 'search_glovebox' then
 
+				else
+					--lockpick
 				end
 			end,
 			function(data2, menu2)
@@ -144,6 +150,22 @@ end)
 RegisterNetEvent('yp_police:openJobMenu')
 AddEventHandler('yp_police:openJobMenu', function()
 	openJobMenu()
+end)
+
+RegisterNetEvent('yp_police:viewId')
+AddEventHandler('yp_police:viewId', function(data)
+
+	if data.sex == 'm' then
+		data.sex = 'Male'
+	else
+		data.sex = 'Female'
+	end
+
+	exports['mythic_notify']:DoLongHudText('inform', 'Name: ' .. data.firstname .. ' ' .. data.lastname)
+	exports['mythic_notify']:DoLongHudText('inform', 'Job: ' .. data.job)
+	exports['mythic_notify']:DoLongHudText('inform',  'DOB: ' .. data.dob)
+  	exports['mythic_notify']:DoLongHudText('inform', 'Sex: ' .. data.sex)
+  	exports['mythic_notify']:DoLongHudText('inform', 'Height: ' .. data.height .. 'cm')
 end)
 
 --Main
