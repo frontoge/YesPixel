@@ -1,3 +1,9 @@
+--[[ Copyright (C) Matthew Widenhouse - All Rights Reserved
+ * Unauthorized copying of this file, without written consent from the owner, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
+]]--
+
 local bank = {
 	startOne = {x = 257.2599, y = 219.9673, z = 106.3239, picked = false, picking = false, model = -222270721},--10750383
 	startTwo = {x = 256.5676, y = 207.2012, z = 110.2830, picked = false, picking = false, model = 1956494919},--1250858883

@@ -1,3 +1,9 @@
+--[[ Copyright (C) Matthew Widenhouse - All Rights Reserved
+ * Unauthorized copying of this file, without written consent from the owner, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
+]]--
+
 --Config Locals
 local IdleDecay = 0.0001--Engine Percentage that will be lost per second
 local DecayMultiplier = 0.0002--Multiplier affecting the rate engine decay while moving, Higher the number faster the decay.
