@@ -60,8 +60,8 @@ AddEventHandler('toggledoor', function(doornumber)
     
 end)
 
-RegisterNetEvent('lockpickvehicle')
-AddEventHandler('lockpickvehicle', function()
+RegisterNetEvent('yp_userinteraction:lockpickvehicle')
+AddEventHandler('yp_userinteraction:lockpickvehicle', function()
     local vehicle = ESX.Game.GetVehicleInDirection()
       if DoesEntityExist(vehicle) then
         local playerPed = GetPlayerPed(-1)
@@ -216,7 +216,7 @@ AddEventHandler('showPlayerInventory', function(target, targetInv)
       elements = elements},
     function(data, menu)
       TriggerServerEvent('takePlayerItem', data.current.value, data.current.amount, data.current.itemType, target)
-      TriggerServerEvent('getPlayerInventory', target)
+      TriggerServerEvent('yp_userinteraction:getPlayerInventory', target)
     end,
     function(data, menu)
       menu.close()

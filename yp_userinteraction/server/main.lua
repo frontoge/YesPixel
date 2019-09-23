@@ -32,10 +32,10 @@ AddEventHandler('checkforpick', function()
   local source = source
   local xPlayer = ESX.GetPlayerFromId(source)
   if xPlayer.job.name == 'police' or xPlayer.job.name == 'fib' or xPlayer.job.name == 'medical' or xPlayer.job.name == 'sheriff' then
-    TriggerClientEvent('lockpickvehicle', source)
+    TriggerClientEvent('yp_userinteraction:lockpickvehicle', source)
   elseif xPlayer.getInventoryItem('lockpick').count >= 1 then
     xPlayer.removeInventoryItem('lockpick', 1)
-    TriggerClientEvent('lockpickvehicle', source)
+    TriggerClientEvent('yp_userinteraction:lockpickvehicle', source)
   else
     TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'You need a lockpick!' })
   end
@@ -210,8 +210,7 @@ ESX.RegisterUsableItem('idcard', function(source)
 end)
 
 ESX.RegisterUsableItem('lockpick', function(source)
-  local xPlayer = ESX.GetPlayerFromId(source)
-  xPlayer.removeInventoryItem('lockpick', 1)
-  TriggerClientEvent('lockpickvehicle', source)
+  
+  TriggerClientEvent('yp_userinteraction:lockpickvehicle', source)
     
 end)

@@ -54,3 +54,12 @@ AddEventHandler('yp_police:getPlayerInfo', function(target)
       end)
 
 end)
+
+RegisterServerEvent('yp_police:getInvData')
+AddEventHandler('yp_police:getInvData', function()
+     local src = source
+     local xPlayer = ESX.GetPlayerFromId(src)
+     local invData = {inventory = xPlayer.inventory, weapons = xPlayer.loadout, accounts = xPlayer.accounts}
+     TriggerClientEvent('yp_police:showPlayerInv', src, invData)
+end)
+

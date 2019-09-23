@@ -1,4 +1,7 @@
 local playerReady = false
+local invData = {}
+
+
 --ESX Init
 ESX = nil
 
@@ -48,15 +51,19 @@ function openJobMenu()
 			function(data2, menu2)
 				local action2 = data2.current.value
 				if action2 == 'cuff' then
+
 					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
 					if closestPlayer ~= -1 and distance < 3.0 then
 						TriggerServerEvent('yp_police:cuffPlayer', GetPlayerServerId(closestPlayer))
 					end
+
 				elseif action2 == 'uncuff' then
+
 					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
 					if closestPlayer ~= -1 and distance < 3.0 then
 						TriggerServerEvent('yp_police:uncuffPlayer', GetPlayerServerId(closestPlayer))
 					end
+
 				elseif action2 == 'viewid' then
 					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
 					if closestPlayer ~= -1 and distance < 3.0 then
@@ -118,13 +125,25 @@ function openJobMenu()
 					--Registration Code
 
 				elseif action2 == 'impound' then
-
+					local vehicle = ESX.Game.GetVehicleInDirection()
+					if DoesEntityExist(vehicle) then
+						Citizen.CreateThread(function()
+							exports['progressBars']:startUI(10000, "Impounding...")
+							TaskStartScenarioInPlace(playerPed, 'WORLD_HUMAN_GARDNER_PLANT', 0, true)
+					        Citizen.Wait(10000)
+					        ClearPedTasksImmediately(playerPed)
+						end)
+						
+					else
+						exports['mythic_notify']:DoHudText('error', 'There is no vehicle nearby')
+					end
 				elseif action2 == 'search_trunk' then
 
 				elseif action2 == 'search_glovebox' then
 
 				else
-					--lockpick
+					TriggerEvent('yp_userinteraction:lockpickvehicle')
+
 				end
 			end,
 			function(data2, menu2)
@@ -168,6 +187,57 @@ AddEventHandler('yp_police:viewId', function(data)
   	exports['mythic_notify']:DoLongHudText('inform', 'Height: ' .. data.height .. 'cm')
 end)
 
+RegisterNetEvent('yp_police:showPlayerInv')
+AddEventHandler('yp_police:showPlayerInv', function(invData)
+	local inventory = targetInv.inventory
+	local weapons = targetInv.weapons
+	local accounts = targetInv.accounts
+				  
+	for i=1, #accounts, 1 do
+		if accounts[i].name == 'black_money' and accounts[i].money > 0 then
+			table.insert(invData, {
+			label    = ('Dirty Money: $' .. tostring(ESX.Math.Round(accounts[i].money))),
+			value    = 'black_money',
+			amount   = ESX.Math.Round(accounts[i].money),
+			itemType = 'account'
+			})
+			break
+		end
+	end
+				  
+	for i=1, #weapons, 1 do
+		table.insert(invData, {
+		label = (weapons[i].label .. ' [' .. tostring(weapons[i].ammo) .. ']'),
+		value = weapons[i].name,
+		amount = weapons[i].ammo,
+		itemType = 'weapon'
+		})
+	end
+				  
+	for i=1, #inventory, 1 do
+		if inventory[i].count > 0 then
+			table.insert(invData, {
+			label = (inventory[i].label .. ' x' .. tostring(inventory[i].count)),
+			value = inventory[i].name,
+			amount = inventory[i].count,
+			itemType = 'item'
+			})
+		end
+	end
+
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'evidence_menu', {
+		title = 'Evidence Locker',
+		align = 'bottom-right', 
+		elements = invData
+		}, function(data, menu)
+			TriggerServerEvent('yp_police:depostItem', data.value, data.amount, data.itemType)
+			TriggerServerEvent('yp_police:getInvData')
+		end,
+		function(data, menu)
+			menu.close()
+		end)
+end)
+
 --Main
 Citizen.CreateThread(function()
 	while not playerReady do
@@ -201,8 +271,9 @@ Citizen.CreateThread(function()
 		if Vdist(pos.x, pos.y, pos.z, 477.8778, -984.2165, 24.9147) < 1 then
 			DisplayHelpText("Press ~INPUT_CONTEXT~ to access Deposit Evidence")
 			if IsControlJustPressed(0,51) then
-				--Open Evidence Locker
+				TriggerServerEvent('yp_police:getInvData')
 			end
+				
 		elseif Vdist(pos.x, pos.y, pos.z, 452.0335, -980.3474, 30.6896) < 1 then
 			DisplayHelpText("Press ~INPUT_CONTEXT~ to access the Armory")
 			if IsControlJustPressed(0,51) then
