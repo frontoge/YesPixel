@@ -11,15 +11,6 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 
 --Events
-RegisterServerEvent('yp_police:startJobMenu')
-AddEventHandler('yp_police:startJobMenu', function()
-	local src = source
-	local xPlayer = ESX.GetPlayerFromId(src)
-	if xPlayer.job.name == 'police' then
-		TriggerClientEvent('yp_police:openJobMenu', src)
-	end
-end)
-
 RegisterServerEvent('yp_police:cuffPlayer')
 AddEventHandler('yp_police:cuffPlayer', function(target)
 	TriggerClientEvent('yp_userinteraction:getcuffed', target)
@@ -67,5 +58,29 @@ AddEventHandler('yp_police:getInvData', function()
      local xPlayer = ESX.GetPlayerFromId(src)
      local invData = {inventory = xPlayer.inventory, weapons = xPlayer.loadout, accounts = xPlayer.accounts}
      TriggerClientEvent('yp_police:showPlayerInv', src, invData)
+end)
+
+RegisterServerEvent('yp_police:depositItem')
+AddEventHandler('yp_police:depositItem', function(value, amount, itemType)
+     local xPlayer = ESX.GetPlayerFromId(source)
+     if itemType == 'item' then
+          xPlayer.removeInventoryItem(value, amount)
+     elseif itemType == 'weapon' then
+          xPlayer.removeWeapon(value, 0)
+     elseif itemType == 'account' then
+          xPlayer.removeAccountMoney(value, amount)
+     end
+end)
+
+RegisterServerEvent('yp_police:buyWeapon')
+AddEventHandler('yp_police:buyWeapon', function(weaponName, cost)
+     local src = source
+     local xPlayer = ESX.GetPlayerFromId(src)
+     --Charge the city
+     TriggerEvent('esx_addonaccount:getSharedAccount', 'society_city', function(account)
+          account.removeMoney(cost)
+     end)
+     --Give The weapon
+     xPlayer.addWeapon(weaponName, 250)
 end)
 
