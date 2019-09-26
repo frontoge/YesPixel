@@ -5,8 +5,10 @@
 ]]--
 
 cost = 10000 --Cost of a weapon shipment
-dropTime = 10 -- Amount of time in minutes for the weapon shipment to arrive
+dropTime = 1 -- Amount of time in minutes for the weapon shipment to arrive
+dropAmount = 10 --Amount of parts per weapon shipment
+
+weaponParts = {"gunbarrel", "gungrip", "gunspring", "gunstock"} --The different item names you can recieve from a crate
 
 
 --Dont touch this or you going to break the script
-dropCount = #dropSpots
