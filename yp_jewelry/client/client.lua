@@ -163,7 +163,7 @@ Citizen.CreateThread(function()
     if Vdist(pos.x, pos.y, pos.z, -631.1049, -237.5149, 38.0796) < 1 then
       TriggerServerEvent('leaveStore')
     end
-    if Vdist(pos.x, pos.y, pos.z, 706.5156, -965.3642, 30.4128) <= 5 then
+    if Vdist(pos.x, pos.y, pos.z, 1109.9660, -2008.2534, 31.0616) <= 5 then
       if not sellingJewels then
         TriggerServerEvent('sellJewelry')
         sellingJewels = true

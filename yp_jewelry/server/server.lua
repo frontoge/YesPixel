@@ -6,11 +6,10 @@
 
 local beingRobbed = false
 local onCooldown = false
-local firstSell = true
 local firstCase = true
-local cooldownMax = 2 * 60 --Minutes until store is robbable
+local cooldownMax = 45 * 60 --Minutes until store is robbable
 local cooldown = cooldownMax
-local copMin = 1
+local copMin = 3
 local copsOn = 0
 local casesBroken = 0
 local robbers = {}
@@ -31,7 +30,7 @@ function resetStore()
   copsOn = 0
   TriggerClientEvent('resetCases', -1)
 
-end 
+end
   
 function doCooldown()
   onCooldown = true
@@ -154,10 +153,10 @@ AddEventHandler('robCase', function(caseNumber, weaponClass)
   elseif weaponClass == 3 then
     if(itemChoice <= 7) then --7% chance of VG
       xPlayer.addInventoryItem('valuablegoods', math.random(1, 4))--Amount of VG
-    elseif itemChoice <= 67 then --60% of Rolex
-      xPlayer.addInventoryItem('rolex', math.random(15, 20))--Amount of rolex
-    elseif itemChoice <= 80 then -- 13% of Goldchain
-      xPlayer.addInventoryItem('goldchain', math.random(10, 25))--Amount of goldchain+
+    elseif itemChoice <= 57 then --50% of Rolex
+      xPlayer.addInventoryItem('rolex', math.random(10, 15))--Amount of rolex
+    elseif itemChoice <= 80 then -- 23% of Goldchain
+      xPlayer.addInventoryItem('goldchain', math.random(10, 20))--Amount of goldchain+
     else
       TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'There was nothing in the case!', length = 2500})
     end
@@ -213,10 +212,10 @@ AddEventHandler('sellJewelry', function()
         end
         --Sell Rolex
         if xPlayer.getInventoryItem('rolex').count > 0 then
-          if xPlayer.getInventoryItem('rolex').count >=5 then
-            xPlayer.removeInventoryItem('rolex', 5)
-            xPlayer.addMoney(rolexPrice * 5)
-            totalSales = totalSales + rolexPrice * 5
+          if xPlayer.getInventoryItem('rolex').count >=10 then
+            xPlayer.removeInventoryItem('rolex', 10)
+            xPlayer.addMoney(rolexPrice * 10)
+            totalSales = totalSales + rolexPrice * 10
           else
             xPlayer.removeInventoryItem('rolex', xPlayer.getInventoryItem('rolex').count)
             xPlayer.addMoney(rolexPrice * xPlayer.getInventoryItem('rolex').count)
@@ -226,10 +225,10 @@ AddEventHandler('sellJewelry', function()
         --Sell Goldchains
         if xPlayer.getInventoryItem('goldchain').count > 0 then
           jewelryToSell = true
-          if xPlayer.getInventoryItem('goldchain').count >=5 then
-            xPlayer.removeInventoryItem('goldchain', 5)
-            xPlayer.addMoney(chainPrice * 5)
-            totalSales = totalSales + chainPrice * 5
+          if xPlayer.getInventoryItem('goldchain').count >=10 then
+            xPlayer.removeInventoryItem('goldchain', 10)
+            xPlayer.addMoney(chainPrice * 10)
+            totalSales = totalSales + chainPrice * 10
           else
             xPlayer.removeInventoryItem('goldchain', xPlayer.getInventoryItem('goldchain').count)
             xPlayer.addMoney(chainPrice * xPlayer.getInventoryItem('goldchain').count)
