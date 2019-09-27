@@ -99,7 +99,7 @@ end)
 RegisterServerEvent('yp_userinteraction:getPlayerInventory')
 AddEventHandler('yp_userinteraction:getPlayerInventory', function(target)
   local source = source
-  local xPlayer = ESX.GetPlayerFromId(target)
+  local xPlayer = ESX.GetPlayerFromId(target+1)
   local targetInv = {inventory = xPlayer.inventory, weapons = xPlayer.loadout, accounts = xPlayer.accounts}
   
   TriggerClientEvent('showPlayerInventory', source, target, targetInv)
