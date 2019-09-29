@@ -10,11 +10,10 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 RegisterServerEvent('yp_base:playerReady')
 AddEventHandler('yp_base:playerReady', function()
   local src = source
-  TriggerClientEvent('yp_jewelry:playerReady', src)
+  TriggerClientEvent('yp_base:disableHPRegen', src)
   TriggerClientEvent('yp_bankrob:playerReady', src)
   TriggerClientEvent('yp_swedbank:playerReady', src)
   TriggerClientEvent('yp_police:playerReady', src)
-  TriggerClientEvent('yp_gunrunning:playerReady', src)
 end)
 
 RegisterCommand('job', function(source, args)

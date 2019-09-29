@@ -5,7 +5,6 @@
 ]]--
 
 --Script locals
-local playerReady = true
 local blipDrop = nil
 
 --ESX init
@@ -43,10 +42,6 @@ function DisplayHelpText(str)
 end
 
 --Events
-RegisterNetEvent('yp_gunrunning:playerReady')
-AddEventHandler('yp_gunrunning:playerReady', function()
-	playerReady = true;
-end)
 
 RegisterNetEvent('yp_gunrunning:clearDrop')
 AddEventHandler('yp_gunrunning:clearDrop', function(drop)
@@ -76,10 +71,6 @@ end)
 
 --Main Thread
 Citizen.CreateThread(function()
-	while not playerReady do
-		Citizen.Wait(0)
-	end
-
 	while true do
 		local activeDrop, dropNumber = getActiveDrops()
 		local playerPed = GetPlayerPed(-1)

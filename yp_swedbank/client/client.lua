@@ -492,9 +492,9 @@ Citizen.CreateThread(function( )
 		Citizen.Wait(0)
 	end
 	--declarations for main loop
-	local playerPed = GetPlayerPed(-1)
 	local pos = nil
 	while true do--main loop
+		local playerPed = GetPlayerPed(-1)
 		pos = GetEntityCoords(playerPed)
 		if Vdist(pos.x, pos.y, pos.z, 241.0, 220.0, 106.0) < 25 and not updatedDoors then
 			TriggerServerEvent('yp_swedbank:getDoorStatus')

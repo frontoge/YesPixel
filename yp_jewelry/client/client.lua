@@ -5,7 +5,6 @@
 ]]--
 
 local collecting = false
-local playerReady = false
 local blipRobbery = nil
 
 class0Wep = {'WEAPON_KNIFE', 'WEAPON_NIGHTSTICK', 'WEAPON_HAMMER', 'WEAPON_BAT', 'WEAPON_GOLFCLUB', 'WEAPON_CROWBAR'}
@@ -89,10 +88,6 @@ function loadAnimDict( dict )
 end 
 
 --Events
-RegisterNetEvent('yp_jewelry:playerReady')
-AddEventHandler('yp_jewelry:playerReady', function()
-  playerReady = true
-end)
 
 RegisterNetEvent('breakCase')
 AddEventHandler('breakCase', function(caseNumber)
@@ -143,11 +138,8 @@ end)
 
 --Main Thread 
 Citizen.CreateThread(function()
-  while not playerReady do
-    Citizen.Wait(0)
-  end
-  local playerPed = GetPlayerPed(-1)
   while true do --Every Frame Loop
+    local playerPed = GetPlayerPed(-1)
     local pos = GetEntityCoords(playerPed)
     for i, v in ipairs(cases) do
       if Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z) < 0.5 and not collecting then
