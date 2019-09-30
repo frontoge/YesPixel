@@ -4,8 +4,9 @@
  * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
 ]]--
 
-local playerReady = true
 local isPolice = true
+local inUniform = false
+local isBoss = true
 local invData = {}
 local pdBlip = nil
 
@@ -40,6 +41,7 @@ function DisplayHelpText(str)
 	AddTextComponentString(str)
 	DisplayHelpTextFromStringLabel(0, 0, 1, -1)
 end
+
 
 function openJobMenu()
 	ESX.UI.Menu.CloseAll()
@@ -118,7 +120,19 @@ function openJobMenu()
 		            	TriggerServerEvent('yp_userinteraction:pullOutVehicle', GetPlayerServerId(closestPlayer))
 		            end
 				elseif action2 == 'fine' then
-					--Issue a player a fine
+					ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'fine_player', {title = 'Enter Fine Amount'},
+						function(data3, menu3)
+							menu3.close()
+							local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+							if (closestPlayer ~= -1 and distance < 3.0) then
+								TriggerServerEvent('esx_billing:sendBill', GetPlayerServerId(closestPlayer), 'society_city', 'PD Fine', data3.value)
+							else
+								exports['mythic_notify']:DoHudText('error', 'There is no player nearby!')
+							end
+						end,
+						function(data3, menu3)
+
+						end)
 				else
 					--Jailmenu
 				end
@@ -133,14 +147,20 @@ function openJobMenu()
 				elements = {
 					{label = 'Get Registration', value = 'registration'},
 					{label = 'Impound Vehicle', value = 'impound'},
-					{label = 'Search Trunk', value = 'search_trunk'},
 					{label = 'Search Glovebox', value = 'search_glovebox'},
 					{label = 'Lockpick', value = 'lockpick'}
 				}},
 			function(data2, menu2)
 				local action2 = data2.current.value
 				if action2 == 'registration' then
-					--Registration Code
+					local pos = GetEntityCoords(GetPlayerPed(-1))
+					local vehicle = GetClosestVehicle(pos.x, pos.y, pos.z, 3.0, 0, 70)
+					if vehicle ~= nil then
+						TriggerServerEvent('yp_police:getRegistration', GetVehicleNumberPlateText(vehicle))
+					else
+						exports['mythic_notify']:DoHudText('error', 'No vehicle nearby!')
+					end
+
 
 				elseif action2 == 'impound' then
 					local vehicle = ESX.Game.GetVehicleInDirection()
@@ -156,8 +176,6 @@ function openJobMenu()
 					else
 						exports['mythic_notify']:DoHudText('error', 'There is no vehicle nearby')
 					end
-				elseif action2 == 'search_trunk' then
-
 				elseif action2 == 'search_glovebox' then
 
 				else
@@ -171,7 +189,7 @@ function openJobMenu()
 		elseif action == 'object' then
 			--Start Object spawner menu
 		else
-			--Start CAD
+			TriggerServerEvent('startCad')
 		end
 	end,
 	function(data, menu)
@@ -211,10 +229,68 @@ function armoryMenu()
 		end)
 end
 
+function vehicleMenu()
+	local elements = pdVehicles
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_spawner', {
+		title = 'Vehicle Spawner',
+		align = 'bottom-right', 
+		elements = elements},
+
+		function(data, menu)
+			Citizen.CreateThread(function()
+				local vehicle = GetHashKey(data.current.value)
+				RequestModel(vehicle)
+				while not HasModelLoaded(vehicle) do
+					Citizen.Wait(0)
+				end
+				CreateVehicle(vehicle, 442.6445, -1018.7537, 28.6769, 1.0, true, true)
+			end)
+		end,
+		function(data, menu)
+			menu.close()
+		end)
+end
+
+function medicalMenu()
+	local elements = medSupplies
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'medical_menu', {
+		title = 'Medical Supplies',
+		align = 'bottom-right',
+		elements = elements},
+		function(data, menu)
+			TriggerServerEvent('yp_police:buyMeds', data.current.value, data.current.cost)
+		end,
+		function(data, menu)
+			menu.close()
+		end)
+end
+
+function healPlayer()
+	local ped = GetPlayerPed(-1)
+	Citizen.CreateThread(function()
+		DoScreenFadeOut(2000)
+		Citizen.Wait(11000)
+		SetEntityHealth(ped, GetEntityMaxHealth(ped))
+		DoScreenFadeIn(2000)
+	end)
+end
+
+function heliMenu()
+	Citizen.CreateThread(function()
+		local vehicle = GetHashKey('polmav')
+		RequestModel(vehicle)
+		while not HasModelLoaded(vehicle) do
+			Citizen.Wait(0)
+		end
+		CreateVehicle(vehicle, 449.3225, -981.2054, 43.6917, 1.0, true, true)
+	end)
+end
+
+
+
 --Events
 RegisterNetEvent('yp_police:playerReady')
 AddEventHandler('yp_police:playerReady', function()
-	playerReady = true
 	TriggerServerEvent('yp_police:getUserJob')
 end)
 
@@ -298,23 +374,67 @@ end)
 
 RegisterNetEvent('yp_police:onDuty')
 AddEventHandler('yp_police:onDuty', function()
-	isPolice = true
+	if not isPolice then
+		isPolice = true
+		exports['mythic_notify']:DoHudText('success', 'You are now on duty!')
+	else
+		exports['mythic_notify']:DoHudText('error', 'You are already on duty!')
+	end
 end)
 
 RegisterNetEvent('yp_police:offDuty')
 AddEventHandler('yp_police:offDuty', function()
-	isPolice = false
+	if isPolice then
+		isPolice = false
+		exports['mythic_notify']:DoHudText('error', 'You are now off duty!')
+	else
+		exports['mythic_notify']:DoHudText('error', 'You are already off duty!')
+	end
+end)
+
+RegisterNetEvent('yp_police:changeUniform')
+AddEventHandler('yp_police:changeUniform', function(skin)
+	TriggerEvent('skinchanger:loadSkin', skin)
+
+	inUniform = true
+
+end)
+
+RegisterNetEvent('yp_police:outUniform')
+AddEventHandler('yp_police:outUniform', function(skin)
+	TriggerEvent('skinchanger:loadSkin', skin)
+	
+
+	inUniform = false
+
+end)
+
+RegisterNetEvent('yp_police:getHired')
+AddEventHandler('yp_police:getHired', function()
+	isPolice = true
+end)
+
+RegisterNetEvent('yp_police:makeBoss')
+AddEventHandler('yp_police:makeBoss', function()
+	isBoss = true
+end)
+
+RegisterNetEvent('yp_police:showPlayerName')
+AddEventHandler('yp_police:showPlayerName', function(name)
+	exports['mythic_notify']:DoHudText('inform', 'This vehicle belongs to ' .. name)
+end)
+
+RegisterNetEvent('yp_police:setJob')
+AddEventHandler('yp_police:setJob', function(status)
+	isPolice = status
 end)
 
 --Main
 Citizen.CreateThread(function()
-	while not playerReady do
-		Citizen.Wait(0)
-	end
-	local playerPed = GetPlayerPed(-1)
 	local pos = nil
 
 	while true do--Main Loop
+		local playerPed = GetPlayerPed(-1)
 		pos = GetEntityCoords(playerPed)
 
 		--Draw Markers
@@ -326,26 +446,42 @@ Citizen.CreateThread(function()
 			DrawMarker(1, 452.0335, -980.3474, 29.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
 		end
 
-		if Vdist(pos.x, pos.y, pos.z, 451.0890, -992.4544, 30.6896) < 20 then
+		if Vdist(pos.x, pos.y, pos.z, 451.0890, -992.4544, 30.6896) < 20 then -- Locker room
 			DrawMarker(1, 451.0890, -992.4544, 29.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
 		end
 
-		if Vdist(pos.x, pos.y, pos.z, 454.8623, -1017.3440, 28.4261) < 20 then -- Car Spawner
+		if Vdist(pos.x, pos.y, pos.z, 454.8623, -1017.3440, 28.4261) < 30 then -- Car Spawner
 			DrawMarker(36, 454.8623, -1017.3440, 28.4261, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0, 0, 255, 100, false, false, 2, true, nil, nil, false)
 		end
+
+		if Vdist(pos.x, pos.y, pos.z, 463.4964, -982.4035, 43.6920) < 30 then -- Heli Spawner 
+			DrawMarker(34, 463.4964, -982.4035, 43.6920, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0, 0, 255, 100, false, false, 2, true, nil, nil, false)
+		end
+
+		if Vdist(pos.x, pos.y, pos.z, 462.7208, -1017.0921, 28.0829) < 20 then -- Car Return
+			DrawMarker(1, 462.7208, -1017.0921, 27.0829, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.5, 255, 0, 0, 100, false, false, 2, false, nil, nil, false)
+		end
+
+		if Vdist(pos.x, pos.y, pos.z, 459.5682, -975.8306, 35.9310) < 20 then -- on/off duty
+			DrawMarker(1, 459.5682, -975.8306, 34.9310, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+		end
+
+		if Vdist(pos.x, pos.y, pos.z, 435.8352, -973.4408, 26.6685) < 20 then -- Medical supply room
+			DrawMarker(1, 435.8352, -973.4408, 25.6685, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+		end
+
 
 		--Listners
 		if isPolice then
 			if IsControlJustPressed(0, 167) then
-				TriggerEvent('yp_police:openJobMenu')
+				openJobMenu()
 			end
 
 			if Vdist(pos.x, pos.y, pos.z, 477.8778, -984.2165, 24.9147) < 1 then
 				DisplayHelpText("Press ~INPUT_CONTEXT~ to access Deposit Evidence")
 				if IsControlJustPressed(0,51) then
 					TriggerServerEvent('yp_police:getInvData')
-				end
-						
+				end		
 			elseif Vdist(pos.x, pos.y, pos.z, 452.0335, -980.3474, 30.6896) < 1 then
 				DisplayHelpText("Press ~INPUT_CONTEXT~ to access the Armory")
 				if IsControlJustPressed(0,51) then
@@ -354,15 +490,81 @@ Citizen.CreateThread(function()
 			elseif Vdist(pos.x, pos.y, pos.z, 451.0890, -992.4544, 30.6896) < 1 then
 				DisplayHelpText("Press ~INPUT_CONTEXT~ to change your outfit")
 				if IsControlJustPressed(0,51) then
-					--Open Locker rooms
+					if not inUniform then
+						TriggerServerEvent('yp_police:getUniform')
+						exports['mythic_notify']:DoHudText('inform', 'You are now in uniform.')
+					else
+						TriggerServerEvent('yp_police:getPlainSkin')
+						exports['mythic_notify']:DoHudText('inform', 'You are now out of uniform.')
+					end
 				end
 			elseif Vdist(pos.x, pos.y, pos.z, 454.8623, -1017.3440, 28.4261) < 1 then -- Car Spawner
 				DisplayHelpText("Press ~INPUT_CONTEXT~ to get a car")
 				if IsControlJustPressed(0,51) then
-					--Open Vehicle spawner
+					vehicleMenu()
+				end	
+			elseif Vdist(pos.x, pos.y, pos.z, 439.3706, -976.5902, 26.6685) < 1 then --Heal spot
+				DisplayHelpText("Press ~INPUT_CONTEXT~ to get medical treatment")
+				if IsControlJustPressed(0,51) then
+					healPlayer()
+				end
+			elseif Vdist(pos.x, pos.y, pos.z, 435.8352, -973.4408, 26.6685) < 1 then --Medical supplies
+				DisplayHelpText("Press ~INPUT_CONTEXT~ to get medical supplies")
+				if IsControlJustPressed(0,51) then
+					medicalMenu()
+				end
+			elseif Vdist(pos.x, pos.y, pos.z, 463.4964, -982.4035, 43.6920) < 1 then -- Heli Spawner
+				DisplayHelpText("Press ~INPUT_CONTEXT~ to get a helicopter")
+				if IsControlJustPressed(0,51) then
+					heliMenu()
+				end
+			end
+
+			if IsPedInAnyVehicle(playerPed, false) then
+				local vehicle = ESX.Game.GetClosestVehicle()
+				if GetPedInVehicleSeat(vehicle, -1) == playerPed then
+					if Vdist(pos.x, pos.y, pos.z, 462.7208, -1017.0921, 28.0829) < 3 then
+						DisplayHelpText("Press ~INPUT_CONTEXT~ to return a vehicle")
+						if IsControlJustPressed(0,51) then
+							ESX.Game.DeleteVehicle(vehicle)
+						end
+					end
 				end
 			end
 		end
-			Citizen.Wait(0)
+
+		if Vdist(pos.x, pos.y, pos.z, 459.5682, -975.8306, 35.9310) < 1 then -- on/offduty
+			if isPolice then
+				DisplayHelpText("Press ~INPUT_CONTEXT~ to go Off Duty")
+				
+			else
+				DisplayHelpText("Press ~INPUT_CONTEXT~ to go On Duty")
+			end
+			if IsControlJustPressed(0,51) then
+				TriggerServerEvent('yp_police:toggleDuty', isPolice)
+			end
+		end
+
+		if isBoss and Vdist(pos.x, pos.y, pos.z, 461.8731, -1007.7943, 35.9311) < 1 then
+			DisplayHelpText("Press ~INPUT_CONTEXT~ to hire someone")
+			if IsControlJustPressed(0,51) then
+				ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'id_input', {title = 'Enter ID of Player'},
+					function(data, menu)
+						menu.close()
+						ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'grade_input', {title = 'Enter Job Grade'},
+							function(data2, menu2)
+								menu2.close()
+								TriggerServerEvent('yp_police:hirePlayer', tonumber(data.value), tonumber(data2.value))
+							end,
+							function(data2, menu2)
+								menu2.close()
+							end)
+					end,
+					function(data, menu)
+						menu.close()
+					end)
+			end
+		end
+		Citizen.Wait(0)
 	end
 end)
