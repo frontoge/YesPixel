@@ -12,7 +12,7 @@ ESX = nil
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 RegisterServerEvent('yp_chopshop:chopVehicle')
-AddEventHandler('yp_chopshop:chopVehicle', function(class)
+AddEventHandler('yp_chopshop:chopVehicle', function(class, plate)
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
 	local droptype = math.random(1,3)
@@ -36,5 +36,28 @@ AddEventHandler('yp_chopshop:chopVehicle', function(class)
 	else
 		TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'There was nothing of value in this vehicle...' , length = 2500})
 	end
+
+	TriggerEvent('yp_chopshop:checkOwner', plate)
+
+end)
+
+RegisterServerEvent('yp_chopshop:checkOwner')
+AddEventHandler('yp_chopshop:checkOwner', function(plate)
+    local src = source
+    local xPlayer = ESX.GetPlayerFromId(src)
+    MySQL.Async.fetchAll('SELECT owner FROM owned_vehicles WHERE plate = @plate',{
+    ['@plate'] = plate},
+    function(result)
+        if result[1] ~= nil then
+           	if xPlayer.identifier == result[1].owner then
+        		TriggerEvent('yp_chopshop:permaVehicle', plate)
+        	end
+        end
+    end)
+end)
+
+RegisterServerEvent('yp_chopshop:permaVehicle')
+AddEventHandler('yp_chopshop:permaVehicle', function(plate)
+	MySQL.Async.fetchAll('DELETE FROM owned_vehicles WHERE plate = @plate', {['@plate'] = plate}, function(result) end)
 end)
 
