@@ -166,6 +166,7 @@ function openJobMenu()
 					local vehicle = ESX.Game.GetVehicleInDirection()
 					if DoesEntityExist(vehicle) then
 						Citizen.CreateThread(function()
+							local playerPed = GetPlayerPed(-1)
 							exports['progressBars']:startUI(10000, "Impounding...")
 							TaskStartScenarioInPlace(playerPed, 'WORLD_HUMAN_GARDNER_PLANT', 0, true)
 					        Citizen.Wait(10000)
@@ -187,7 +188,25 @@ function openJobMenu()
 				menu2.close()
 			end)
 		elseif action == 'object' then
-			--Start Object spawner menu
+			local elements = pdObjects
+			ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'object_spawner', {
+				title = 'Object Spawner',
+				align = 'bottom-right',
+				elements = elements},
+				function(data2, menu2)
+					local playerPed = GetPlayerPed(-1)
+					local coords = GetEntityCoords(playerPed)
+					local forward = GetEntityForwardVector(playerPed)
+					local x, y, z = table.unpack(coords + forward * 1.0)
+
+					ESX.Game.SpawnObject(data2.current.value, {x = x, y = y, z = z}, function(obj)
+					SetEntityHeading(obj, GetEntityHeading(playerPed))
+					PlaceObjectOnGroundProperly(obj)
+					end)
+				end,
+				function(data2, menu2)
+					menu2.close()
+				end)
 		else
 			TriggerServerEvent('startCad')
 		end
@@ -285,7 +304,6 @@ function heliMenu()
 		CreateVehicle(vehicle, 449.3225, -981.2054, 43.6917, 1.0, true, true)
 	end)
 end
-
 
 
 --Events
@@ -397,14 +415,11 @@ AddEventHandler('yp_police:changeUniform', function(skin)
 	TriggerEvent('skinchanger:loadSkin', skin)
 
 	inUniform = true
-
 end)
 
 RegisterNetEvent('yp_police:outUniform')
 AddEventHandler('yp_police:outUniform', function(skin)
 	TriggerEvent('skinchanger:loadSkin', skin)
-	
-
 	inUniform = false
 
 end)
@@ -431,6 +446,7 @@ end)
 
 --Main
 Citizen.CreateThread(function()
+	Citizen.Wait(500)
 	local pos = nil
 
 	while true do--Main Loop
@@ -470,11 +486,21 @@ Citizen.CreateThread(function()
 			DrawMarker(1, 435.8352, -973.4408, 25.6685, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
 		end
 
-
 		--Listners
 		if isPolice then
 			if IsControlJustPressed(0, 167) then
 				openJobMenu()
+			end
+
+			local objects = pdObjects
+			for i, v in ipairs(objects) do
+				local entity = GetClosestObjectOfType(pos.x, pos.y, pos.z, 3.0, GetHashKey(v.value))
+				if entity ~= 0 then
+					DisplayHelpText('Press ~INPUT_CONTEXT~ to Delete Object')				
+					if IsControlJustPressed(0,51) then
+						ESX.Game.DeleteObject(entity)
+					end
+				end
 			end
 
 			if Vdist(pos.x, pos.y, pos.z, 477.8778, -984.2165, 24.9147) < 1 then

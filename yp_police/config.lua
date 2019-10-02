@@ -20,6 +20,10 @@ pdVehicles = {{label = 'Taurus', value = 'fpis'},
 			  {label = 'Explorer', value = 'sp106'},
 			  {label = 'Ford GT', value = 'polgt17'}}
 
+pdObjects = {{label = 'Spike Strip', value = 'p_ld_stinger_s'},
+			 {label = 'Traffic cone', value = 'prop_roadcone02a'},
+			 {label = 'Barrier', value = 'prop_barrier_work05'}}
+
 uniforms = {{tshirt_1 = 59, tshirt_2 = 1, torso_1 = 55, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 74, pants_1 = 25, pants_2 = 2, shoes_1 = 54, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = 46, helmet_2 = 0}, --Cadet
 			{tshirt_1 = 58, tshirt_2 = 0, torso_1 = 55, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 74, pants_1 = 25, pants_2 = 2, shoes_1 = 54, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = 46, helmet_2 = 0}, --Deputy
 			{tshirt_1 = 58, tshirt_2 = 0, torso_1 = 55, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 74, pants_1 = 25, pants_2 = 2, shoes_1 = 54, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Corporal
