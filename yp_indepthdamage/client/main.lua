@@ -9,7 +9,7 @@ local IdleDecay = 0.0001--Engine Percentage that will be lost per second
 local DecayMultiplier = 0.0002--Multiplier affecting the rate engine decay while moving, Higher the number faster the decay.
 local engineFactor = 18.0 --Rate at which collisions affect engine damage, higher the number the more damage per colision
 local bodyFactor = 10.0 --Rate at which collisions affect body damage, 
-local fuelFactor = 10.0 -- Rate at which collisions affect fueltank body damage
+local fuelFactor = 5.5 -- Rate at which collisions affect fueltank body damage
 
 --Script Locals
 local lastSpeed = 0
@@ -126,7 +126,7 @@ Citizen.CreateThread(function()
       fuelDelta = fuelLast - fuelCurrent
       if fuelDelta > 0 then
         fuelScale = fuelDelta * fuelFactor
-        SetVehiclePetrolTankHealth(vehicle)
+        SetVehiclePetrolTankHealth(vehicle, fuelCurrent - fuelScale)
       end
       fuelLast = GetVehiclePetrolTankHealth(vehicle)
       

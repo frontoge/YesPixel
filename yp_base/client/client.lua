@@ -4,6 +4,13 @@
  * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
 ]]--
 
+--Functions
+function DisplayHelpText(str)
+	SetTextComponentFormat("STRING")
+	AddTextComponentString(str)
+	DisplayHelpTextFromStringLabel(0, 0, 1, -1)
+end
+
 --Events
 RegisterNetEvent('yp_base:disableHPRegen')
 AddEventHandler('yp_base:disableHPRegen', function()

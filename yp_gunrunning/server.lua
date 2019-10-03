@@ -17,6 +17,19 @@ RegisterServerEvent('yp_gunrunning:grabWeapons')
 AddEventHandler('yp_gunrunning:grabWeapons', function(dropNumber)
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
+	local dropSet = math.random(1,100)
+	local weaponParts = {}
+
+	if dropSet <= 40 then
+		weaponParts = pistolParts
+	elseif dropSet <= 70 then
+		weaponParts = shotgunParts
+	elseif dropSet <= 90 then
+		weaponParts = smgParts
+	else
+		weaponParts = arParts
+	end
+
 
 	local totalParts = {}
 	for i = 0, #weaponParts, 1 do

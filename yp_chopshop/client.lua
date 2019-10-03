@@ -58,7 +58,7 @@ Citizen.CreateThread(function()
 					if IsControlJustPressed(0,51) then
 						if not onCooldown then
 							local class = GetVehicleClass(vehicle)
-							TriggerServerEvent('yp_chopshop:chopVehicle', class)
+							TriggerServerEvent('yp_chopshop:chopVehicle', class, GetVehicleNumberPlateText(vehicle))
 							ESX.Game.DeleteVehicle(vehicle)
 							doCooldown()
 						else

@@ -8,7 +8,7 @@ cost = 10000 --Cost of a weapon shipment
 dropTime = 1 -- Amount of time in minutes for the weapon shipment to arrive
 dropAmount = 10 --Amount of parts per weapon shipment
 
-weaponParts = {"gunbarrel", "gungrip", "gunspring", "gunstock"} --The different item names you can recieve from a crate
-
-
---Dont touch this or you going to break the script
+pistolParts = {"pistolbarrel", "pistolgrip", "pistolbody", "pistolclip", "gunspring"} --The different item names you can recieve from a crate
+smgParts = {"smgbarrel", "smgbody", "smgclip", "smggrip", "smgstock", "gunspring"}
+shotgunParts =  {"sgbarrel", "sgbody", "sggrip", "sgstock", "gunspring"}
+arParts = {"arbarrel", "arbody", "arclip", "argrip", "arstock", "gunspring"}
