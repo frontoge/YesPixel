@@ -7,3 +7,4 @@ server_scripts {
 client_scripts {
 	"client/client.lua"
 }
+export 'DisplayHelpText'

@@ -102,9 +102,11 @@ AddEventHandler('yp_jewelry:startCase', function(caseNumber)
       TriggerClientEvent('breakCase', src, case)
     else
       TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The jewelry has already been robbed, come back in ' .. cooldown .. 's' , length = 2500})
+      copsOn = 0
     end
   else
     TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'There needs to be at least ' .. copMin .. ' cops on to rob the jewelry', length = 2500})
+    copsOn = 0
   end
 end)
 

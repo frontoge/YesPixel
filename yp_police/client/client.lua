@@ -4,9 +4,9 @@
  * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
 ]]--
 
-local isPolice = true
+local isPolice = false
 local inUniform = false
-local isBoss = true
+local isBoss = false
 local invData = {}
 local pdBlip = nil
 
@@ -168,7 +168,7 @@ function openJobMenu()
 						Citizen.CreateThread(function()
 							local playerPed = GetPlayerPed(-1)
 							exports['progressBars']:startUI(10000, "Impounding...")
-							TaskStartScenarioInPlace(playerPed, 'WORLD_HUMAN_GARDNER_PLANT', 0, true)
+							TaskStartScenarioInPlace(playerPed, 'WORLD_HUMAN_GARDENER_PLANT', 0, true)
 					        Citizen.Wait(10000)
 					        ClearPedTasksImmediately(playerPed)
 					        ESX.Game.DeleteVehicle(vehicle)
