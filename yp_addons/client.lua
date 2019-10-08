@@ -34,8 +34,8 @@ Citizen.CreateThread(function()
 
 		--Vending machines
 		local machines = vendingMachines
-		for i, v in ipairs(vendingMachines) do
-			if VDist(pos.x, pos.y, pos.z, v.x, v.y, v.z) < 1 then
+		for i, v in pairs(vendingMachines) do
+			if Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z) < 1 then
 				exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to use the vending machine $' .. vendingCost)
 				if IsControlJustPressed(0,51) then
 					local elements
