@@ -38,10 +38,10 @@ Citizen.CreateThread(function()
 			if Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z) < 1 then
 				exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to use the vending machine $' .. vendingCost)
 				if IsControlJustPressed(0,51) then
-					local elements
-					if elements.kind == 'food' then
+					local elements = {}
+					if v.kind == 'food' then
 						elements = vendingFood
-					elseif elements.kind == 'drink' then
+					elseif v.kind == 'soda' then
 						elements = vendingDrink
 					else
 						TriggerServerEvent('yp_addons:buyVendItem', 'donut')
@@ -58,5 +58,6 @@ Citizen.CreateThread(function()
 				break
 			end
 		end
+		Citizen.Wait(0)
 	end
 end)
