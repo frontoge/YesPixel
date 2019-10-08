@@ -770,7 +770,7 @@ Citizen.CreateThread(function()
     if IsControlJustReleased(0, useKey) and not isDead and not isCuffed then
       OpenInteractionMenu()
     end
-    if IsControlJustReleased(0, engineKey) then
+    --[[if IsControlJustReleased(0, engineKey) then
       local ped = GetPlayerPed(-1)
       if IsPedInAnyVehicle(ped, false) then
         local vehicle = GetVehiclePedIsIn(ped, false)
@@ -783,6 +783,6 @@ Citizen.CreateThread(function()
           end
         end
       end
-    end
+    end]]
   end
 end)
