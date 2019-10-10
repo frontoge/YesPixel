@@ -109,6 +109,7 @@ end)
 
 RegisterNetEvent('yp_storerob:lockpickSafe')
 AddEventHandler('yp_storerob:lockpickSafe', function(store)
+	frozen = true
 	local success = false
 	if not Stores[store].beingRobbed then
 		TriggerServerEvent('yp_storerob:alertPolice', v, i)
@@ -155,7 +156,6 @@ AddEventHandler('yp_storerob:lockpickSafe', function(store)
 				local searched = 0
 
 				exports['progressBars']:startUI(searchTime * 1000, "Searching")
-				frozen = true
 				local playerPed = GetPlayerPed(-1)
 				loadAnimDict("anim@heists@ornate_bank@grab_cash") 
 				TaskPlayAnim( playerPed, "anim@heists@ornate_bank@grab_cash", "grab", 8.0, 1.0, -1, 2, 0, 0, 0, 0 )
