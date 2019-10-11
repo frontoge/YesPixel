@@ -50,16 +50,19 @@ function openCartMenu(store)
 
 	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'cart_menu', {title = 'Store Items', align = 'bottom-right', elements = elements},
 		function(data, menu)
-			local count = 0
 			ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'item_count', {title = 'Enter the amount'},
 				function(data2, menu2)
 					menu2.close()
-					count = data2.value
+					local count = data2.value
+					addToCart(data.current.value, data.current.cost, count)
 				end,
 				function(data2, menu2)
 					menu2.close()
+					if store.type == 'burgershot' then
+						openCheckoutMenu()
+					end
 				end)
-			addToCart(data.current.value, data.current.cost, count)
+
 		end,
 		function(data, menu)
 			menu.close()
@@ -77,12 +80,12 @@ function openCheckoutMenu()
 				{label = 'Pay with cash', value = 'cash'},
 				{label = 'Pay with card', value = 'card'}
 			}},
-			function(menu, data)
+			function(data, menu)
 				menu.close()
 				TriggerServerEvent('yp_stores:checkout', data.current.value, cart, totalCost)
 				resetCart()
 			end,
-			function(menu, data)
+			function(data, menu)
 				menu.close()
 				exports['mythic_notify']:DoHudText('inform', 'Checkout cancelled')
 			end)
@@ -95,7 +98,7 @@ end
 Citizen.CreateThread(function()
 	for i, v in ipairs(Stores) do
 		storeBlips[i] = AddBlipForCoord(v.cart.x, v.cart.y, v.cart.z)
-		SetBlipSprite(storeBlips[i], 11)
+		SetBlipSprite(storeBlips[i], 59)
 		SetBlipDisplay(storeBlips[i], 4)
 		SetBlipScale(storeBlips[i], 1.0)
 		SetBlipColour(storeBlips[i], 2)
@@ -114,7 +117,6 @@ Citizen.CreateThread(function()
 
 		for i, v in ipairs(Stores) do
 			if Vdist(pos.x, pos.y, pos.z, v.cart.x, v.cart.y, v.cart.z) < 30 then
-				--Do Math to check player locations
 				if Vdist(pos.x, pos.y, pos.z, v.cart.x, v.cart.y, v.cart.z) < 2 then -- Add items to cart
 					exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to browse items')
 					if IsControlJustPressed(0,51) then

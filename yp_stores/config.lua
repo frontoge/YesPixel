@@ -2,8 +2,8 @@ Menus =
 {
 	['convenience'] = 
 		{
-			{label = 'Bread', value = 'bread', cost = 2},
-			{label = 'Water Bottle', value = 'waterbottle', cost = 2}
+			{label = 'Bread ($2)', value = 'bread', cost = 2},
+			{label = 'Water Bottle ($2)', value = 'water', cost = 2}
 		},
 	['burgershot'] = 
 		{
@@ -17,15 +17,18 @@ Menus =
 
 Stores = 
 {
-	name = 'Strawberry',
-	type = 'convenience',
-	cart = {x = 0, y = 0, z = 0},
-	registers = 
-		{
-			{x = 0, y = 0, z = 0}
-		},
-	exits = 
-		{
-			{x = 0, y = 0, z = 0}
-		}
+	{
+		name = 'Strawberry',
+		type = 'convenience',
+		cart = {x = 29.5392, y = -1345.2443, z = 29.4970},
+		registers = 
+			{
+				{x = 25.7469, y = -1347.2969, z = 29.4970},
+				{x = 25.7468, y = -1344.9483, z = 29.4970}
+			},
+		exits = 
+			{
+				{x = 29.0017, y = -1349.1051, z = 29.4970}
+			}
+	}
 }

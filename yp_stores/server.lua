@@ -16,7 +16,7 @@ AddEventHandler('yp_stores:checkout', function(paymentType, cart, cost)
 	local canAfford = false
 
 	if paymentType == 'card' then
-		if xPlayer.getAccountMoney('bank') >= cost then
+		if xPlayer.getAccount('bank').money >= cost then
 			xPlayer.removeAccountMoney('bank', cost)
 			canAfford = true
 		end
@@ -27,9 +27,11 @@ AddEventHandler('yp_stores:checkout', function(paymentType, cart, cost)
 		end
 	end
 
+
+
 	if canAfford then
 		for i, v in ipairs(cart) do
-			xPlayer.addInventoryItem(cart.item, cart.count)
+			xPlayer.addInventoryItem(v.item, v.count)
 		end
 		exports['yp_taxes']:applyTax(src, 'sales', cost)
 		TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'success', text = 'Checkout complete!', length = 2500})
