@@ -155,15 +155,12 @@ AddEventHandler('yp_storerob:lockpickSafe', function(store)
 				local searchTime = math.random(20,25)
 				local searched = 0
 
-<<<<<<< HEAD
 				exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")
 				frozen = true
-=======
-				exports['progressBars']:startUI(searchTime * 1000, "Searching")
->>>>>>> 72914be87867566713d180ea7dfcb47ca455ecba
+
 				local playerPed = GetPlayerPed(-1)
 				loadAnimDict("anim@heists@ornate_bank@grab_cash") 
-				TaskPlayAnim( playerPed, "anim@heists@ornate_bank@grab_cash", "grab", 8.0, 1.0, -1, 2, 0, 0, 0, 0 )
+				TaskPlayAnim(playerPed, "anim@heists@ornate_bank@grab_cash", "grab", 8.0, 1.0, -1, 2, 0, 0, 0, 0)
 
 				while searched ~= searchTime do
 					searched = searched + 1
