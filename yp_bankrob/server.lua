@@ -4,168 +4,344 @@
  * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
 ]]--
 
-local robbers = {}
-local cooldownMax = 2 * 60
-local robberyCount = 0
-local cooldowns = {
-  { name = 'Flecca Legion Square', cooldown = cooldownMax, onCooldown = false, robbed = false, drilling = {false, false, false, false, false}},
-  { name = 'Flecca Del Perro', cooldown = cooldownMax, onCooldown = false, robbed = false, drilling = {false, false, false, false, false}},
-  { name = 'Flecca Great Ocean Hwy', cooldown = cooldownMax, onCooldown = false, robbed = false, drilling = {false, false, false, false, false}},
-  { name = 'Blain County Savings', cooldown = cooldownMax, onCooldown = false, robbed = false, drilling = {false, false, false, false, false}},
-  { name = 'Flecca Sandy Shores', cooldown = cooldownMax, onCooldown = false, robbed = false, drilling = {false, false, false, false, false}},
-  { name = 'Flecca Vinewood.', cooldown = cooldownMax, onCooldown = false, robbed = false, drilling = {false, false, false, false, false}},
-  { name = 'Flecca Hawick Ave', cooldown = cooldownMax, onCooldown = false, robbed = false}, drilling = {false, false, false, false, false}}
-
 ESX = nil
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
+--Init BankData
+local bankData = {}
+Citizen.CreateThread(function()
+	for i, v in ipairs(Banks) do
+		local hacks = {}
+		local drills = {}
+		local registers = {}
+
+		if v.hacks ~= nil then
+			for i2, v2 in ipairs(v.hacks) do
+				table.insert(hacks, false)
+			end
+		end
+
+		if v.drills ~= nil then
+			for i2, v2 in ipairs(v.drills) do
+				table.insert(drills, false)
+			end
+		end
+
+		if v.registers ~= nil then
+			for i2, v2 in ipairs(v.registers) do
+				table.insert(registers, false)
+			end
+		end
+
+		table.insert(bankData, {hacks = hacks, drills = drills, registers = registers, counterDoor = false, cooldown = CooldownMax * 60, onCooldown = false, beingRobbed = false})
+
+	end
+end)
+
+local robbers = {}
+local robberyCount = 0
+
 --Functions
 function isRobber(id)
-  for i, v in ipairs(robbers) do
-    if v == id then
-      return true
-    end
-  end
+	for i, v in ipairs(robbers) do
+		if v == id then
+	  		return true
+		end
+  	end
   return false
 end
 
-function startCooldown(bank)
-  robbers = {}
-  robberyCount = robberyCount - 1
-  Citizen.CreateThread(function()
-    cooldowns[bank].onCooldown = true
-    while cooldowns[bank].cooldown > 0 do
-      Citizen.Wait(1000)
-      cooldowns[bank].cooldown = cooldowns[bank].cooldown - 1
-    end
-    cooldowns[bank].onCooldown = false
-    cooldowns[bank].cooldown = cooldownMax
-    cooldowns[bank].robbed = false
-    TriggerClientEvent('yp_bankrob:resetClient', -1, bank)
-  end)
+function canRob()
+	local xPlayers = ESX.GetPlayers()
+	local cops = 0
+	for i = 1, #xPlayers, 1 do
+		local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
+		if xPlayer.job.name == 'police' then
+			cops = cops + 1
+		end
+	end
+	return (cops >= CopsMin)
 end
 
---Server Events
-RegisterServerEvent('yp_bankrob:startRob')
-AddEventHandler('yp_bankrob:startRob', function(bankNum)
-  local src = source
-  local bank = cooldowns[bankNum]
-  local xPlayer = ESX.GetPlayerFromId(src)
-  if not bank.onCooldown then --If the bank is not on cooldown
-    if robberyCount <= 0 then --If there are no banks being robbed already
-      if xPlayer.getInventoryItem('brutedrive').count > 0 then --If you have a brute force drive
-        TriggerClientEvent('yp_bankrob:startHack', src, bankNum) --Start the hack minigame
-        TriggerEvent('yp_bankrob:tripAlarm', bankNum) --Trigger the alarm for police
-        if not isRobber(src) then --If you arent a robber
-          table.insert(robbers, src) --Become a robber
-        end
-      else --If you dont have a brute force drive
-        TriggerEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'You do not have a brute force drive', length = 2500})
-      end
-    elseif bank.robbed then -- There is a bank being robbed already but its this bank
-      if xPlayer.getInventoryItem('brutedrive').count > 0 then --if you have a brute force drive
-        TriggerClientEvent('yp_bankrob:startHack', src, bankNum) --Start the hack minigame
-        if not isRobber(src) then --if you arent a robber become one
-          table.insert(robbers, src)
-        end 
-      else --You dont have a brute force drive
-        TriggerEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'You do not have a brute force drive', length = 2500})
-      end
-    else --There is already a bank robbery in progress and it isnt this one
-      TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'There seems to be no power to the panel...', length = 2500})
-    end
-  else --The bank is on cooldown
-    TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'This bank has already been robbed, come back in ' .. bank.cooldown .. 's', length = 2500})
-  end
-end)    
+function tripAlarm(bankInd)
+	local xPlayers = ESX.GetPlayers()
+	for i = 1, #xPlayers, 1 do
+		local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
+		if xPlayer.job.name == 'police' then
+			TriggerClientEvent('yp_bankrob:createAlarmBlip', xPlayers[i], bankInd)
+			TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = Banks[bankInd].name .. ' is being robbed!', length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
+		end
+	end
+end
 
-RegisterServerEvent('yp_bankrob:tripAlarm')
-AddEventHandler('yp_bankrob:tripAlarm', function(bank)
-  local xPlayers = ESX.GetPlayers()
-  for i = 1, #xPlayers, 1 do
-    local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-    local job = xPlayer.job.name
-    if job == 'police' or job == 'sheriff' then
-      TriggerClientEvent('yp_bankrob:displayAlarm', xPlayers[i], bank)
-      TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = cooldowns[bank].name .. ' is being robbed!', length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
-    end
-  end
-  cooldowns[bank].robbed = true
-  robberyCount = robberyCount +1
+function endpolice(bankInd)
+	local xPlayers = ESX.GetPlayers()
+	for i = 1, #xPlayers, 1 do
+		local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
+		if xPlayer.job.name == 'police' then
+			TriggerClientEvent('yp_bankrob:removeBlip', xPlayers[i])
+			TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = Banks[bankInd].name .. ' has been robbed!', length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
+		end
+	end
+end
+
+function notifyPlayers(bankInd)
+	for i = 1, #robbers, 1 do
+		if isRobber(robbers[i]) then
+			TriggerClientEvent('mythic_notify:client:SendAlert', robbers[i], {type = 'success', text = 'You robbed ' .. Banks[bankInd].name .. '!', length = 2500})
+		end
+	end
+end
+
+function startCooldown(bankInd)
+	bankData[bankInd].onCooldown = true
+	Citizen.CreateThread(function()
+		while bankData[bankInd].cooldown > 0 do
+			Citizen.Wait(1000)
+		end
+		bankData[bankInd].onCooldown = false
+		bankData[bankInd].cooldown = CooldownMax * 60
+		--ResetBank
+		bankData[bankInd].counterDoor = false
+		TriggerClientEvent('yp_bankrob:closeDoor', -1, 0)
+
+		for i, v in ipairs(bankData[bankInd].registers) do
+			v = false
+		end
+
+		for i, v in ipairs(bankData[bankInd].hacks) do
+			v = false
+			TriggerClientEvent('yp_bankrob:closeDoor', -1, i)
+		end
+
+		for i, v in ipairs(bankData[bankInd].drills) do
+			v = false
+		end
+
+
+	end)
+end
+
+--Events
+RegisterServerEvent('yp_bankrob:startHack')
+AddEventHandler('yp_bankrob:startHack', function(bankInd, hackInd)
+	local src = source
+	local xPlayer = ESX.GetPlayerFromId(src)
+	if not bankData[bankInd].hacks[hackInd] then
+		if xPlayer.getInventoryItem('brutedrive').count > 0 then
+			if not bankData[bankInd].onCooldown then
+				local enoughCops = canRob()
+				if not bankData[bankInd].beingRobbed then
+					if enoughCops then
+						tripAlarm(bankInd)
+
+						robberyCount = robberyCount + 1
+						bankData[bankInd].beingRobbed = true
+
+					else
+						TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The terminal is off.' , length = 2500})
+					end
+				end
+
+				if enoughCops or bankData[bankInd].beingRobbed then
+					if not isRobber(src) then
+						table.insert(robbers, src)
+						TriggerClientEvent('yp_bankrob:becomeRobber', src)
+					end
+
+					bankData[bankInd].hacks[hackInd] = true
+					TriggerClientEvent('yp_bankrob:hack', src, bankInd, hackInd)
+				end
+			else
+				TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The bank has already been robbed, come back in ' .. bankData[bankInd].cooldown .. 's' , length = 2500})
+			end
+
+		else
+			TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'You do not have a brute force drive!' , length = 2500})
+		end
+
+	else
+		TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'This terminal has already been hacked!' , length = 2500})
+	end
 end)
 
-RegisterServerEvent('yp_bankrob:startDrill')
-AddEventHandler('yp_bankrob:startDrill', function(bank, drill)
-  local src = source
-  local xPlayer = ESX.GetPlayerFromId(src)
-  if not isRobber(src) then
-    table.insert(robbers, src)
-  end
-  if not cooldowns[bank].onCooldown then
-    if xPlayer.getInventoryItem('drill').count > 0 then
-      if not cooldowns[bank].drilling[drill] then
-        xPlayer.removeInventoryItem('drill', 1)
-        TriggerClientEvent('yp_bankrob:startDrilling', src, bank, drill)
-        cooldowns[bank].drilling[drill] = true
-      else
-        TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'This box is already being drilled!', length = 2500})
-      end
-    else
-      TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'You do not have a Drill!', length = 2500})
-    end
-  end
+RegisterServerEvent('yp_bankrob:startPick')
+AddEventHandler('yp_bankrob:startPick', function(bankInd)
+	local src = source
+	local xPlayer = ESX.GetPlayerFromId(src)
+	if not bankData[bankInd].counterDoor then
+		if xPlayer.getInventoryItem('lockpick').count > 0 then
+			if not bankData[bankInd].onCooldown then
+				local enoughCops = canRob()
+				if not bankData[bankInd].beingRobbed then
+					if enoughCops then
+						tripAlarm(bankInd)
+
+						robberyCount = robberyCount + 1
+						bankData[bankInd].beingRobbed = true
+					else
+						TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The door seems to be sealed.' , length = 2500})
+					end
+				end
+
+				if enoughCops or bankData[bankInd].beingRobbed then
+					if not isRobber(src) then
+						table.insert(robbers, src)
+						TriggerClientEvent('yp_bankrob:becomeRobber', src)
+					end
+
+					bankData[bankInd].counterDoor = true
+					TriggerClientEvent('yp_bankrob:lockpick', src, bankInd)
+				end
+			else
+				TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The bank has already been robbed, come back in ' .. bankData[bankInd].cooldown .. 's' , length = 2500})
+			end
+
+		else
+			TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'You do not have a lockpick!' , length = 2500})
+		end
+
+	else
+		TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'This door is already unlocked!' , length = 2500})
+	end
 end)
 
-RegisterServerEvent('yp_bankrob:leaveStore')
-AddEventHandler('yp_bankrob:leaveStore', function(bank)
-  local src = source 
-  if isRobber(src) then
-    local xPlayers = ESX.GetPlayers()
-    for i = 1, #xPlayers, 1 do
-      local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-      local job = xPlayer.job.name
-      if job == 'police' or job == 'sheriff' then
-        TriggerClientEvent('yp_bankrob:killAlarm', xPlayers[i])
-        TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = 'The robbery at ' .. cooldowns[bank].name .. ' has been cancelled!', length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
-      end
-    end
-    if not cooldowns[bank].onCooldown then
-      startCooldown(bank)
-      TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'Robbery has been cancelled', length = 2500})
-    end
-  end
+RegisterServerEvent('yp_bankrob:startRegister')
+AddEventHandler('yp_bankrob:startRegister', function(bankNum, registerNum)
+	local src = source
+
+	if not bankData[bankNum].registers[registerNum] then
+		if not bankData[bankNum].onCooldown then
+			bankData[bankNum].registers[registerNum] = true
+			if not isRobber(src) then
+				table.insert(robbers, src)
+				TriggerClientEvent('yp_bankrob:becomeRobber', src)
+			end
+			TriggerClientEvent('yp_bankrob:robRegister', src)
+		else
+			TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The bank has already been robbed, come back in ' .. bankData[bankInd].cooldown .. 's' , length = 2500})
+		end
+	else
+		TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'This register is empty!' , length = 2500})
+
+	end
+end)
+
+RegisterServerEvent('yp_bankrob:startThermite')
+AddEventHandler('yp_bankrob:startThermite', function(bankNum, drillNum)
+	local src = source
+	local xPlayer = ESX.GetPlayerFromId(src)
+
+	if not bankData[bankNum].drills[drillNum] then
+		if not bankData[bankNum].onCooldown then
+			if xPlayer.getInventoryItem('thermite').count > 0 then
+				bankData[bankNum].drills[drillNum] = true
+				if not isRobber(src) then
+					table.insert(robbers, src)
+					TriggerClientEvent('yp_bankrob:becomeRobber', src)
+				end
+				TriggerClientEvent('yp_bankrob:thermite', src, bankNum, drillNum)
+			else
+				TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'You do not have a thermite torch!' , length = 2500})
+			end
+		else
+			TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The bank has already been robbed, come back in ' .. bankData[bankInd].cooldown .. 's' , length = 2500})
+		end
+	else
+		TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'This box has already been drilled!' , length = 2500})
+
+	end
+end)
+
+RegisterServerEvent('yp_bankrob:payoutRegister')
+AddEventHandler('yp_bankrob:payoutRegister', function()
+	local src = source
+	local xPlayer = ESX.GetPlayerFromId(src)
+	local payout = math.random(250, 400)
+	xPlayer.addAccountMoney('black_money', payout)
+	TriggerClientEvent('mythic_notify:client:SendAlert', src, {type = 'success', text = 'You grabbed $' .. payout, length = 2500})
+end)
+
+RegisterServerEvent('yp_bankrob:finishDrilling')
+AddEventHandler('yp_bankrob:finishDrilling', function()
+	local src = source
+	local xPlayer = ESX.GetPlayerFromId(src)
+	local index = math.random(1, #Drops)
+	local dropItem = Drops[index].item
+	local dropAmount = math.random(Drops[index].lower, Drops[index].upper)
+
+	xPlayer.addInventoryItem(dropItem, dropAmount)
+	TriggerClientEvent('mythic_notify:client:SendAlert', src, {type = 'success', text = 'You stole ' .. dropAmount .. ' ' .. dropItem .. '(s)', length = 2500})
 end)
 
 RegisterServerEvent('yp_bankrob:consumeDrive')
 AddEventHandler('yp_bankrob:consumeDrive', function()
-  local src = source
-  local xPlayer = ESX.GetPlayerFromId(src)
-  xPlayer.removeInventoryItem('brutedrive', 1)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	xPlayer.removeInventoryItem('brutedrive', 1)
 end)
 
-RegisterServerEvent('yp_bankrob:finishHack')
-AddEventHandler('yp_bankrob:finishHack', function(bank)
-  TriggerClientEvent('yp_bankrob:hackComplete', -1, bank)
+RegisterServerEvent('yp_bankrob:consumePick')
+AddEventHandler('yp_bankrob:consumePick', function()
+	local xPlayer = ESX.GetPlayerFromId(source)
+	xPlayer.removeInventoryItem('lockpick', 1)
 end)
 
-RegisterServerEvent('yp_bankrob:drillFinish')
-AddEventHandler('yp_bankrob:drillFinish', function(bank, drillNum)
-  local src = source
-  local xPlayer = ESX.GetPlayerFromId(src)
-  local payout = 0
-  if cooldowns[bank].name == "Blaine County Savings" then
-    payout = math.random(9000, 14000)
-  else
-    payout = math.random(6500, 11500)
-  end
-  xPlayer.addAccountMoney('black_money', payout)
-  TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'You got $'.. payout .. ' black money', length = 2500})
-  TriggerClientEvent('yp_bankrob:drillDone', -1, bank, drillNum)
-  
+RegisterServerEvent('yp_bankrob:consumeThermite')
+AddEventHandler('yp_bankrob:consumeThermite', function()
+	local xPlayer = ESX.GetPlayerFromId(source)
+	xPlayer.removeInventoryItem('thermite', 1)
 end)
 
-RegisterServerEvent('yp_bankrob:stopDrilling')
-AddEventHandler('yp_bankrob:stopDrilling', function(bank, drillNum)
-  cooldowns[bank].drilling[drillNum] = false
+RegisterServerEvent('yp_bankrob:unHack')
+AddEventHandler('yp_bankrob:unHack', function(bankInd, hackInd)
+	bankData[bankInd].hacks[hackInd] = false
+end)
+
+RegisterServerEvent('yp_bankrob:unPick')
+AddEventHandler('yp_bankrob:unPick', function(bankInd)
+	bankData[bankInd].counterDoor = false
+end)
+
+RegisterServerEvent('yp_bankrob:unDrill')
+AddEventHandler('yp_bankrob:unDrill', function(bankInd, drillNum)
+	bankData[bankInd].drills[drillNum] = false
+end)
+
+RegisterServerEvent('yp_bankrob:updateDoors')
+AddEventHandler('yp_bankrob:updateDoors', function(bank)
+	
+	if bankData[bank].hacks[1] then
+		TriggerClientEvent('yp_bankrob:openDoor', source, bank, 1)
+	else
+		TriggerClientEvent('yp_bankrob:closeDoor', source, bank, 1)
+	end
+
+	if bankData[bank].hacks[2] then
+		TriggerClientEvent('yp_bankrob:openDoor', source, bank, 2)
+	else
+		TriggerClientEvent('yp_bankrob:closeDoor', source, bank, 2)
+	end
+
+	if bankData[bank].counterDoor then
+		TriggerClientEvent('yp_bankrob:openDoor', source, bank, 0)
+	else
+		TriggerClientEvent('yp_bankrob:closeDoor', source, bank, 0)
+	end
+
+end)
+
+RegisterServerEvent('yp_bankrob:updateDoorStatus')
+AddEventHandler('yp_bankrob:updateDoorStatus', function(bank, doorNum)
+	TriggerClientEvent('yp_bankrob:openDoor', -1, bank, doorNum)
+end)
+
+RegisterServerEvent('yp_bankrob:endRob')
+AddEventHandler('yp_bankrob:endRob', function(bankInd)
+	if bankData[bankInd].beingRobbed then
+		bankData[bankInd].beingRobbed = false
+		startCooldown(bankInd)
+		endpolice(bankInd)
+		notifyPlayers(bankInd)
+	end
 end)
