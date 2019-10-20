@@ -4,7 +4,6 @@
  * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
 ]]--
 
-local frozen = false
 local blips = {}
 local buttons = {{char = 'Up', value = 172}, {char = 'Down', value = 173}, {char = 'Left', value = 174}, {char = 'Right', value = 175}}
 
@@ -68,7 +67,7 @@ AddEventHandler('yp_storerob:robRegister', function()
 		local searched = 0
 
 		exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")
-		frozen = true
+		exports['yp_base']:FreezePlayer()
 		local playerPed = GetPlayerPed(-1)
 		loadAnimDict("anim@heists@ornate_bank@grab_cash") 
 		TaskPlayAnim( playerPed, "anim@heists@ornate_bank@grab_cash", "grab", 8.0, 1.0, -1, 2, 0, 0, 0, 0 )
@@ -80,7 +79,7 @@ AddEventHandler('yp_storerob:robRegister', function()
 
 		TriggerServerEvent('yp_storerob:payoutRegister')
 		ClearPedTasksImmediately(playerPed)
-		frozen = false
+		exports['yp_base']:UnFreezePlayer()
 	end)
 
 end)
@@ -109,7 +108,7 @@ end)
 
 RegisterNetEvent('yp_storerob:lockpickSafe')
 AddEventHandler('yp_storerob:lockpickSafe', function(store)
-	frozen = true
+	exports['yp_base']:FreezePlayer()
 	local success = false
 	if not Stores[store].beingRobbed then
 		TriggerServerEvent('yp_storerob:alertPolice', v, i)
@@ -156,7 +155,7 @@ AddEventHandler('yp_storerob:lockpickSafe', function(store)
 				local searched = 0
 
 				exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")
-				frozen = true
+				exports['yp_base']:FreezePlayer()
 
 				local playerPed = GetPlayerPed(-1)
 				loadAnimDict("anim@heists@ornate_bank@grab_cash") 
@@ -168,7 +167,7 @@ AddEventHandler('yp_storerob:lockpickSafe', function(store)
 				end
 				TriggerServerEvent('yp_storerob:payoutSafe')
 				ClearPedTasksImmediately(playerPed)
-				frozen = false
+				exports['yp_base']:UnFreezePlayer()
 			end)
 		end
 	end)
@@ -190,16 +189,6 @@ Citizen.CreateThread(function()
 	while true do
 		local playerPed = GetPlayerPed(-1)
 		local pos = GetEntityCoords(playerPed)
-
-		if frozen then
-
-			DisableControlAction(0, 32, true) --W
-			DisableControlAction(0, 33, true) --S
-			DisableControlAction(0, 34, true) --A
-			DisableControlAction(0, 35, true) --D
-			DisableControlAction(0, 73, true) --X
-
-		end
 
 		for i, v in ipairs(Stores) do--For Each Store
 			if Vdist(pos.x, pos.y, pos.z, v.safe.x, v.safe.y, v.safe.z) < 40 then --If you are near the store then check for the following

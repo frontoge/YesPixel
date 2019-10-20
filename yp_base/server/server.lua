@@ -11,7 +11,6 @@ RegisterServerEvent('yp_base:playerReady')
 AddEventHandler('yp_base:playerReady', function()
   local src = source
   TriggerClientEvent('yp_base:disableHPRegen', src)
-  TriggerClientEvent('yp_bankrob:playerReady', src)
   TriggerClientEvent('yp_swedbank:playerReady', src)
   TriggerClientEvent('yp_police:playerReady', src)
 end)
