@@ -354,6 +354,24 @@ Stores =
 		robbers = {}
 	},
 	{
+        name = 'Downtown Vinewood Convenience',
+        registers =
+                    {
+                        {x = 372.5449, y = 326.4743, z = 103.5664, robbed = false},
+                        {x = 373.1237, y = 328.6984, z = 103.5664, robbed = false},
+                    },
+        safe = {x = 378.1314, y = 333.3550, z = 103.5664, robbed = false},
+        exits = 
+                {
+                    {x = 376.8580, y = 323.2766, z = 103.5728}
+                },
+
+        beingRobbed = false,
+        cooldown = cooldownMax,
+        onCooldown = false,
+        robbers = {}
+    },
+	{
 		name = 'Paleto Bay Clothing',
 		registers =
 					{
