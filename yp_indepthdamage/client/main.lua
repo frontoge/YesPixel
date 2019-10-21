@@ -7,9 +7,9 @@
 --Config Locals
 local IdleDecay = 0.0001--Engine Percentage that will be lost per second
 local DecayMultiplier = 0.0002--Multiplier affecting the rate engine decay while moving, Higher the number faster the decay.
-local engineFactor = 18.0 --Rate at which collisions affect engine damage, higher the number the more damage per colision
+local engineFactor = 10.0 --Rate at which collisions affect engine damage, higher the number the more damage per colision
 local bodyFactor = 10.0 --Rate at which collisions affect body damage, 
-local fuelFactor = 5.5 -- Rate at which collisions affect fueltank body damage
+local fuelFactor = 3.0 -- Rate at which collisions affect fueltank body damage
 
 --Script Locals
 local lastSpeed = 0
@@ -72,14 +72,18 @@ AddEventHandler('idd_repairengine', function()
   local vehicle = ESX.Game.GetVehicleInDirection()
   local playerPed = GetPlayerPed(-1)
   if DoesEntityExist(vehicle) then
-    exports['mythic_notify']:DoHudText('inform', 'You are repairing your vehicle')
-    TaskStartScenarioInPlace(playerPed, 'PROP_HUMAN_BUM_BIN', 0, true)
-	exports['progressBars']:startUI(7000, "Repairing Engine")
-    Citizen.Wait(7000)
-    SetVehicleEngineHealth(vehicle, 300.0)
-    TriggerServerEvent('idd_consRepairKit')
-    ClearPedTasksImmediately(playerPed)
-    exports['mythic_notify']:DoLongHudText('success', 'You repaired your vehicle')
+    if GetVehicleEngineHealth(vehicle) < 300.0 then
+      exports['mythic_notify']:DoHudText('inform', 'You are repairing your vehicle')
+      TaskStartScenarioInPlace(playerPed, 'PROP_HUMAN_BUM_BIN', 0, true)
+  	  exports['progressBars']:startUI(7000, "Repairing Engine")
+      Citizen.Wait(7000)
+      SetVehicleEngineHealth(vehicle, 300.0)
+      TriggerServerEvent('idd_consRepairKit')
+      ClearPedTasksImmediately(playerPed)
+      exports['mythic_notify']:DoLongHudText('success', 'You repaired your vehicle')
+    else
+      exports['mythic_notify']:DoLongHudText('error', 'Your vehicle is not damaged enough to repair')
+    end
   end
 end)
 
@@ -131,7 +135,7 @@ Citizen.CreateThread(function()
       fuelLast = GetVehiclePetrolTankHealth(vehicle)
       
       --Disable Vehicle
-      if GetVehicleEngineHealth(vehicle) <= 200.0 then
+      if GetVehicleEngineHealth(vehicle) <= 200.0 or GetVehicleBodyHealth(vehicle) <= 0.0 then
         SetVehicleUndriveable(vehicle, true)
       else
         SetVehicleUndriveable(vehicle, false)

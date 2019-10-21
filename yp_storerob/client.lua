@@ -4,7 +4,6 @@
  * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
 ]]--
 
-local frozen = false
 local blips = {}
 local buttons = {{char = 'Up', value = 172}, {char = 'Down', value = 173}, {char = 'Left', value = 174}, {char = 'Right', value = 175}}
 
@@ -68,7 +67,7 @@ AddEventHandler('yp_storerob:robRegister', function()
 		local searched = 0
 
 		exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")
-		frozen = true
+		exports['yp_base']:FreezePlayer()
 		local playerPed = GetPlayerPed(-1)
 		loadAnimDict("anim@heists@ornate_bank@grab_cash") 
 		TaskPlayAnim( playerPed, "anim@heists@ornate_bank@grab_cash", "grab", 8.0, 1.0, -1, 2, 0, 0, 0, 0 )
@@ -80,7 +79,7 @@ AddEventHandler('yp_storerob:robRegister', function()
 
 		TriggerServerEvent('yp_storerob:payoutRegister')
 		ClearPedTasksImmediately(playerPed)
-		frozen = false
+		exports['yp_base']:UnFreezePlayer()
 	end)
 
 end)
@@ -109,7 +108,7 @@ end)
 
 RegisterNetEvent('yp_storerob:lockpickSafe')
 AddEventHandler('yp_storerob:lockpickSafe', function(store)
-	frozen = true
+	exports['yp_base']:FreezePlayer()
 	local success = false
 	if not Stores[store].beingRobbed then
 		TriggerServerEvent('yp_storerob:alertPolice', v, i)
@@ -155,15 +154,12 @@ AddEventHandler('yp_storerob:lockpickSafe', function(store)
 				local searchTime = math.random(20,25)
 				local searched = 0
 
-<<<<<<< HEAD
 				exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")
-				frozen = true
-=======
-				exports['progressBars']:startUI(searchTime * 1000, "Searching")
->>>>>>> 72914be87867566713d180ea7dfcb47ca455ecba
+				exports['yp_base']:FreezePlayer()
+
 				local playerPed = GetPlayerPed(-1)
 				loadAnimDict("anim@heists@ornate_bank@grab_cash") 
-				TaskPlayAnim( playerPed, "anim@heists@ornate_bank@grab_cash", "grab", 8.0, 1.0, -1, 2, 0, 0, 0, 0 )
+				TaskPlayAnim(playerPed, "anim@heists@ornate_bank@grab_cash", "grab", 8.0, 1.0, -1, 2, 0, 0, 0, 0)
 
 				while searched ~= searchTime do
 					searched = searched + 1
@@ -171,7 +167,7 @@ AddEventHandler('yp_storerob:lockpickSafe', function(store)
 				end
 				TriggerServerEvent('yp_storerob:payoutSafe')
 				ClearPedTasksImmediately(playerPed)
-				frozen = false
+				exports['yp_base']:UnFreezePlayer()
 			end)
 		end
 	end)
@@ -194,18 +190,8 @@ Citizen.CreateThread(function()
 		local playerPed = GetPlayerPed(-1)
 		local pos = GetEntityCoords(playerPed)
 
-		if frozen then
-
-			DisableControlAction(0, 32, true) --W
-			DisableControlAction(0, 33, true) --S
-			DisableControlAction(0, 34, true) --A
-			DisableControlAction(0, 35, true) --D
-			DisableControlAction(0, 73, true) --X
-
-		end
-
 		for i, v in ipairs(Stores) do--For Each Store
-			if Vdist(pos.x, pos.y, pos.z, v.safe.x, v.safe.y, v.safe.z) < 40 then --If you are near the store then check for the following
+			if Vdist(pos.x, pos.y, pos.z, v.exits[1].x, v.exits[1].y, v.exits[1].z) < 40 then --If you are near the store then check for the following
 
 				for i2, v2 in ipairs(v.registers) do --For each register in the store
 					if not v2.robbed then --Is the register robbed?
@@ -226,15 +212,17 @@ Citizen.CreateThread(function()
 						end
 					end
 				end
-
-				if not v.safe.robbed then--Safe Portion
-					if Vdist(pos.x, pos.y, pos.z, v.safe.x, v.safe.y, v.safe.z) < 1 then
-						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to lockpick the safe')
-						if IsControlJustPressed(0,51) then
-							if not v.onCooldown then
-								TriggerServerEvent('yp_storerob:startSafeRob', i, v)
-							else
-								exports['mythic_notify']:DoHudText('error', 'This store has already been robbed, come back in ' .. v.cooldown .. 's')
+				
+				if v.safe ~= nil then
+					if not v.safe.robbed then--Safe Portion
+						if Vdist(pos.x, pos.y, pos.z, v.safe.x, v.safe.y, v.safe.z) < 1 then
+							exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to lockpick the safe')
+							if IsControlJustPressed(0,51) then
+								if not v.onCooldown then
+									TriggerServerEvent('yp_storerob:startSafeRob', i, v)
+								else
+									exports['mythic_notify']:DoHudText('error', 'This store has already been robbed, come back in ' .. v.cooldown .. 's')
+								end
 							end
 						end
 					end
