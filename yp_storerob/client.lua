@@ -191,7 +191,7 @@ Citizen.CreateThread(function()
 		local pos = GetEntityCoords(playerPed)
 
 		for i, v in ipairs(Stores) do--For Each Store
-			if Vdist(pos.x, pos.y, pos.z, v.safe.x, v.safe.y, v.safe.z) < 40 then --If you are near the store then check for the following
+			if Vdist(pos.x, pos.y, pos.z, v.exits[1].x, v.exits[1].y, v.exits[1].z) < 40 then --If you are near the store then check for the following
 
 				for i2, v2 in ipairs(v.registers) do --For each register in the store
 					if not v2.robbed then --Is the register robbed?
@@ -212,15 +212,17 @@ Citizen.CreateThread(function()
 						end
 					end
 				end
-
-				if not v.safe.robbed then--Safe Portion
-					if Vdist(pos.x, pos.y, pos.z, v.safe.x, v.safe.y, v.safe.z) < 1 then
-						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to lockpick the safe')
-						if IsControlJustPressed(0,51) then
-							if not v.onCooldown then
-								TriggerServerEvent('yp_storerob:startSafeRob', i, v)
-							else
-								exports['mythic_notify']:DoHudText('error', 'This store has already been robbed, come back in ' .. v.cooldown .. 's')
+				
+				if v.safe ~= nil then
+					if not v.safe.robbed then--Safe Portion
+						if Vdist(pos.x, pos.y, pos.z, v.safe.x, v.safe.y, v.safe.z) < 1 then
+							exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to lockpick the safe')
+							if IsControlJustPressed(0,51) then
+								if not v.onCooldown then
+									TriggerServerEvent('yp_storerob:startSafeRob', i, v)
+								else
+									exports['mythic_notify']:DoHudText('error', 'This store has already been robbed, come back in ' .. v.cooldown .. 's')
+								end
 							end
 						end
 					end

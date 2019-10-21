@@ -98,13 +98,14 @@ function startCooldown(bankInd)
 	bankData[bankInd].onCooldown = true
 	Citizen.CreateThread(function()
 		while bankData[bankInd].cooldown > 0 do
+			bankData[bankInd].cooldown = bankData[bankInd].cooldown - 1
 			Citizen.Wait(1000)
 		end
 		bankData[bankInd].onCooldown = false
 		bankData[bankInd].cooldown = CooldownMax * 60
 		--ResetBank
 		bankData[bankInd].counterDoor = false
-		TriggerClientEvent('yp_bankrob:closeDoor', -1, 0)
+		TriggerClientEvent('yp_bankrob:closeDoor', -1, bankInd, 0)
 
 		for i, v in ipairs(bankData[bankInd].registers) do
 			v = false
@@ -112,7 +113,7 @@ function startCooldown(bankInd)
 
 		for i, v in ipairs(bankData[bankInd].hacks) do
 			v = false
-			TriggerClientEvent('yp_bankrob:closeDoor', -1, i)
+			TriggerClientEvent('yp_bankrob:closeDoor', -1, bankInd, i)
 		end
 
 		for i, v in ipairs(bankData[bankInd].drills) do
@@ -220,7 +221,7 @@ AddEventHandler('yp_bankrob:startRegister', function(bankNum, registerNum)
 			end
 			TriggerClientEvent('yp_bankrob:robRegister', src)
 		else
-			TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The bank has already been robbed, come back in ' .. bankData[bankInd].cooldown .. 's' , length = 2500})
+			TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The bank has already been robbed, come back in ' .. bankData[bankNum].cooldown .. 's' , length = 2500})
 		end
 	else
 		TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'This register is empty!' , length = 2500})

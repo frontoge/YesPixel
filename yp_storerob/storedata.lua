@@ -35,7 +35,8 @@ Stores =
 		cooldown = cooldownMax,
 		onCooldown = false,
 		robbers = {}
-	}{
+	},
+	{
 		name = 'West Mirror Drive Convenience',
 		registers =
 					{
@@ -233,7 +234,7 @@ Stores =
 		name = 'Grand Senora Desert Convenience',
 		registers =
 					{
-						{x = 2678.0241, y = 3279.4392,, z = 55.2411, robbed = false},
+						{x = 2678.0241, y = 3279.4392, z = 55.2411, robbed = false},
 						{x = 2675.9575, y = 3280.5131, z = 55.2411, robbed = false},
 					},
 		safe = {x = 2672.7072, y = 3286.5649, z = 55.2411, robbed = false},
@@ -356,7 +357,7 @@ Stores =
 		name = 'Paleto Bay Clothing',
 		registers =
 					{
-						{x = 5.2068, y = 6510.8007, z = 31.8778 robbed = false},
+						{x = 5.2068, y = 6510.8007, z = 31.8778, robbed = false},
 						{x = 1.2739, y = 6508.5971, z = 31.8778, robbed = false},
 						{x = -0.7672, y = 6510.7490, z = 31.8778, robbed = false},
 					},
@@ -530,7 +531,7 @@ Stores =
 		name = 'Paleto Bay Clothing',
 		registers =
 					{
-						{x = 5.2068, y = 6510.8007, z = 31.8778 robbed = false},
+						{x = 5.2068, y = 6510.8007, z = 31.8778, robbed = false},
 						{x = 1.2739, y = 6508.5971, z = 31.8778, robbed = false},
 						{x = -0.7672, y = 6510.7490, z = 31.8778, robbed = false},
 					},
