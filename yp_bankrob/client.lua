@@ -13,41 +13,7 @@ Citizen.CreateThread(function()
 		Citizen.Wait(0)
 	end
 end)
-
-local banks = {  
-  { name = 'Flecca Del Perro', x = -1210.7067, y = -336.5490, z = 37.7810, hacked = false, exit = {x = -1214.3476, y= -327.8316, z= 37.7779}, vault = 'v_ilev_gb_vauldr', doorS = -63.136264, drill ={}},
-  { name = 'Blaine County Savings', x = -105.4070, y = 6471.8227 , z = 31.6267, hacked = false, exit = {x = -110.7807, y= 6462.9052, z= 31.6407}, vault = 'v_ilev_cbankvauldoor01', doorS = 47.0, drill={}},
-  { name = 'Flecca Vinewood', x = -353.8114, y = -55.1726, z = 49.0365, hacked = false, exit = {x = -350.0368, y= -46.7347, z= 49.0368}, vault = 'v_ilev_gb_vauldr', doorS = -110.134025, drill = {}},}
---[[  table.insert(banks[2].drill, {x = -1209.7980, y = -333.7249, z = 37.7592, drilled = false})
-  table.insert(banks[2].drill, {x = -1207.4561, y = -333.7505, z = 37.7592, drilled = false})
-  table.insert(banks[2].drill, {x = -1207.5247, y = -336.5192, z = 37.7593, drilled = false})
-  table.insert(banks[2].drill, {x = -1206.4595, y = -338.7965, z = 37.7593, drilled = false})
-  table.insert(banks[2].drill, {x = -1208.9548, y = -338.3133, z = 37.7592, drilled = false})
-  
-  table.insert(banks[4].drill, {x = -107.1649, y = 6473.5209, z = 31.6267, drilled = false})
-  table.insert(banks[4].drill, {x = -107.6142, y = 6475.7397, z = 31.6267, drilled = false})
-  table.insert(banks[4].drill, {x = -105.9026, y = 6478.6689, z = 31.6267, drilled = false})
-  table.insert(banks[4].drill, {x = -103.2024, y = 6478.1918, z = 31.6267, drilled = false})
-  table.insert(banks[4].drill, {x = -102.9210, y = 6475.4882, z = 31.6267, drilled = false})
-  
-  table.insert(banks[5].drill, {, drilled = false})
-  table.insert(banks[5].drill, {, drilled = false})
-  table.insert(banks[5].drill, {, drilled = false})
-  table.insert(banks[5].drill, {, drilled = false})
-  table.insert(banks[5].drill, {, drilled = false})
-  
-  table.insert(banks[6].drill, {x = -350.9709, y = -54.0551, z = 49.0148, drilled = false})
-  table.insert(banks[6].drill, {x = -349.5157, y = -55.7606, z = 49.0148, drilled = false})
-  table.insert(banks[6].drill, {x = -350.1953, y = -59.1343, z = 49.0148, drilled = false})
-  table.insert(banks[6].drill, {x = -352.4359, y = -60.0035, z = 49.0148, drilled = false})
-  table.insert(banks[6].drill, {x = -353.8075, y = -57.7657, z = 49.0148, drilled = false})
-  ]]
  
-local buttons = 
-{
-  {char = 'Z', value = 20}, {char = 'F', value = 49}, {char = 'B', value = 29}, {char = 'H', value = 304}, {char = 'Space', value = 179}, {char = 'K', value = 311},
-  {char = 'L', value = 7}, {char = 'M', value = 244}, {char = 'N', value = 306}, {char = 'U', value = 303}, {char = 'Y', value = 246}, {char = 'LShift', value = 21}
-}
 local buttonsPick = {{char = 'Up', value = 172}, {char = 'Down', value = 173}, {char = 'Left', value = 174}, {char = 'Right', value = 175}}
 
 local result = nil
@@ -82,11 +48,11 @@ function hack()
   	local correct = 0
   	Citizen.CreateThread(function()--Main Thread for the hack
 		Citizen.Wait(2500)
-		while failed < 3  and correct < 1 do 
-	  	local letter = math.random(1,12)
-	  	exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttons[letter].char)
+		while failed < 3  and correct < 10z do 
+	  	local letter = math.random(1,#buttonsPick)
+	  	exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
 	  	listening = true
-	  	listenForPress(buttons[letter].value)
+	  	listenForPress(buttonsPick[letter].value)
 		Citizen.Wait(900) --Timer to press Key
 	  	listening = false
 	  	--Parsing the results of the loop
@@ -131,7 +97,7 @@ function lockpick()
 	Citizen.CreateThread(function()--Main Thread for the lockpicking
 	Citizen.Wait(2500)
 		while failed < 1  and correct < 5 do 
-			local letter = math.random(1,4)
+			local letter = math.random(1,#puttonPick)
 			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
 			listening = true
 			listenForPress(buttonsPick[letter].value)
@@ -169,7 +135,7 @@ function thermite()
 	Citizen.CreateThread(function()--Main Thread for the thermite
 	Citizen.Wait(2500)
 		while failed < 1  and correct < 5 do 
-			local letter = math.random(1,4)
+			local letter = math.random(1,#buttonsPick)
 			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
 			listening = true
 			listenForPress(buttonsPick[letter].value)

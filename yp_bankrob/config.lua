@@ -106,5 +106,74 @@ Banks =
 		doorRotation = 0.0,
 		gateModel = '',
 		gateRotation = 0.0
-	}
+	},
+
+	{
+		name = "Flecca Del Perro",
+		hacks = {{x = -1210.7067, y = -336.5490, z = 37.7810},
+				 {x = 312.9251, y = -284.5722, z = 54.1430}
+				},
+		drills = {
+					{x = -1209.7980, y = -333.7249, z = 37.7592},
+					{x = -1207.4561, y = -333.7505, z = 37.7592},
+					{x = -1207.5247, y = -336.5192, z = 37.7593},
+					{x = -1206.4595, y = -338.7965, z = 37.7593},
+					{x = -1208.9548, y = -338.3133, z = 37.7592}
+				 },
+		registers = {},
+		counterDoor = {},
+		exit = {x = -1214.3476, y= -327.8316, z= 37.7779},
+		vaultModel = 'v_ilev_gb_vauldr',
+		vaultRotation = -63.136264,
+		doorModel = '',
+		doorRotation = 0.0,
+		gateModel = '',
+		gateRotation = 0.0
+	},
+
+	{
+		name = "Blaine County Savings",
+		hacks = {{x = -105.4070, y = 6471.8227 , z = 31.6267},
+				 {x = 312.9251, y = -284.5722, z = 54.1430}
+				},
+		drills = {
+					{x = -107.1649, y = 6473.5209, z = 31.6267},
+					{x = -107.6142, y = 6475.7397, z = 31.6267},
+					{x = -105.9026, y = 6478.6689, z = 31.6267},
+					{x = -103.2024, y = 6478.1918, z = 31.6267},
+					{x = -102.9210, y = 6475.4882, z = 31.6267}
+				 },
+		registers = {},
+		counterDoor = {},
+		exit = {x = -110.7807, y= 6462.9052, z= 31.6407},
+		vaultModel = 'v_ilev_cbankvauldoor01',
+		vaultRotation = 47.0,
+		doorModel = '',
+		doorRotation = 0.0,
+		gateModel = '',
+		gateRotation = 0.0
+	},
+
+	{
+		name = "Flecca Vinewood",
+		hacks = {{x = -353.8114, y = -55.1726, z = 49.0365},
+				 {x = 312.9251, y = -284.5722, z = 54.1430}
+				},
+		drills = {
+					{x = -350.9709, y = -54.0551, z = 49.0148},
+					{x = -349.5157, y = -55.7606, z = 49.0148},
+					{x = -350.1953, y = -59.1343, z = 49.0148},
+					{x = -352.4359, y = -60.0035, z = 49.0148},
+					{x = -353.8075, y = -57.7657, z = 49.0148}
+				 },
+		registers = {},
+		counterDoor = {},
+		exit = {x = -350.0368, y= -46.7347, z= 49.0368},
+		vaultModel = 'v_ilev_gb_vauldr',
+		vaultRotation = -110.134025,
+		doorModel = '',
+		doorRotation = 0.0,
+		gateModel = '',
+		gateRotation = 0.0
+	},
 }
