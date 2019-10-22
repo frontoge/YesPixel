@@ -38,6 +38,18 @@ AddEventHandler('yp_base:unFreezePlayer', function()
 	UnFreezePlayer()
 end)
 
+--Stress Status
+AddEventHandler('esx_status:loaded', function(status)
+
+	TriggerEvent('esx_status:registerStatus', 'stress', 1000000, '#CFAD0F', function(status)
+		return true
+	end, function(status)
+		if status > 0 then
+			
+		end
+	end)
+end)
+
 Citizen.CreateThread(function()
 	while true do
 		if frozen then
