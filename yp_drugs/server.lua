@@ -27,6 +27,12 @@ ESX.RegisterUsableItem('joint', function(source)
 	TriggerClientEvent('yp_drugs:actions:useJoint', source)
 end)
 
+ESX.RegisterUsableItem('blunt', function(source)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	xPlayer.removeInventoryItem('blunt', 1)
+	TriggerClientEvent('yp_drugs:actions:useJoint', source)
+end)
+
 ESX.RegisterUsableItem('heroin', function(source)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	xPlayer.removeInventoryItem('heroin', 1)
@@ -49,4 +55,22 @@ ESX.RegisterUsableItem('lsd', function(source)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	xPlayer.removeInventoryItem('lsd', 1)
 	TriggerClientEvent('yp_drugs:actions:useLSD', source)
+end)
+
+ESX.RegisterUsableItem('rollingpapers', function(source)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	if xPlayer.getInventoryItem('weed').count >= 1 then
+		xPlayer.removeInventoryItem('weed', 1)
+		xPlayer.removeInventoryItem('rollingpapers', 1)
+		TriggerClientEvent('yp_drugs:actions:rollWeed', source, 'joint')
+	end
+end)
+
+ESX.RegisterUsableItem('cigarillo', function(source)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	if xPlayer.getInventoryItem('weed').count >= 2 then
+		xPlayer.removeInventoryItem('weed', 1)
+		xPlayer.removeInventoryItem('cigarillo', 1)
+		TriggerClientEvent('yp_drugs:actions:rollWeed', source, 'blunt')
+	end
 end)
