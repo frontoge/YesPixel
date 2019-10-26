@@ -9,6 +9,39 @@ ESX = nil
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
+--Events
+RegisterServerEvent('yp_drugs:buyFromDispensary')
+AddEventHandler('yp_drugs:buyFromDispensary', function(item, amount, cost, card)
+	local canBuy = false
+	local xPlayer = ESX.GetPlayerFromId(source)
+	if xPlayer.getInventoryItem(item).count + amount < xPlayer.getInventoryItem(item).limit and xPlayer.getInventoryItem(item).limit ~= -1 then
+		if card then
+			if xPlayer.getAccount('bank').money >= cost then
+				xPlayer.removeAccountMoney('bank', cost)
+				canBuy = true
+			else
+				TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'Your card was declined.', length = 2500})
+			end
+		else
+			if xPlayer.getMoney() >= cost then
+				xPlayer.removeMoney(cost)
+				canBuy = true
+			else
+				TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You do not have enough cash.', length = 2500})
+			end
+		end
+
+		if canBuy then
+			xPlayer.addInventoryItem(item, amount)
+			TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'success', text = 'You bought items for $' .. cost, length = 2500})
+			exports['yp_taxes']:applyTax(source, 'sales', cost)
+		end
+
+	else
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You cannot carry that much', length = 2500})
+	end
+end)
+
 ESX.RegisterUsableItem('cocaine', function(source)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	xPlayer.removeInventoryItem('cocaine', 1)
@@ -30,7 +63,7 @@ end)
 ESX.RegisterUsableItem('blunt', function(source)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	xPlayer.removeInventoryItem('blunt', 1)
-	TriggerClientEvent('yp_drugs:actions:useJoint', source)
+	TriggerClientEvent('yp_drugs:actions:useBlunt', source)
 end)
 
 ESX.RegisterUsableItem('heroin', function(source)
