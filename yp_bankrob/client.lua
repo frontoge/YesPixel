@@ -48,7 +48,7 @@ function hack()
   	local correct = 0
   	Citizen.CreateThread(function()--Main Thread for the hack
 		Citizen.Wait(2500)
-		while failed < 3  and correct < 10z do 
+		while failed < 3  and correct < 10 do 
 	  	local letter = math.random(1,#buttonsPick)
 	  	exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
 	  	listening = true
@@ -97,7 +97,7 @@ function lockpick()
 	Citizen.CreateThread(function()--Main Thread for the lockpicking
 	Citizen.Wait(2500)
 		while failed < 1  and correct < 5 do 
-			local letter = math.random(1,#puttonPick)
+			local letter = math.random(1,#buttonsPick)
 			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
 			listening = true
 			listenForPress(buttonsPick[letter].value)
