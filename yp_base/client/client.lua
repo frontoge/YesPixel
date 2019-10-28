@@ -91,6 +91,7 @@ Citizen.CreateThread(function()
 			DisableControlAction(0, 34, true) --A
 			DisableControlAction(0, 35, true) --D
 			DisableControlAction(0, 73, true) --X
+			DisableControlAction(0, 154, true) --X
 		end
 
 		TriggerEvent('esx_status:getStatus', 'stress', function(status)--Check if the player has stress
