@@ -42,6 +42,38 @@ AddEventHandler('yp_drugs:buyFromDispensary', function(item, amount, cost, card)
 	end
 end)
 
+RegisterServerEvent('yp_drugs:cookMeth')
+AddEventHandler('yp_drugs:cookMeth', function()
+	local xPlayer = ESX.GetPlayerFromId(source)
+	local bat = xPlayer.getInventoryItem('carbattery').count > 0
+	local meds = xPlayer.getInventoryItem('coldmeds').count > 0
+	local flare = xPlayer.getInventoryItem('roadflare').count > 0
+
+	local canMake = true
+
+	if not flare then
+		canMake = false
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You need Phosphorus', length = 2500})
+	end
+
+	if not bat then
+		canMake = false
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You need Lithium', length = 2500})
+	end
+
+	if not meds then
+		canMake = false
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You need Sudafed', length = 2500})
+	end
+
+	if canMake then
+		xPlayer.removeInventoryItem('carbattery', 1)
+		xPlayer.removeInventoryItem('coldmeds', 1)
+		xPlayer.removeInventoryItem('roadflare', 1)
+		TriggerClientEvent('yp_drugs:crafting:makeMeth', source)
+	end
+end)
+
 ESX.RegisterUsableItem('cocaine', function(source)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	xPlayer.removeInventoryItem('cocaine', 1)

@@ -14,6 +14,8 @@ Citizen.CreateThread(function()
 	end
 end)
 
+local cooking = false
+
 
 function loadAnimDict(dict)  
     while (not HasAnimDictLoaded(dict)) do
@@ -65,6 +67,7 @@ end)
 RegisterNetEvent('yp_drugs:actions:useMeth')
 AddEventHandler('yp_drugs:actions:useMeth', function()
 	Citizen.CreateThread(function()
+		print('meth')
 		AnimpostfxPlay('DrugsDrivingOut', 0, 1.0)
 		exports['yp_base']:addStress(100000)
 		getArmorFromHigh(ArmorBonusMeth, MethArmorTimer)
@@ -213,6 +216,30 @@ AddEventHandler('yp_drugs:actions:rollWeed', function(item)
 	end)
 end)
 
+RegisterNetEvent('yp_drugs:crafting:makeMeth')
+AddEventHandler('yp_drugs:crafting:makeMeth', function()
+	cooking = true
+	local count = 0
+	exports['mythic_notify']:DoHudText('inform', 'Meth cooking started')
+	exports['progressBars']:startUI(10000, 'Mixing ingredients')
+	while count < 10 do
+		count = count + 1
+		Citizen.Wait(1000)
+	end
+	count = 0
+	timer = math.random(15, 25)
+	exports['progressBars']:startUI(timer * 1000, 'Cooking meth')
+	while count < timer do
+		count = count + 1
+		Citizen.Wait(1000)
+	end
+
+	local payout = math.random(5, 7)
+	TriggerServerEvent('yp_base:addItem', 'meth', payout)
+	exports['mythic_notify']:DoHudText("success", "You cooked " .. payout .. " meth")
+	cooking = false
+end)
+
 --Main Thread
 Citizen.CreateThread(function()
 	while true do
@@ -273,7 +300,12 @@ Citizen.CreateThread(function()
 				end
 			end
 		end
+		if Vdist(pos.x, pos.y, pos.z, 1390.5275, 3605.5852, 39.7759) < 3 and not cooking then
+			exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to cook meth')
+			if IsControlJustPressed(0, 51) then
+				TriggerServerEvent('yp_drugs:cookMeth')
+			end
+		end
 		Citizen.Wait(0)
 	end
 end)
-
