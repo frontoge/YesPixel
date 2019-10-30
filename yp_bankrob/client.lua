@@ -189,7 +189,7 @@ function openDoor(bankInd, doorNum)
 			local x = 0
 
 			while x < 400 do
-				SetEntityRotation(door, 0,0, GetEntityRotation(door)['z'] - 0.25)
+				SetEntityRotation(door, 0,0, GetEntityRotation(door)['z'] + Banks[bankInd].motion)
 				x = x + 1
 				Citizen.Wait(0)
 			end
