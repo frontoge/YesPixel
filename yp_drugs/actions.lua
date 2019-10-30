@@ -15,6 +15,7 @@ Citizen.CreateThread(function()
 end)
 
 local cooking = false
+local blip = nil
 
 
 function loadAnimDict(dict)  
@@ -238,6 +239,18 @@ AddEventHandler('yp_drugs:crafting:makeMeth', function()
 	TriggerServerEvent('yp_base:addItem', 'meth', payout)
 	exports['mythic_notify']:DoHudText("success", "You cooked " .. payout .. " meth")
 	cooking = false
+end)
+
+Citizen.CreateThread(function() -- Create Blip for store
+	blip = AddBlipForCoord(-1172.5959, -1572.2142, 4.6636)
+	SetBlipSprite(blip, 140)
+	SetBlipDisplay(blip, 4)
+	SetBlipScale(blip, 1.0)
+	SetBlipColour(blip, 2)
+	SetBlipAsShortRange(blip, true)
+	BeginTextCommandSetBlipName("STRING")
+	AddTextComponentString("Dispensary")
+	EndTextCommandSetBlipName(blip)
 end)
 
 --Main Thread
