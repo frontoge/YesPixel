@@ -10,5 +10,7 @@ client_scripts {
 exports { 
 	"DisplayHelpText",
 	"FreezePlayer",
-	"UnFreezePlayer"
+	"UnFreezePlayer",
+	"addStress",
+	"removeStress"
 }

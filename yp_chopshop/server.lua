@@ -37,12 +37,12 @@ AddEventHandler('yp_chopshop:chopVehicle', function(class, plate)
 		TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'There was nothing of value in this vehicle...' , length = 2500})
 	end
 
-	TriggerEvent('yp_chopshop:checkOwner', plate)
+	TriggerEvent('yp_chopshop:checkOwner', plate, src)
 
 end)
 
 RegisterServerEvent('yp_chopshop:checkOwner')
-AddEventHandler('yp_chopshop:checkOwner', function(plate)
+AddEventHandler('yp_chopshop:checkOwner', function(plate, source)
     local src = source
     local xPlayer = ESX.GetPlayerFromId(src)
     MySQL.Async.fetchAll('SELECT owner FROM owned_vehicles WHERE plate = @plate',{

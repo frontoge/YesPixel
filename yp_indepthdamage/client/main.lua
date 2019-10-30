@@ -94,6 +94,14 @@ Citizen.CreateThread(function()
   while true do
     if isPedDrivingAVehicle() then
       local vehicle = ESX.Game.GetClosestVehicle()
+
+      local roll = GetEntityRoll(vehicle)
+      if (roll > 75.0 or roll < -75.0) then
+          DisableControlAction(2,59,true) -- Disable left/right
+          DisableControlAction(2,60,true) -- Disable up/down
+      end
+
+      SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fWeaponDamageMult', 0.01/bodyFactor)--Stop extreme weapon damage
       
       --Check for Damage To Engine
       engineCurrent = GetVehicleEngineHealth(vehicle)

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<link href="https://fonts.googleapis.com/css?family=Abel&display=swap" rel="stylesheet">
+		<script src="nui://game/ui/jquery.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<div id="container">
+			<div class="container" id="frame">
+				<div class="itembox" id="repairbox">
+					<img class="itemimg" src="img/repairkit.png">
+					<button id="minusbutton">-</button>
+					<button id="plusbutton">+</button>
+					<p id="caption">Repair Kit</p>
+					<input id="count" type="number" name="amount" value=0 max=5 min=0>
+				</div>
+
+				<div class="itembox" id="flarebox">
+					<img class="itemimg" src="img/roadflare.png">
+					<button id="minusbutton">-</button>
+					<button id="plusbutton">+</button>
+					<p id="caption">Road Flare</p>
+					<input id="count" type="number" name="amount" value=0 max=15 min=0>
+				</div>
+
+				<div class="itembox" id="screwdriverbox">
+					<img class="itemimg" src="img/screwdriver.png">
+					<button id="minusbutton">-</button>
+					<button id="plusbutton">+</button>
+					<p id="caption">Screwdriver</p>
+					<input id="count" type="number" name="amount" value=0 max=20 min=0>
+				</div>
+
+				<div class="itembox" id="plierbox">
+					<img class="itemimg" src="img/pliers.png">
+					<button id="minusbutton">-</button>
+					<button id="plusbutton">+</button>
+					<p id="caption">Pliers</p>
+					<input id="count" type="number" name="amount" value=0 max=20 min=0>
+				</div>
+
+				<button id="checkout">Checkout</button>
+				<p id="total">Total: $0</p>
+			</div>
+
+			<div class="container" id="checkoutframe">
+				<h1 id="totaldisplay">Total: $</h1>
+				<div id="dividerline"></div>
+				<div id="cardbox">
+					<img id="cardimg" src="img/card.png">
+					<h2 id="cardcaption">Pay with Card</h2>
+				</div>
+				<div id="cashbox">
+					<img id="cashimg" src="img/cash.png">
+					<h2 id="cashcaption">Pay with Cash</h2>
+				</div>
+			</div>
+			<script type="text/javascript" src="listener.js"></script>
+		</div>
+	</body>
+</html>
