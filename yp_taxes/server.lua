@@ -23,7 +23,7 @@ function applyTax(src, type, amount)
 	end
 
 	xPlayer.removeAccountMoney('bank', tax)
-	TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'inform', text = '$' .. tax .. ' was charged for taxes.' , length = 2500})
+	TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'inform', text = tax .. ' was charged for taxes.' , length = 2500})
 	
 	TriggerEvent('esx_addonaccount:getSharedAccount', 'society_city', function(account)
 		account.addMoney(tax)

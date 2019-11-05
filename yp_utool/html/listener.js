@@ -71,7 +71,7 @@ $(function(){
 
     window.addEventListener('message', function(event) {
     	var item = event.data;
-    	if (item.type === "enableui") {
+    	if (item.type == "enableui") {
       		if (item.enable === true) {
         		display(true);
       		} else {

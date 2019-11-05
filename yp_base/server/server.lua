@@ -15,12 +15,6 @@ AddEventHandler('yp_base:playerReady', function()
   TriggerClientEvent('yp_police:playerReady', src)
 end)
 
-RegisterServerEvent('yp_base:addItem')
-AddEventHandler('yp_base:addItem', function(name, amount)
-  local xPlayer = ESX.GetPlayerFromId(source)
-  xPlayer.addInventoryItem(name, amount)
-end)
-
 RegisterCommand('job', function(source, args)
   local src = source
   local xPlayer = ESX.GetPlayerFromId(src)

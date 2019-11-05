@@ -72,13 +72,17 @@ AddEventHandler('idd_repairengine', function()
   local vehicle = ESX.Game.GetVehicleInDirection()
   local playerPed = GetPlayerPed(-1)
   if DoesEntityExist(vehicle) then
-    if GetVehicleEngineHealth(vehicle) < 300.0 then
+    if GetVehicleEngineHealth(vehicle) < 300.0  or GetVehicleBodyHealth(vehicle) <= 0.0 then
       exports['mythic_notify']:DoHudText('inform', 'You are repairing your vehicle')
       TaskStartScenarioInPlace(playerPed, 'PROP_HUMAN_BUM_BIN', 0, true)
-  	  exports['progressBars']:startUI(7000, "Repairing Engine")
+  	  exports['progressBars']:startUI(30000, "Repairing Engine")
       Citizen.Wait(7000)
-      SetVehicleEngineHealth(vehicle, 300.0)
-      TriggerServerEvent('idd_consRepairKit')
+      if GetVehicleEngineHealth(vehicle) < 300.0 then
+        SetVehicleEngineHealth(vehicle, 300.0)
+      end
+      if GetVehicleBodyHealth(vehicle) <= 0.0 then
+        SetVehicleBodyHealth(vehicle, 100.0)
+      end
       ClearPedTasksImmediately(playerPed)
       exports['mythic_notify']:DoLongHudText('success', 'You repaired your vehicle')
     else
