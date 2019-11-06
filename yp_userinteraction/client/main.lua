@@ -74,6 +74,7 @@ AddEventHandler('yp_userinteraction:lockpickvehicle', function()
         TaskStartScenarioInPlace(playerPed, 'WORLD_HUMAN_WELDING', 0, true)
         Citizen.Wait(15000)
         ClearPedTasksImmediately(playerPed)
+                  
         SetVehicleDoorsLockedForAllPlayers(vehicle, false)
         exports['mythic_notify']:DoHudText('success', 'Vehicle Unlocked')
       else

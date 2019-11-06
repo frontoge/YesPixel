@@ -32,9 +32,6 @@ local updatedDoors = false
 local bankcard = false
 
 local buttonsPick = {{char = 'Up', value = 172}, {char = 'Down', value = 173}, {char = 'Left', value = 174}, {char = 'Right', value = 175}}
-local buttonsHack = {
-  {char = 'Z', value = 20}, {char = 'F', value = 49}, {char = 'B', value = 29}, {char = 'H', value = 304}, {char = 'Space', value = 179}, {char = 'K', value = 311},
-  {char = 'L', value = 7}, {char = 'M', value = 244}, {char = 'N', value = 306}, {char = 'U', value = 303}, {char = 'Y', value = 246}, {char = 'LShift', value = 21}}
 
 --ESX init
 ESX = nil
@@ -207,10 +204,10 @@ AddEventHandler('yp_swedbank:hack', function(doorNum)
 	Citizen.CreateThread(function()--Main Thread for the hack
 		Citizen.Wait(2500)
 		while failed < 3  and correct < 10 and not bankcard do 
-			local letter = math.random(1,12)
-			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsHack[letter].char)
+			local letter = math.random(1,#buttonsPick)
+			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
 			listening = true
-			listenForPress(buttonsHack[letter].value)
+			listenForPress(buttonsPick[letter].value)
 			Citizen.Wait(850) --Timer to press Key
 			listening = false
 			--Parsing the results of the loop
