@@ -1,0 +1,103 @@
+body {
+	font-family: 'Raleway', sans-serif;
+}
+
+p {
+	padding: 0;
+	margin: 0;
+}
+
+button {
+	border: 2px solid white;
+	border-radius: 10%;
+}
+
+#container {
+	display: none;
+	position: absolute;
+	background-color: #2F2F2F;
+	border: 2px solid black;
+	border-radius: 10%;
+	bottom: 3%;
+	right: 3%;
+	height: 30%;
+	width: 30%;
+}
+
+#bottomstrip, #topstrip {
+	position: absolute;
+	height: 2%;
+	width: 100%;
+	background-color: #a09a22;
+}
+
+#bottomstrip {
+	bottom:8%;
+}
+
+#topstrip {
+	top:8%;
+}
+
+#ratebox {
+	position: absolute;
+	top: 20%;
+	height: 10%;
+	left: 20%;
+	width: 60%;
+}
+
+#totalbox {
+	position: absolute;
+	top: 45%;
+	height: 10%;
+	left: 20%;
+	width: 60%;
+}
+
+.label {
+	color: #c3c3c3;
+	font-size: 30px;
+	position: absolute;
+}
+
+#ratevalue, #totalvalue {
+	position: absolute;
+    left: 30%;
+    width: 52%;
+    background-color: #ffff00c7;
+    font-size: 30px;
+    padding-left: 40px;
+}
+
+#buttons {
+	position: absolute;
+	bottom: 20%;
+	height: 10%;
+	width: 100%;
+}
+
+#startbutton, #stopbutton, #resetbutton {
+	position: absolute;
+	width: 15%;
+}
+
+#startbutton {
+	left: 20%;
+	background-color: #267926;
+}
+
+#resetbutton {
+	left: 42.5%;
+	background-color: #bbbb09;
+}
+
+#stopbutton {
+	right: 20%;
+	background-color: #a86767;
+}
+
+
+
+
+

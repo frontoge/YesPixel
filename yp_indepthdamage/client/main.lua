@@ -72,13 +72,17 @@ AddEventHandler('idd_repairengine', function()
   local vehicle = ESX.Game.GetVehicleInDirection()
   local playerPed = GetPlayerPed(-1)
   if DoesEntityExist(vehicle) then
-    if GetVehicleEngineHealth(vehicle) < 300.0 then
+    if GetVehicleEngineHealth(vehicle) < 300.0  or GetVehicleBodyHealth(vehicle) <= 0.0 then
       exports['mythic_notify']:DoHudText('inform', 'You are repairing your vehicle')
       TaskStartScenarioInPlace(playerPed, 'PROP_HUMAN_BUM_BIN', 0, true)
-  	  exports['progressBars']:startUI(7000, "Repairing Engine")
-      Citizen.Wait(7000)
-      SetVehicleEngineHealth(vehicle, 300.0)
-      TriggerServerEvent('idd_consRepairKit')
+      exports['progressBars']:startUI(30000, "Repairing Engine")
+      Citizen.Wait(30000)
+      if GetVehicleEngineHealth(vehicle) < 300.0 then
+        SetVehicleEngineHealth(vehicle, 300.0)
+      end
+      if GetVehicleBodyHealth(vehicle) <= 0.0 then
+        SetVehicleBodyHealth(vehicle, 100.0)
+      end
       ClearPedTasksImmediately(playerPed)
       exports['mythic_notify']:DoLongHudText('success', 'You repaired your vehicle')
     else
@@ -114,7 +118,7 @@ Citizen.CreateThread(function()
         engineScale = engineFactor * engineDelta
         SetVehicleEngineHealth(vehicle, (engineLast - engineScale) - getEngineDecay(vehicle))
       else
-        SetVehicleEngineHealth(vehicle, (engineLast - getEngineDecay(vehicle)))
+        SetVehicleEngineHealth(vehicle, (engineCurrent - getEngineDecay(vehicle)))
       end
       
       if GetVehicleEngineHealth(vehicle) < 100.0 then -- Keep Vehicle From hitting zero engine Health
@@ -141,16 +145,17 @@ Citizen.CreateThread(function()
         SetVehiclePetrolTankHealth(vehicle, fuelCurrent - fuelScale)
       end
       fuelLast = GetVehiclePetrolTankHealth(vehicle)
-      
-      --Disable Vehicle
-      if GetVehicleEngineHealth(vehicle) <= 200.0 or GetVehicleBodyHealth(vehicle) <= 0.0 then
-        SetVehicleUndriveable(vehicle, true)
-      else
-        SetVehicleUndriveable(vehicle, false)
-      end
     else 
       firstFrame = true
     end
+    --Disable Vehicle
+      if GetVehicleEngineHealth(vehicle) <= 200.0 or GetVehicleBodyHealth(vehicle) <= 0.0 then
+        SetVehicleUndriveable(vehicle, true)
+        TriggerEvent('EngineToggle:RPDamage', false)
+      else
+        SetVehicleUndriveable(vehicle, false)
+        TriggerEvent('EngineToggle:RPDamage', true)
+      end
     Citizen.Wait(0)-- Check every Frame
   end
 end)

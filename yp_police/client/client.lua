@@ -4,7 +4,6 @@
  * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
 ]]--
 
-local isPolice = false
 local inUniform = false
 local isBoss = false
 local invData = {}
@@ -14,11 +13,14 @@ local pdBlip = nil
 --ESX Init
 ESX = nil
 
-Citizen.CreateThread(function()
-	while ESX == nil do
-		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-		Citizen.Wait(0)
-	end
+RegisterNetEvent('esx:playerLoaded')
+AddEventHandler('esx:playerLoaded', function(xPlayer)
+	ESX.PlayerData = xPlayer
+end)
+
+RegisterNetEvent('esx:setJob')
+AddEventHandler('esx:setJob', function(job)
+	ESX.PlayerData.job = job
 end)
 
 --Draw Blip
@@ -133,8 +135,24 @@ function openJobMenu()
 						function(data3, menu3)
 
 						end)
-				else
-					--Jailmenu
+				else--Jailmenu
+					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+					if (closestPlayer ~= -1 and distance < 3.0) then
+						ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'jail_player', {title = 'Enter duration'},
+							function(data3, menu3)
+								menu3.close()
+								if tonumber(data3.value) > 0 then
+									TriggerServerEvent('esx_jail:sendToJail', GetPlayerServerId(closestPlayer), data3.value)
+								else
+									exports['mythic_notify']:DoHudText('error', "Can't jail for less than 0 months")
+								end
+							end,
+							function(data3, menu3)
+								menu3.close()
+							end)
+					else
+						exports['mythic_notify']:DoHudText('error', 'There is no player nearby!')
+					end
 				end
 			end,
 			function(data2, menu2)
@@ -448,46 +466,57 @@ end)
 Citizen.CreateThread(function()
 	Citizen.Wait(500)
 	local pos = nil
+	while ESX == nil do
+		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+		Citizen.Wait(0)
+	end
+
+	while ESX.GetPlayerData().job == nil do
+		Citizen.Wait(10)
+	end
+
+	ESX.PlayerData = ESX.GetPlayerData()
 
 	while true do--Main Loop
 		local playerPed = GetPlayerPed(-1)
 		pos = GetEntityCoords(playerPed)
 
 		--Draw Markers
-		if Vdist(pos.x, pos.y, pos.z, 477.2778, -988.1365, 24.9147) < 20 then --Evidence Locker
-			DrawMarker(1, 477.8778, -984.2165, 23.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
-		end
+		if ESX.PlayerData.job.name == 'police' then
+			if Vdist(pos.x, pos.y, pos.z, 477.2778, -988.1365, 24.9147) < 20 then --Evidence Locker
+				DrawMarker(1, 477.8778, -984.2165, 23.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			end
 
-		if Vdist(pos.x, pos.y, pos.z, 452.0335, -980.3474, 30.6896) < 20 then -- Armory
-			DrawMarker(1, 452.0335, -980.3474, 29.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
-		end
+			if Vdist(pos.x, pos.y, pos.z, 452.0335, -980.3474, 30.6896) < 20 then -- Armory
+				DrawMarker(1, 452.0335, -980.3474, 29.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			end
 
-		if Vdist(pos.x, pos.y, pos.z, 451.0890, -992.4544, 30.6896) < 20 then -- Locker room
-			DrawMarker(1, 451.0890, -992.4544, 29.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
-		end
+			if Vdist(pos.x, pos.y, pos.z, 451.0890, -992.4544, 30.6896) < 20 then -- Locker room
+				DrawMarker(1, 451.0890, -992.4544, 29.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			end
 
-		if Vdist(pos.x, pos.y, pos.z, 454.8623, -1017.3440, 28.4261) < 30 then -- Car Spawner
-			DrawMarker(36, 454.8623, -1017.3440, 28.4261, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0, 0, 255, 100, false, false, 2, true, nil, nil, false)
-		end
+			if Vdist(pos.x, pos.y, pos.z, 454.8623, -1017.3440, 28.4261) < 30 then -- Car Spawner
+				DrawMarker(36, 454.8623, -1017.3440, 28.4261, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0, 0, 255, 100, false, false, 2, true, nil, nil, false)
+			end
 
-		if Vdist(pos.x, pos.y, pos.z, 463.4964, -982.4035, 43.6920) < 30 then -- Heli Spawner 
-			DrawMarker(34, 463.4964, -982.4035, 43.6920, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0, 0, 255, 100, false, false, 2, true, nil, nil, false)
-		end
+			if Vdist(pos.x, pos.y, pos.z, 463.4964, -982.4035, 43.6920) < 30 then -- Heli Spawner 
+				DrawMarker(34, 463.4964, -982.4035, 43.6920, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0, 0, 255, 100, false, false, 2, true, nil, nil, false)
+			end
 
-		if Vdist(pos.x, pos.y, pos.z, 462.7208, -1017.0921, 28.0829) < 20 then -- Car Return
-			DrawMarker(1, 462.7208, -1017.0921, 27.0829, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.5, 255, 0, 0, 100, false, false, 2, false, nil, nil, false)
-		end
+			if Vdist(pos.x, pos.y, pos.z, 462.7208, -1017.0921, 28.0829) < 20 then -- Car Return
+				DrawMarker(1, 462.7208, -1017.0921, 27.0829, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.5, 255, 0, 0, 100, false, false, 2, false, nil, nil, false)
+			end
 
-		if Vdist(pos.x, pos.y, pos.z, 459.5682, -975.8306, 35.9310) < 20 then -- on/off duty
-			DrawMarker(1, 459.5682, -975.8306, 34.9310, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
-		end
+			if Vdist(pos.x, pos.y, pos.z, 459.5682, -975.8306, 35.9310) < 20 then -- on/off duty
+				DrawMarker(1, 459.5682, -975.8306, 34.9310, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			end
 
-		if Vdist(pos.x, pos.y, pos.z, 435.8352, -973.4408, 26.6685) < 20 then -- Medical supply room
-			DrawMarker(1, 435.8352, -973.4408, 25.6685, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
-		end
+			if Vdist(pos.x, pos.y, pos.z, 435.8352, -973.4408, 26.6685) < 20 then -- Medical supply room
+				DrawMarker(1, 435.8352, -973.4408, 25.6685, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			end
 
 		--Listners
-		if isPolice then
+		
 			if IsControlJustPressed(0, 167) then
 				openJobMenu()
 			end
@@ -557,38 +586,38 @@ Citizen.CreateThread(function()
 					end
 				end
 			end
-		end
 
-		if Vdist(pos.x, pos.y, pos.z, 459.5682, -975.8306, 35.9310) < 1 then -- on/offduty
-			if isPolice then
-				DisplayHelpText("Press ~INPUT_CONTEXT~ to go Off Duty")
-				
-			else
-				DisplayHelpText("Press ~INPUT_CONTEXT~ to go On Duty")
+			if Vdist(pos.x, pos.y, pos.z, 459.5682, -975.8306, 35.9310) < 1 then -- on/offduty
+				if isPolice then
+					DisplayHelpText("Press ~INPUT_CONTEXT~ to go Off Duty")
+					
+				else
+					DisplayHelpText("Press ~INPUT_CONTEXT~ to go On Duty")
+				end
+				if IsControlJustPressed(0,51) then
+					TriggerServerEvent('yp_police:toggleDuty', isPolice)
+				end
 			end
-			if IsControlJustPressed(0,51) then
-				TriggerServerEvent('yp_police:toggleDuty', isPolice)
-			end
-		end
 
-		if isBoss and Vdist(pos.x, pos.y, pos.z, 461.8731, -1007.7943, 35.9311) < 1 then
-			DisplayHelpText("Press ~INPUT_CONTEXT~ to hire someone")
-			if IsControlJustPressed(0,51) then
-				ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'id_input', {title = 'Enter ID of Player'},
-					function(data, menu)
-						menu.close()
-						ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'grade_input', {title = 'Enter Job Grade'},
-							function(data2, menu2)
-								menu2.close()
-								TriggerServerEvent('yp_police:hirePlayer', tonumber(data.value), tonumber(data2.value))
-							end,
-							function(data2, menu2)
-								menu2.close()
-							end)
-					end,
-					function(data, menu)
-						menu.close()
-					end)
+			if isBoss and Vdist(pos.x, pos.y, pos.z, 461.8731, -1007.7943, 35.9311) < 1 then
+				DisplayHelpText("Press ~INPUT_CONTEXT~ to hire someone")
+				if IsControlJustPressed(0,51) then
+					ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'id_input', {title = 'Enter ID of Player'},
+						function(data, menu)
+							menu.close()
+							ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'grade_input', {title = 'Enter Job Grade'},
+								function(data2, menu2)
+									menu2.close()
+									TriggerServerEvent('yp_police:hirePlayer', tonumber(data.value), tonumber(data2.value))
+								end,
+								function(data2, menu2)
+									menu2.close()
+								end)
+						end,
+						function(data, menu)
+							menu.close()
+						end)
+				end
 			end
 		end
 		Citizen.Wait(0)

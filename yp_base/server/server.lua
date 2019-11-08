@@ -21,6 +21,13 @@ AddEventHandler('yp_base:addItem', function(name, amount)
   xPlayer.addInventoryItem(name, amount)
 end)
 
+RegisterServerEvent('yp_base:removeItem')
+AddEventHandler('yp_base:removeItem', function(name, amount)
+  local xPlayer = ESX.GetPlayerFromId(source)
+  xPlayer.removeInventoryItem(name, amount)
+end)
+
+
 RegisterCommand('job', function(source, args)
   local src = source
   local xPlayer = ESX.GetPlayerFromId(src)

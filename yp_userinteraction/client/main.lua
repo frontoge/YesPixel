@@ -61,9 +61,15 @@ end)
 
 RegisterNetEvent('toggledoor')
 AddEventHandler('toggledoor', function(doornumber)
-    local vehicle = ESX.Game.GetClosestVehicle()
-    toggleDoor(vehicle, doornumber)
-    
+    local vehicle = nil
+    if IsPedInAnyVehicle(GetPlayerPed(-1)) then
+      vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
+    else
+      vehicle = ESX.Game.GetVehicleInDirection()
+    end
+    if DoesEntityExist(vehicle) then
+      toggleDoor(vehicle, doornumber)
+    end    
 end)
 
 RegisterNetEvent('yp_userinteraction:lockpickvehicle')
@@ -85,7 +91,7 @@ end)
 RegisterNetEvent('userinteraction:windowcommand')
 AddEventHandler('userinteraction:windowcommand', function(windowNum, state)
   if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-    local vehicle = ESX.Game.GetClosestVehicle()
+    local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
     toggleWindow(vehicle, windowNum, state)
   else
     exports['mythic_notify']:DoHudText('error', 'Not in a Vehicle')
@@ -443,7 +449,7 @@ function OpenInteractionMenu()
               if action2 == 'grab_keys' then
                 local keysfound = false
                 if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  local vehicle = ESX.Game.GetClosestVehicle()
+                  local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                   keysfound = checkForKeys(vehicle)
                   if not keysfound then
                     table.insert(keys, vehicle)
@@ -458,7 +464,7 @@ function OpenInteractionMenu()
               elseif action2 == 'lock_vehicle' then--Lock Vehicle Option SetVehicleDoorsLockedForAllPlayers(vehicle, true)
                 local vehicle = ESX.Game.GetVehicleInDirection()
                 if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  vehicle = ESX.Game.GetClosestVehicle()
+                  vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                   menu2.close()
                   SetVehicleDoorsLockedForAllPlayers(vehicle, true)
                   exports['mythic_notify']:DoHudText('inform', 'Doors Locked')
@@ -477,7 +483,7 @@ function OpenInteractionMenu()
               elseif action2 == 'unlock_vehicle' then--Unlock Vehicle Option
                 local vehicle = ESX.Game.GetVehicleInDirection()
                 if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  vehicle = ESX.Game.GetClosestVehicle()
+                  vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                   menu2.close()
                   SetVehicleDoorsLockedForAllPlayers(vehicle, false)
                   exports['mythic_notify']:DoHudText('inform', 'Doors Unlocked')
@@ -499,7 +505,7 @@ function OpenInteractionMenu()
               elseif action2 == 'open_hood' then
                 local vehicle = ESX.Game.GetVehicleInDirection()
                 if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  vehicle = ESX.Game.GetClosestVehicle()
+                  vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                   menu2.close()
                   toggleDoor(vehicle, 4)
                 elseif DoesEntityExist(vehicle) then
@@ -512,7 +518,7 @@ function OpenInteractionMenu()
               elseif action2 == 'open_trunk' then
                 local vehicle = ESX.Game.GetVehicleInDirection()
                 if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  vehicle = ESX.Game.GetClosestVehicle()
+                  vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                   menu2.close()
                   toggleDoor(vehicle, 5)
                 elseif DoesEntityExist(vehicle) then
@@ -536,21 +542,21 @@ function OpenInteractionMenu()
                       local action3 = data3.current.value
                       if action3 == 'door1' then
                         menu3.close()
-                        local vehicle = ESX.Game.GetClosestVehicle()
+                        local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                         toggleDoor(vehicle, 0)
                       elseif action3 == 'door2' then
                         menu3.close()
-                        local vehicle = ESX.Game.GetClosestVehicle()
+                        local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                         toggleDoor(vehicle, 1)
                         
                       elseif action3 == 'door3' then
                         menu3.close()
-                        local vehicle = ESX.Game.GetClosestVehicle()
+                        local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                         toggleDoor(vehicle, 2)
                         
                       elseif action3 == 'door4' then
                         menu3.close()
-                        local vehicle = ESX.Game.GetClosestVehicle()
+                        local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                         toggleDoor(vehicle, 3)
                       end
                     end,
@@ -572,7 +578,7 @@ function OpenInteractionMenu()
                     }},
                   function(data3,menu3)
                     local action3 = data3.current.value
-                    local vehicle = ESX.Game.GetClosestVehicle()
+                    local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                     if action3 == 'window1' then
                       menu3.close()
                       toggleWindow(vehicle, 0, true)
@@ -608,7 +614,7 @@ function OpenInteractionMenu()
                     }},
                   function(data3,menu3)
                     local action3 = data3.current.value
-                    local vehicle = ESX.Game.GetClosestVehicle()
+                    local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                     if action3 == 'window1' then
                       menu3.close()
                       toggleWindow(vehicle, 0, false)
@@ -635,7 +641,7 @@ function OpenInteractionMenu()
                 
               elseif action2 == 'toggle_engine' then
                 if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  local vehicle = ESX.Game.GetClosestVehicle()
+                  local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                   if GetIsVehicleEngineRunning(vehicle) then
                     SetVehicleEngineOn(vehicle, false, false, true)
                   else
@@ -646,9 +652,9 @@ function OpenInteractionMenu()
                 end
                 
               elseif action2 == 'inspect_vehicle' then
-                local vehicle = ESX.Game.GetVehicleInDirection()
+                local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                 if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  vehicle = ESX.Game.GetClosestVehicle()
+                  vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                 end
                 if DoesEntityExist(vehicle) then
                   menu2.close()
@@ -770,19 +776,8 @@ Citizen.CreateThread(function()
     if IsControlJustReleased(0, useKey) and not isDead and not isCuffed then
       OpenInteractionMenu()
     end
-    --[[if IsControlJustReleased(0, engineKey) then
-      local ped = GetPlayerPed(-1)
-      if IsPedInAnyVehicle(ped, false) then
-        local vehicle = GetVehiclePedIsIn(ped, false)
-        if GetPedInVehicleSeat(vehicle, -1) == ped then
-          Citizen.Wait(500)
-          if GetIsVehicleEngineRunning(vehicle) then
-            SetVehicleEngineOn(vehicle, false, false, true)
-          else
-            SetVehicleEngineOn(vehicle, true, false)
-          end
-        end
-      end
-    end]]
+    if IsControlJustPressed(0, 182) then
+
+    end
   end
 end)

@@ -40,6 +40,18 @@ Citizen.CreateThread(function() -- Create Blip for store
 	EndTextCommandSetBlipName(blip)
 end)
 
+Citizen.CreateThread(function() -- Create Blip for store
+	blip = AddBlipForCoord(2772.6096, 3458.3854, 55.6730)
+	SetBlipSprite(blip, 566)
+	SetBlipDisplay(blip, 4)
+	SetBlipScale(blip, 1.0)
+	SetBlipColour(blip, 2)
+	SetBlipAsShortRange(blip, true)
+	BeginTextCommandSetBlipName("STRING")
+	AddTextComponentString("Hardware store")
+	EndTextCommandSetBlipName(blip)
+end)
+
 Citizen.CreateThread(function()
 	while true do
 		local playerPed = GetPlayerPed(-1)
@@ -55,6 +67,7 @@ Citizen.CreateThread(function()
 		end
 		local dist = Vdist(pos.x, pos.y, pos.z, 45.5686, -1748.8684, 29.5975)
 		local dist2 = Vdist(pos.x, pos.y, pos.z, 53.9046, -1738.3624, 29.5325)
+		local dist3 = Vdist(pos.x, pos.y, pos.z, 2748.8974, 3472.4056, 54.6730)
 		if dist < 20 then
 			DrawMarker(1, 45.5686, -1748.8684, 28.5975, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.5, 2.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
 			if dist < 2 then
@@ -68,6 +81,16 @@ Citizen.CreateThread(function()
 		if dist2 < 20 then
 			DrawMarker(1, 53.9046, -1738.3624, 28.5325, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.5, 2.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
 			if dist2 < 2 then
+				exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to shop')
+				if IsControlJustPressed(0,51) then
+					EnableGui(true)
+				end
+			end
+		end
+
+		if dist3 < 20 then
+			DrawMarker(1, 2748.8974, 3472.4056, 54.6730, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.5, 2.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			if dist3 < 2 then
 				exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to shop')
 				if IsControlJustPressed(0,51) then
 					EnableGui(true)

@@ -39,8 +39,6 @@ end
 --Events
 RegisterNetEvent('yp_base:disableHPRegen')
 AddEventHandler('yp_base:disableHPRegen', function()
-	local playerPed = GetPlayerPed(-1)
-	SetPlayerHealthRechargeMultiplier(playerPed, 0.0)
 end)
 
 RegisterNetEvent('yp_base:freezePlayer')
@@ -85,13 +83,14 @@ end)
 --Main Thread (once per tick)
 Citizen.CreateThread(function()
 	while true do
+		local playerPed = GetPlayerPed(-1)
+		SetPlayerHealthRechargeMultiplier(playerPed, 0.0)
 		if frozen then
 			DisableControlAction(0, 32, true) --W
 			DisableControlAction(0, 33, true) --S
 			DisableControlAction(0, 34, true) --A
 			DisableControlAction(0, 35, true) --D
 			DisableControlAction(0, 73, true) --X
-			DisableControlAction(0, 154, true) --X
 		end
 
 		TriggerEvent('esx_status:getStatus', 'stress', function(status)--Check if the player has stress

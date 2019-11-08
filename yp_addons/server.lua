@@ -19,7 +19,7 @@ AddEventHandler('yp_addons:buyVendItem', function(item)
 	else
 		TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'You do not have enough money for this...' , length = 2500})
 	end
-	
+
 end)
 
 ESX.RegisterUsableItem('trafficcone', function(source)

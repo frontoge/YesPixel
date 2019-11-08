@@ -88,7 +88,7 @@ AddEventHandler('yp_drugs:actions:useJoint', function()
 		local boneIndex = GetPedBoneIndex(playerPed, 0xFA10)
 
 		AttachEntityToEntity(prop, playerPed, boneIndex, 0.03, 0.0, 0.02, 120.0, 190.0, 50.0, true, false, false, true, 1, true)
-		TaskPlayAnim( playerPed, "timetable@gardener@smoking_joint", "smoke_idle", 8.0, 1.0, -1, 2, 0, 0, 0, 0 )
+		TaskPlayAnim( playerPed, "timetable@gardener@smoking_joint", "smoke_idle", 8.0, 1.0, -1, 50, 0, 0, 0, 0 )
 		exports['yp_base']:FreezePlayer()
 		while timer < 15 do
 			Citizen.Wait(1000)
@@ -116,7 +116,7 @@ AddEventHandler('yp_drugs:actions:useBlunt', function(source)
 		local boneIndex = GetPedBoneIndex(playerPed, 0xFA10)
 
 		AttachEntityToEntity(prop, playerPed, boneIndex, 0.03, 0.0, 0.02, 120.0, 190.0, 50.0, true, false, false, true, 1, true)
-		TaskPlayAnim( playerPed, "timetable@gardener@smoking_joint", "smoke_idle", 8.0, 1.0, -1, 2, 0, 0, 0, 0 )
+		TaskPlayAnim(playerPed, "timetable@gardener@smoking_joint", "smoke_idle", 8.0, 1.0, -1, 50, 0, 0, 0, 0)
 
 		exports['yp_base']:FreezePlayer()
 		while timer < 15 do
