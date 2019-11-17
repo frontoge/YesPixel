@@ -1,0 +1,32 @@
+img {
+	max-width: 80%;
+	height: auto;
+}
+
+input {
+	background: none;
+    border: none;
+    position: absolute;
+    bottom: 54.7%;
+    font-size: larger;
+    left: 32%;
+    width: 17%;
+}
+
+button {
+	position: absolute;
+    left: 33%;
+    bottom: 38%;
+}
+
+#container {
+	position: absolute;
+	bottom: 5%;
+	right: 5%;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
