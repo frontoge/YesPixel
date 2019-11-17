@@ -98,6 +98,12 @@ ESX.RegisterUsableItem('blunt', function(source)
 	TriggerClientEvent('yp_drugs:actions:useBlunt', source)
 end)
 
+ESX.RegisterUsableItem('cigarette', function(source)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	xPlayer.removeInventoryItem('cigarette', 1)
+	TriggerClientEvent('yp_drugs:actions:useCigarette', source)
+end)
+
 ESX.RegisterUsableItem('heroin', function(source)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	xPlayer.removeInventoryItem('heroin', 1)

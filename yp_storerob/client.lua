@@ -63,7 +63,7 @@ end)
 RegisterNetEvent('yp_storerob:robRegister')
 AddEventHandler('yp_storerob:robRegister', function()
 	Citizen.CreateThread(function()
-		local searchTime = math.random(15,20)
+		local searchTime = math.random(25,40)
 		local searched = 0
 
 		exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")

@@ -183,8 +183,8 @@ AddEventHandler('pullOutVehicle', function()
 	TaskLeaveVehicle(playerPed, vehicle, 16)
 end)
 
-RegisterNetEvent('showPlayerInventory')
-AddEventHandler('showPlayerInventory', function(target, targetInv)
+RegisterNetEvent('yp_userinteraction:showPlayerInventory')
+AddEventHandler('yp_userinteraction:showPlayerInventory', function(target, targetInv)
   local elements = {}
   local inventory = targetInv.inventory
   local weapons = targetInv.weapons
@@ -410,12 +410,12 @@ function OpenInteractionMenu()
               if closestPlayer ~= -1 and distance <= 3 then
                 if cuffsToSearch then
                   if IsPedCuffed(GetPlayerPed(closestPlayer)) then
-                    TriggerServerEvent('yp_userinteraction:getPlayerInventory', closestPlayer)
+                    TriggerServerEvent('yp_userinteraction:getPlayerInventory', GetPlayerServerId(closestPlayer))
                   else
                     exports['mythic_notify']:DoHudText('error', 'Player not Cuffed!')
                   end
                 else
-                  TriggerServerEvent('yp_userinteraction:getPlayerInventory', closestPlayer)
+                  TriggerServerEvent('yp_userinteraction:getPlayerInventory', GetPlayerServerId(closestPlayer))
                 end
               else
                 exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')
@@ -776,8 +776,37 @@ Citizen.CreateThread(function()
     if IsControlJustReleased(0, useKey) and not isDead and not isCuffed then
       OpenInteractionMenu()
     end
-    if IsControlJustPressed(0, 182) then
-
+    if IsControlJustReleased(0, 301) then
+      local vehicle = ESX.Game.GetVehicleInDirection()
+      if IsPedInAnyVehicle(GetPlayerPed(-1)) then
+        vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
+        if not checkForKeys(vehicle) then
+          table.insert(keys, vehicle)
+          exports['mythic_notify']:DoHudText('inform', 'You grabbed the keys')
+        else
+          if GetVehicleDoorsLockedForPlayer(vehicle, GetPlayerPed(-1)) then
+            SetVehicleDoorsLockedForAllPlayers(vehicle, false)
+            exports['mythic_notify']:DoHudText('inform', 'Doors unlocked')
+          else
+            SetVehicleDoorsLockedForAllPlayers(vehicle, true)
+            exports['mythic_notify']:DoHudText('inform', 'Doors Locked')
+          end
+        end
+      elseif DoesEntityExist(vehicle) then
+        if checkForKeys(vehicle) then
+          if GetVehicleDoorsLockedForPlayer(vehicle, GetPlayerPed(-1)) then
+            SetVehicleDoorsLockedForAllPlayers(vehicle, false)
+            exports['mythic_notify']:DoHudText('inform', 'Doors unlocked')
+          else
+            SetVehicleDoorsLockedForAllPlayers(vehicle, true)
+            exports['mythic_notify']:DoHudText('inform', 'Doors Locked')
+          end
+        else
+          exports['mythic_notify']:DoHudText('error', 'No Keys!')
+        end
+      else
+        exports['mythic_notify']:DoHudText('error', 'No Vehicle Nearby!')
+      end
     end
   end
 end)

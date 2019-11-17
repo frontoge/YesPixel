@@ -36,6 +36,10 @@ function removeStress(amount)
 	end)
 end
 
+function deleteVehicle(entity)
+	Citizen.InvokeNative(0xEA386986E786A54F, Citizen.PointerValueIntInitialized(entity))
+end
+
 --Events
 RegisterNetEvent('yp_base:disableHPRegen')
 AddEventHandler('yp_base:disableHPRegen', function()

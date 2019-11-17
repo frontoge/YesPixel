@@ -5,8 +5,8 @@
 ]]--
 
 --Config Locals
-local cooldownMax = 2 * 60
-local copsMin = 1
+local cooldownMax = 60 * 60
+local copsMin = 4
 
 --ESX Init
 ESX = nil
@@ -189,7 +189,7 @@ end)
 RegisterServerEvent('yp_swedbank:cashDrawerDrop')
 AddEventHandler('yp_swedbank:cashDrawerDrop', function()
 	local xPlayer = ESX.GetPlayerFromId(source)
-	local payout = math.random(1500, 2250)
+	local payout = math.random(1000, 1500)
 	xPlayer.addAccountMoney('black_money', payout)
 	TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'success', text = 'You got $' .. payout .. ' black money!' , length = 2500})
 end)
@@ -232,7 +232,7 @@ RegisterServerEvent('yp_swedbank:finishDrilling')
 AddEventHandler('yp_swedbank:finishDrilling', function(drillNum)
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
-	local payout = math.random(70000,100000)
+	local payout = math.random(25000,40000)
 	xPlayer.addAccountMoney('black_money', payout)
 	TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'success', text = 'You got $' .. payout .. ' black money!' , length = 2500})
 	TriggerClientEvent('yp_swedbank:drillBox', -1, drillNum)

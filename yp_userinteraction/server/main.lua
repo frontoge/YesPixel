@@ -37,7 +37,7 @@ RegisterServerEvent('checkforpick')
 AddEventHandler('checkforpick', function()
   local source = source
   local xPlayer = ESX.GetPlayerFromId(source)
-  if xPlayer.job.name == 'police' or xPlayer.job.name == 'fib' or xPlayer.job.name == 'medical' or xPlayer.job.name == 'sheriff' then
+  if xPlayer.job.name == 'police' or xPlayer.job.name == 'fib' or xPlayer.job.name == 'ems' or xPlayer.job.name == 'sheriff' then
     TriggerClientEvent('yp_userinteraction:lockpickvehicle', source)
   elseif xPlayer.getInventoryItem('lockpick').count >= 1 then
     xPlayer.removeInventoryItem('lockpick', 1)
@@ -51,7 +51,7 @@ RegisterServerEvent('cuff')
 AddEventHandler('cuff', function(target)
   local source = source
   local xPlayer = ESX.GetPlayerFromId(source)
-  if not (xPlayer.job.name == 'police' or xPlayer.job.name == 'fib' or xPlayer.job.name == 'medical' or xPlayer.job.name == 'sheriff') then
+  if not (xPlayer.job.name == 'police' or xPlayer.job.name == 'fib' or xPlayer.job.name == 'ems' or xPlayer.job.name == 'sheriff') then
     if xPlayer.getInventoryItem('handcuffs').count >= 1 then
       TriggerClientEvent('yp_userinteraction:getcuffed', target)
       xPlayer.removeInventoryItem('handcuffs', 1)
@@ -65,7 +65,7 @@ RegisterServerEvent('uncuff')
 AddEventHandler('uncuff', function(target)
   local source = source
   local xPlayer = ESX.GetPlayerFromId(source)
-  if not (xPlayer.job.name == 'police' or xPlayer.job.name == 'fib' or xPlayer.job.name == 'medical' or xPlayer.job.name == 'sheriff') then
+  if not (xPlayer.job.name == 'police' or xPlayer.job.name == 'fib' or xPlayer.job.name == 'ems' or xPlayer.job.name == 'sheriff') then
     if xPlayer.getInventoryItem('handcuffkey').count >= 1 then
       TriggerClientEvent('yp_userinteraction:getuncuffed', target)
       xPlayer.addInventoryItem('handcuffs', 1)
@@ -99,10 +99,10 @@ end)
 RegisterServerEvent('yp_userinteraction:getPlayerInventory')
 AddEventHandler('yp_userinteraction:getPlayerInventory', function(target)
   local source = source
-  local xPlayer = ESX.GetPlayerFromId(target+1)
+  local xPlayer = ESX.GetPlayerFromId(target)
   local targetInv = {inventory = xPlayer.inventory, weapons = xPlayer.loadout, accounts = xPlayer.accounts}
   
-  TriggerClientEvent('showPlayerInventory', source, target, targetInv)
+  TriggerClientEvent('yp_userinteraction:showPlayerInventory', source, target, targetInv)
 end)
 
 RegisterServerEvent('takePlayerItem')

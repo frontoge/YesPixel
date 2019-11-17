@@ -98,7 +98,7 @@ AddEventHandler('yp_drugs:actions:useJoint', function()
 		exports['yp_base']:removeStress(150000)
 		getArmorFromHigh(ArmorBonusWeed, WeedArmorTimer)
 
-		ClearPedTasksImmediately(playerPed)
+		ClearPedSecondaryTask(playerPed)
 		DeleteObject(prop)
 		exports['yp_base']:UnFreezePlayer()
 
@@ -118,7 +118,6 @@ AddEventHandler('yp_drugs:actions:useBlunt', function(source)
 		AttachEntityToEntity(prop, playerPed, boneIndex, 0.03, 0.0, 0.02, 120.0, 190.0, 50.0, true, false, false, true, 1, true)
 		TaskPlayAnim(playerPed, "timetable@gardener@smoking_joint", "smoke_idle", 8.0, 1.0, -1, 50, 0, 0, 0, 0)
 
-		exports['yp_base']:FreezePlayer()
 		while timer < 15 do
 			Citizen.Wait(1000)
 			timer = timer + 1
@@ -127,9 +126,30 @@ AddEventHandler('yp_drugs:actions:useBlunt', function(source)
 		exports['yp_base']:removeStress(300000)
 		getArmorFromHigh(ArmorBonusWeed * 2, WeedArmorTimer)
 
-		ClearPedTasksImmediately(playerPed)
+		ClearPedSecondaryTask(playerPed)
 		DeleteObject(prop)
-		exports['yp_base']:UnFreezePlayer()
+
+ 	end)
+end)
+
+RegisterNetEvent('yp_drugs:actions:useCigarette')
+AddEventHandler('yp_drugs:actions:useCigarette', function()
+	loadAnimDict('amb@world_human_smoking@male@male_a@idle_a')
+	Citizen.CreateThread(function()
+		local playerPed = GetPlayerPed(-1)
+		local x,y,z = table.unpack(GetEntityCoords(playerPed))
+		local timer = 0
+
+		TaskPlayAnim(playerPed, "amb@world_human_smoking@male@male_a@idle_a", "WOLRD_HUMAN_SMOKING", 8.0, 1.0, -1, 50, 0, 0, 0, 0)
+
+		while timer < 15 do
+			Citizen.Wait(1000)
+			timer = timer + 1
+		end
+
+		exports['yp_base']:removeStress(200000)
+
+		ClearPedSecondaryTask(playerPed)
 
  	end)
 end)

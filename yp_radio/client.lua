@@ -15,9 +15,9 @@ local radio = -1
 
 RegisterNetEvent('yp_radio:joinRadio')
 AddEventHandler('yp_radio:joinRadio', function(channel)
-	radio = channel
-	exports['tokovoip_script']:setPlayerData(GetPlayerName(PlayerId()), "radio:channel", channel, true)
-	exports['tokovoip_script']:addPlayerToRadio(channel)
+	radio = tonumber(channel)
+	exports['tokovoip_script']:setPlayerData(GetPlayerName(PlayerId()), "radio:channel", radio, true)
+	exports['tokovoip_script']:addPlayerToRadio(radio)
 	exports['mythic_notify']:DoHudText('inform', 'Connected to channel ' .. radio)
 end)
 

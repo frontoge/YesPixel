@@ -238,6 +238,7 @@ end
 --Register Events
 RegisterNetEvent('yp_bankrob:hack')
 AddEventHandler('yp_bankrob:hack', function(bankInd, hackInd)
+	exports['yp_base']:addStress(15000)
 	Citizen.CreateThread(function()
 		hack()
 
@@ -261,6 +262,7 @@ end)
 
 RegisterNetEvent('yp_bankrob:lockpick')
 AddEventHandler('yp_bankrob:lockpick', function(bankInd)
+	exports['yp_base']:addStress(15000)
 	Citizen.CreateThread(function()
 		lockpick()
 
@@ -284,6 +286,7 @@ end)
 
 RegisterNetEvent('yp_bankrob:thermite')
 AddEventHandler('yp_bankrob:thermite', function(bankInd, drillNum)
+	exports['yp_base']:addStress(15000)
 	Citizen.CreateThread(function()
 		thermite()
 
@@ -335,6 +338,7 @@ end)
 
 RegisterNetEvent('yp_bankrob:robRegister')
 AddEventHandler('yp_bankrob:robRegister', function()
+	exports['yp_base']:addStress(15000)
 	Citizen.CreateThread(function()
 		local searchTime = math.random(15,20)
 		local searched = 0
@@ -364,7 +368,7 @@ Citizen.CreateThread(function()
 		local pos = GetEntityCoords(playerPed)
 
 		for i, v in ipairs(Banks) do 
-			if Vdist(pos.x, pos.y, pos.z, v.exit.x, v.exit.y, v.exit.z) < 20 then --If close enough to the bank
+			if Vdist(pos.x, pos.y, pos.z, v.exit.x, v.exit.y, v.exit.z) < 15 then --If close enough to the bank
 				currentBank = i
 
 				if not updatedDoors then--Have you rendered changes to the doors
@@ -406,7 +410,7 @@ Citizen.CreateThread(function()
 					end
 				end
 
-				if Vdist(pos.x, pos.y, pos.z, v.exit.x, v.exit.y, v.exit.z) < 0.5 then
+				if Vdist(pos.x, pos.y, pos.z, v.exit.x, v.exit.y, v.exit.z) < 1 then
 					if isRobber then
 						TriggerServerEvent('yp_bankrob:endRob', i)
 					end

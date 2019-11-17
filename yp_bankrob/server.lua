@@ -112,7 +112,7 @@ function startCooldown(bankInd)
 		end
 
 		for i, v in ipairs(bankData[bankInd].hacks) do
-			v = false
+			bankData[bankInd].hacks[i] = false
 			TriggerClientEvent('yp_bankrob:closeDoor', -1, bankInd, i)
 		end
 
@@ -247,7 +247,7 @@ AddEventHandler('yp_bankrob:startThermite', function(bankNum, drillNum)
 				TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'You do not have a thermite torch!' , length = 2500})
 			end
 		else
-			TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The bank has already been robbed, come back in ' .. bankData[bankInd].cooldown .. 's' , length = 2500})
+			TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The bank has already been robbed, come back in ' .. bankData[bankNum].cooldown .. 's' , length = 2500})
 		end
 	else
 		TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'This box has already been drilled!' , length = 2500})

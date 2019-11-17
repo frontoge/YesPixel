@@ -18,7 +18,11 @@ medSupplies = {{label = 'Bandages', value = 'bandage', cost = 10},
 
 pdVehicles = {{label = 'Taurus', value = 'fpis'},
 			  {label = 'Explorer', value = 'sp106'},
-			  {label = 'Ford GT', value = 'polgt17'}}
+			  {label = 'Ford GT', value = 'polgt17'},
+			  {label = 'Police Vic', value = 'police'},
+			  {label = 'Police Cruiser', value = 'police3'},
+			  {label = 'Unmarked Vic', value = 'police4'},
+			  {label = 'Unmarked Charger', value = 'polchgr'}}
 
 pdObjects = {{label = 'Spike Strip', value = 'p_ld_stinger_s'},
 			 {label = 'Traffic cone', value = 'prop_roadcone02a'},

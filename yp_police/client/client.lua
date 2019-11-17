@@ -99,7 +99,7 @@ function openJobMenu()
 					local closestPlayer, distance = ESX.Game.GetClosestPlayer()
 		            if closestPlayer ~= -1 and distance <= 3 then
 		                if IsPedCuffed(GetPlayerPed(closestPlayer)) then
-		                    TriggerServerEvent('yp_userinteraction:getPlayerInventory', closestPlayer)
+		                    TriggerServerEvent('yp_userinteraction:getPlayerInventory', GetPlayerServerId(closestPlayer))
 		                else
 		                    exports['mythic_notify']:DoHudText('error', 'Player not Cuffed!')
 		                end
@@ -142,7 +142,8 @@ function openJobMenu()
 							function(data3, menu3)
 								menu3.close()
 								if tonumber(data3.value) > 0 then
-									TriggerServerEvent('esx_jail:sendToJail', GetPlayerServerId(closestPlayer), data3.value)
+									TriggerServerEvent('yp_police:uncuffPlayer', GetPlayerServerId(closestPlayer))
+									TriggerServerEvent('esx_jail:sendToJail', GetPlayerServerId(closestPlayer), 60*tonumber(data3.value))
 								else
 									exports['mythic_notify']:DoHudText('error', "Can't jail for less than 0 months")
 								end
@@ -186,7 +187,7 @@ function openJobMenu()
 						Citizen.CreateThread(function()
 							local playerPed = GetPlayerPed(-1)
 							exports['progressBars']:startUI(10000, "Impounding...")
-							TaskStartScenarioInPlace(playerPed, 'WORLD_HUMAN_GARDENER_PLANT', 0, true)
+							TaskStartScenarioInPlace(playerPed, 'CODE_HUMAN_MEDIC_KNEEL', 0, true)
 					        Citizen.Wait(10000)
 					        ClearPedTasksImmediately(playerPed)
 					        ESX.Game.DeleteVehicle(vehicle)
@@ -442,11 +443,6 @@ AddEventHandler('yp_police:outUniform', function(skin)
 
 end)
 
-RegisterNetEvent('yp_police:getHired')
-AddEventHandler('yp_police:getHired', function()
-	isPolice = true
-end)
-
 RegisterNetEvent('yp_police:makeBoss')
 AddEventHandler('yp_police:makeBoss', function()
 	isBoss = true
@@ -464,7 +460,6 @@ end)
 
 --Main
 Citizen.CreateThread(function()
-	Citizen.Wait(500)
 	local pos = nil
 	while ESX == nil do
 		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)

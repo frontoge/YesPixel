@@ -109,8 +109,12 @@ Citizen.CreateThread(function()
       
       --Check for Damage To Engine
       engineCurrent = GetVehicleEngineHealth(vehicle)
+      bodyCurrent = GetVehicleBodyHealth(vehicle)
+      fuelCurrent = GetVehiclePetrolTankHealth(vehicle)
       if firstFrame then
         engineLast = engineCurrent
+        bodyLast = bodyCurrent
+        fuelLast = fuelCurrent
         firstFrame = false
       end
       engineDelta = engineLast - engineCurrent
