@@ -5,8 +5,8 @@
 ]]--
 
 local onCooldown = false
-local maxCooldown = 10*60
-local cooldownTime = 10*60
+local maxCooldown = 5*60
+local cooldownTime = 5*60
 
 
 --ESX Init
