@@ -175,16 +175,21 @@ function repairVehicle()
 		local veh = GetVehiclePedIsIn(playerPed)
 		local engine = GetVehicleEngineHealth(veh)
 		local body = GetVehicleBodyHealth(veh)
-		print(body .. ' ' .. engine)
 		local price = (BasePrice/2 * ((1000 - body) / 1000.0 + 1)) + (BasePrice/2 * ((1000 - engine) / 1000.0 + 1))
 		if DoesEntityExist(veh) then
 			exports['mythic_notify']:DoHudText('inform', 'You are repairing the vehicle')
-			--exports['progressBars']:startUI(RepairTime, 'Repairing')
+			exports['progressBars']:startUI(RepairTime, 'Repairing')
 			Citizen.Wait(RepairTime)
 			SetVehicleEngineHealth(veh, 1000.0)
 			SetVehicleBodyHealth(veh, 1000.0)
-			exports['mythic_notify']:DoHudText('success', 'You repaired your vehicle')
 			SetVehicleDeformationFixed(veh)
+
+			for i = 0, 5, 1 do
+				SetVehicleTyreFixed(veh, i)
+			end
+
+			exports['mythic_notify']:DoHudText('success', 'You repaired your vehicle')
+
 			TriggerServerEvent('yp_mechanic:chargeForRepair', price)
 		end
 	end)
@@ -352,10 +357,10 @@ Citizen.CreateThread(function()
 
 		if IsPedInAnyVehicle(playerPed) then
 			for i, v in ipairs(RepairModels) do
-				local object = GetClosestObjectOfType(x, y, z, 2.0, v)
+				local object = GetClosestObjectOfType(x, y, z, 3.75, v)
 				if DoesEntityExist(object) then
 					local objPos = GetEntityCoords(object)
-					if Vdist(x, y, z, objPos.x, objPos.y, objPos.z) < 2 then
+					if Vdist(x, y, z, objPos.x, objPos.y, objPos.z) < 3.75 then
 						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to repair your car')
 						if IsControlJustPressed(0, 51) then
 							repairVehicle()
