@@ -29,7 +29,7 @@
 	display: none;
 }
 
-#repairbox, #flarebox, #screwdriverbox, #plierbox {
+#repairbox, #flarebox, #radiobox, #plierbox {
 	position: absolute;
 	background-color: #000000d4;
 	border: 2px solid white;
@@ -47,7 +47,7 @@
 	bottom: 56%;
 }
 
-#screwdriverbox {
+#radiobox {
 	left: 5.5%;
 	bottom: 10.5%;
 }

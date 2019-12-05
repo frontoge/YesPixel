@@ -4,12 +4,12 @@ ESX = nil
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 RegisterCommand('radio', function(source, args)
-	local xPlayer = ESX.GetPlayerFromId(source)
-	if xPlayer.job.name == 'police' or xPlayer.job.name == 'ems' or xPlayer.job.name == 'fib' then
-		if args[1] ~= 'disc' then
-			TriggerClientEvent('yp_radio:joinRadio', source, args[1])
-		else
-			TriggerClientEvent('yp_radio:leaveRadio', source)
+	if args[1] ~= 'disc' then
+		local xPlayer = ESX.GetPlayerFromId(source)
+		if xPlayer.getInventoryItem('radio').count > 0 then
+			TriggerClientEvent('yp_radio:openRadio', source)
 		end
+	else
+		TriggerClientEvent('yp_radio:leaveRadio', source)
 	end
 end)

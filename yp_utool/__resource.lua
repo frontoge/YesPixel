@@ -15,5 +15,5 @@ files {
 	'html/img/pliers.png',
 	'html/img/repairkit.png',
 	'html/img/roadflare.png',
-	'html/img/screwdriver.png'
+	'html/img/radio.png'
 }

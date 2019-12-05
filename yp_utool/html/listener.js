@@ -4,7 +4,7 @@ $(function(){
 	var minusButtons = new Array();
 	var amounts = new Array();
 	var repairCost = 85;
-	var screwCost = 10;
+	var radioCost = 100;
 	var pliersCost = 10;
 	var flareCost = 15;
 	var total = 0;
@@ -18,7 +18,7 @@ $(function(){
 		}
 		totalCost += repairCost * Number(amounts[0].value);
 		totalCost += flareCost * Number(amounts[1].value);
-		totalCost += screwCost * Number(amounts[2].value);
+		totalCost += radioCost * Number(amounts[2].value);
 		totalCost += pliersCost * Number(amounts[3].value);
 		costDisplay.innerHTML = "Total: $" + totalCost;
 		total = totalCost;
@@ -95,7 +95,7 @@ $(function(){
   			total: total,
   			repairs: Number(amounts[0].value),
   			flares: Number(amounts[1].value),
-  			screws: Number(amounts[2].value),
+  			radios: Number(amounts[2].value),
   			pliers: Number(amounts[3].value)
   			}));
   		resetUI();
@@ -109,7 +109,7 @@ $(function(){
   			total: total,
   			repairs: Number(amounts[0].value),
   			flares: Number(amounts[1].value),
-  			screws: Number(amounts[2].value),
+  			radios: Number(amounts[2].value),
   			pliers: Number(amounts[3].value)
   			}));
   		resetUI();

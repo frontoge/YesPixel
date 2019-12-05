@@ -17,13 +17,13 @@ RegisterNUICallback('exit', function(data, cb)
 end)
 
 RegisterNUICallback('buyWithCash', function(data, cb)
-	local items = {['repairs'] = data.repairs, ['flares'] = data.flares, ['screwdrivers'] = data.screws, ['pliers'] = data.pliers}
+	local items = {['repairs'] = data.repairs, ['flares'] = data.flares, ['radios'] = data.radios, ['pliers'] = data.pliers}
 	TriggerServerEvent('yp_utool:checkout', false, data.total, items)
 	cb('ok')
 end)
 
 RegisterNUICallback('buyWithCard', function(data, cb)
-	local items = {['repairs'] = data.repairs, ['flares'] = data.flares, ['screwdrivers'] = data.screws, ['pliers'] = data.pliers}
+	local items = {['repairs'] = data.repairs, ['flares'] = data.flares, ['radios'] = data.radios, ['pliers'] = data.pliers}
 	TriggerServerEvent('yp_utool:checkout', true, data.total, items)
 	cb('ok')
 end)

@@ -1,0 +1,1 @@
+JobsAccess = {'police', 'fib', 'ems'}

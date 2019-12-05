@@ -19,8 +19,8 @@ AddEventHandler('yp_utool:checkout', function(card, total, items)
 		enoughRoom = false
 	end
 
-	if items['screwdrivers'] + xPlayer.getInventoryItem('screwdriver').count > xPlayer.getInventoryItem('screwdriver').limit then
-		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You can not hold that many screwdrivers!', length = 2500})
+	if items['radios'] + xPlayer.getInventoryItem('radio').count > xPlayer.getInventoryItem('radio').limit then
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You can not hold that many radios!', length = 2500})
 		enoughRoom = false
 	end
 
@@ -56,8 +56,8 @@ AddEventHandler('yp_utool:checkout', function(card, total, items)
 				xPlayer.addInventoryItem('repairkit', items['repairs'])
 			end
 			
-			if items['screwdrivers'] then
-				xPlayer.addInventoryItem('screwdriver', items['screwdrivers'])
+			if items['radios'] then
+				xPlayer.addInventoryItem('radio', items['radios'])
 			end
 
 			if items['flares'] then
