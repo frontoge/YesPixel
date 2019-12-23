@@ -18,9 +18,8 @@ medSupplies = {{label = 'Bandages', value = 'bandage', cost = 10},
 
 pdVehicles = {{label = 'Taurus', value = 'fpis'},
 			  {label = 'Explorer', value = 'sp106'},
-			  {label = 'Ford GT', value = 'polgt17'},
-			  {label = 'Police Vic', value = 'police'},
-			  {label = 'Police Cruiser', value = 'police3'},
+			  {label = 'Police Vic', value = 'sheriff'},
+			  {label = 'Police Cruiser', value = 'sheriff2'},
 			  {label = 'Unmarked Vic', value = 'police4'},
 			  {label = 'Unmarked Charger', value = 'polchgr'}}
 

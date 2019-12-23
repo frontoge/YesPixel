@@ -6,4 +6,4 @@ Unauthorized copying of any file within this project, without written consent fr
 Proprietary and confidential
 Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
 
-These are all the scripts that are currently in and active on the yespixel server. Do not post a commit without first uploading to the ftp!!!
+These are all the scripts that are currently in and active on the yespixel server.

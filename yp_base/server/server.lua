@@ -27,6 +27,18 @@ AddEventHandler('yp_base:removeItem', function(name, amount)
   xPlayer.removeInventoryItem(name, amount)
 end)
 
+RegisterServerEvent('yp_base:getPlayerJob')
+AddEventHandler('yp_base:getPlayerJob', function(cb)
+  local xPlayer = ESX.GetPlayerFromId(source)
+  TriggerClientEvent(cb, source, xPlayer.job.name)
+end)
+
+RegisterServerEvent('yp_base:payFee')
+AddEventHandler('yp_base:payFee', function(fee)
+  local xPlayer =ESX.GetPlayerFromId(source)
+  xPlayer.removeAccountMoney('bank', fee)
+end)
+
 
 RegisterCommand('job', function(source, args)
   local src = source
