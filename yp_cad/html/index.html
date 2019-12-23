@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>LSCO CAD</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<!--Header-->
+		<div class="nav"><img id="lcso_logo" src="img/lcso_logo.png"> <h1 id="lcso_title">Los Santos County Sheriff</h1></div>
+		<div class="breakline"></div>
+
+		<!--Start Login Page-->
+		<div id="login_page">
+			<div class="box" id="login_box">
+				<form id="login_form">
+					<div class="login_item">Username: <input class="login_input" id="username" type="text" name="name" maxlength=20 value="flockwood"></div><br>
+					<div class="login_item">Password: <input class="login_input" id="password" type="password" name="pass" maxlength=10 value="Password"></div>
+					<button id="login_button" value="submit">Login</button>
+				</form>
+			</div>
+		</div>
+
+		<!--Public Records search page -->
+		<div id="public_page">
+			<h2 class="page_head" id="pr_head">Public Records</h2>
+			<div id="pr_headbreak" class="breakline"></div>
+			<div id="pr_searchbox" class="box">
+				<h3 id="pr_searchlabel">Search</h3>
+				<div class="searchbar">
+					<input id="pr_searchbar" type="text" name="searchbar">
+				</div>
+				<button id='pr_searchbutton'>Search</button>
+			</div>
+			<div id="pr_results">
+
+			</div>
+		</div>
+
+	</body>
+</html>
