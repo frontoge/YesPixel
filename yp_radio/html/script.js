@@ -31,7 +31,7 @@ $(function(){
 			text.value = text.min;
 		}
 		else if (text.value > text.max){
-			text.value = text.min;
+			text.value = text.max;
 		}
 	});
 
