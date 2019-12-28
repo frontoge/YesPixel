@@ -6,6 +6,7 @@
 
 local frozen = false
 local newStress = 0
+local lastStress = -1
 
 --Functions
 function DisplayHelpText(str)
@@ -88,7 +89,7 @@ end)
 Citizen.CreateThread(function()
 	while true do
 		local playerPed = GetPlayerPed(-1)
-		SetPlayerHealthRechargeMultiplier(playerPed, 0.0)
+		SetPlayerHealthRechargeMultiplier(PlayerId(), 0.0)
 		if frozen then
 			DisableControlAction(0, 32, true) --W
 			DisableControlAction(0, 33, true) --S
@@ -98,20 +99,23 @@ Citizen.CreateThread(function()
 		end
 
 		TriggerEvent('esx_status:getStatus', 'stress', function(status)--Check if the player has stress
-			if status.val >= 150000 and stressed ~= 0 then--Set the stressed value accordingly
-				stressed = 0
-			elseif status.val >= 300000 and stressed ~= 1 then
-				stressed = 1
-			elseif status.val >= 500000 and stressed ~= 2 then
-				stressed = 2
-			elseif status.val >= 750000 and stressed ~= 3 then
-				stressed = 3
-			elseif status.val < 150000 and stressed ~= -1 then
-				stressed = -1
+			if status.val ~= lastStress then 
+				if status.val >= 150000 and stressed ~= 0 then--Set the stressed value accordingly
+					stressed = 0
+				elseif status.val >= 300000 and stressed ~= 1 then
+					stressed = 1
+				elseif status.val >= 500000 and stressed ~= 2 then
+					stressed = 2
+				elseif status.val >= 750000 and stressed ~= 3 then
+					stressed = 3
+				elseif status.val < 150000 and stressed ~= -1 then
+					stressed = -1
+				end
+				lastStress = status.val
 			end
 		end)
 
-		if IsPedShooting(GetPlayerPed(-1)) then
+		if IsPedShooting(playerPed) then
 			addStress(math.random(100,250))
 		end
 

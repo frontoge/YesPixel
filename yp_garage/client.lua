@@ -105,11 +105,12 @@ function getVehicleData(vehicle)
 	for i, v in ipairs(vehMods) do
 		if string.find(v, 'UNK') == nil then
 			local temp = GetVehicleMod(vehicle, i)
+			print(v .. ' ' .. temp)
 			data[v] = temp
 		end
 	end
 
-	return data
+	return data --Table of vehicle mods + values
 
 end
 
@@ -253,6 +254,11 @@ AddEventHandler('yp_garage:openInsureMenu', function(data, garageName)
 			menu.close()
 		end)
 
+end)
+
+RegisterCommand('checkMods', function(source, args)
+	local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
+	getVehicleData(vehicle)
 end)
 
 --Create Blips 

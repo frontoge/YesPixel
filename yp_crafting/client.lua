@@ -14,6 +14,8 @@ Citizen.CreateThread(function()
 	end
 end)
 
+local researched = false
+
 --Events
 RegisterNetEvent('yp_crafting:startCraftingMenu')
 AddEventHandler('yp_crafting:startCraftingMenu', function(prints)
@@ -50,7 +52,31 @@ AddEventHandler('yp_crafting:choseItem', function(printName)
 		function(data, menu)
 			menu.close()
 		end)
+end)
 
+RegisterNetEvent('yp_crafting:openResearchMenu')
+AddEventHandler('yp_crafting:openResearchMenu', function(data)
+	local elements = data
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'research_menu', {
+		title = 'Research',
+		align = 'bottom-right',
+		elements = elements
+	},
+	function(data, menu)
+		local action = data.current.value
+		Citizen.CreateThread(function()
+			menu.close()
+			researched = true
+			exports['progressBars']:startUI(15000, 'Researching')
+			Citizen.Wait(15000)
+			TriggerServerEvent('yp_base:addItem', action, 1)
+		end)
+		
+
+	end,
+	function(data, menu)
+		menu.close()
+	end)
 end)
 
 --Main Thread
@@ -63,6 +89,15 @@ Citizen.CreateThread(function()
 			exports['yp_base']:DisplayHelpText("Press ~INPUT_CONTEXT~ to craft")
 			if IsControlJustPressed(0,51) then
 				TriggerServerEvent('yp_crafting:getInvData')
+			end
+		elseif Vdist(pos.x, pos.y, pos.z, 1272.7113, -1711.6768, 54.7714) < 3 then
+			exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to research')
+			if IsControlJustPressed(0,51) then
+				if not researched then
+					TriggerServerEvent('yp_crafting:getResearch')
+				else
+					exports['mythic_notify']:DoHudText('inform', 'You are too tired to research right now.')
+				end
 			end
 		end
 		Citizen.Wait(0)

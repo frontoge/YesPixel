@@ -570,10 +570,10 @@ Citizen.CreateThread(function()
 				end
 			end
 
-			if IsPedInAnyVehicle(playerPed, false) then
-				local vehicle = ESX.Game.GetClosestVehicle()
-				if GetPedInVehicleSeat(vehicle, -1) == playerPed then
-					if Vdist(pos.x, pos.y, pos.z, 462.7208, -1017.0921, 28.0829) < 3 then
+			if Vdist(pos.x, pos.y, pos.z, 462.7208, -1017.0921, 28.0829) < 3 then
+				if IsPedInAnyVehicle(playerPed, false) then
+					local vehicle = ESX.Game.GetClosestVehicle()
+					if GetPedInVehicleSeat(vehicle, -1) == playerPed then
 						DisplayHelpText("Press ~INPUT_CONTEXT~ to return a vehicle")
 						if IsControlJustPressed(0,51) then
 							ESX.Game.DeleteVehicle(vehicle)

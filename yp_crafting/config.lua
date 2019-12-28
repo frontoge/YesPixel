@@ -1,3 +1,13 @@
+prints = 
+{
+	'pistolprint',
+	'arprint',
+	'sgprint',
+	'smgprint',
+	'meleeprint',
+	'partsprint'
+}
+
 recipes = {
 	{
 		blueprint = 'pistolprint',
@@ -368,7 +378,7 @@ recipes = {
 				 }
 	},
 	{
-		blueprint = 'partsrint',
+		blueprint = 'partsprint',
 		label = 'AR Stock',
 		value = 'arstock',
 		recipe = {

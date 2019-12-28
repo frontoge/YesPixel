@@ -1,6 +1,7 @@
 --ESX Init
 ESX = nil
 
+local JobAccess = {'police', 'fib', 'ems'}
 local UIEnabled = false
 local radio = 11.11
 

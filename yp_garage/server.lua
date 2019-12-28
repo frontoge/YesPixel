@@ -8,7 +8,10 @@ ESX = nil
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
-MySQL.Async.execute("UPDATE owned_vehicles SET state = true WHERE state = false", {}, function() end)
+AddEventHandler('onMySQLReady', function()
+	MySQL.Async.execute("UPDATE owned_vehicles SET state = true WHERE state = false", {}, function() end)
+end)
+
 
 RegisterServerEvent('yp_garage:storeVehicle')
 AddEventHandler('yp_garage:storeVehicle', function(plateNum, name, vehData)

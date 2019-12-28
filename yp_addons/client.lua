@@ -83,6 +83,22 @@ AddEventHandler('yp_addons:create911Blip', function(name, pos, args)
 	end)
 end)
 
+RegisterNetEvent('yp_addons:addAmmo')
+AddEventHandler('yp_addons:addAmmo', function(ammoType)
+	local ped = GetPlayerPed(-1)
+	local hash = nil
+	if ammoType == 'pAmmo' then
+		hash = GetHashKey('WEAPON_PISTOL')
+	elseif ammoType == 'arAmmo' then
+		hash = GetHashKey('WEAPON_ASSAULTRIFLE')
+	elseif ammoType == 'sgAmmo' then
+		hash = GetHashKey('WEAPON_PUMPSHOTGUN')
+	elseif ammoType == 'mgAmmo' then
+		hash = GetHashKey('WEAPON_SMG')
+	end
+	AddAmmoToPed(ped, hash, 30)
+end)
+
 Citizen.CreateThread(function()
 	while true do
 		local playerPed = GetPlayerPed(-1)

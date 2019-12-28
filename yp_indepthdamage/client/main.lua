@@ -54,8 +54,8 @@ end
 
 local function isPedDrivingAVehicle()
 	local ped = GetPlayerPed(-1)
-	vehicle = GetVehiclePedIsIn(ped, false)
-	if IsPedInAnyVehicle(ped, false) then
+  if IsPedInAnyVehicle(ped, false) then
+	 local vehicle = GetVehiclePedIsIn(ped, false)
 		if GetPedInVehicleSeat(vehicle, -1) == ped then
 			local class = GetVehicleClass(vehicle)
 			if class ~= 15 and class ~= 16 and class ~=21 and class ~=13 then -- ignores trains, planes, boats, and bikes
@@ -93,7 +93,6 @@ end)
 
 --Main Thread
 Citizen.CreateThread(function()
-  Citizen.Wait(500)
   local firstFrame = true
   while true do
     if isPedDrivingAVehicle() then
@@ -149,10 +148,8 @@ Citizen.CreateThread(function()
         SetVehiclePetrolTankHealth(vehicle, fuelCurrent - fuelScale)
       end
       fuelLast = GetVehiclePetrolTankHealth(vehicle)
-    else 
-      firstFrame = true
-    end
-    --Disable Vehicle
+
+      --Disable Vehicle
       if GetVehicleEngineHealth(vehicle) <= 200.0 or GetVehicleBodyHealth(vehicle) <= 0.0 then
         SetVehicleUndriveable(vehicle, true)
         TriggerEvent('EngineToggle:RPDamage', false)
@@ -160,6 +157,10 @@ Citizen.CreateThread(function()
         SetVehicleUndriveable(vehicle, false)
         TriggerEvent('EngineToggle:RPDamage', true)
       end
+    else 
+      firstFrame = true
+    end
+    
     Citizen.Wait(0)-- Check every Frame
   end
 end)

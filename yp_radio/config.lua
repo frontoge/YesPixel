@@ -1,1 +1,1 @@
-JobsAccess = {'police', 'fib', 'ems'}
+JobAccess = {'police', 'fib', 'ems'}

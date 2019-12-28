@@ -50,5 +50,16 @@ AddEventHandler('yp_crafting:craftItem', function(item, recipe)
 			xPlayer.addInventoryItem(item)
 		end
 	end
+end)
 
+RegisterServerEvent('yp_crafting:getResearch')
+AddEventHandler('yp_crafting:getResearch', function()
+	local xPlayer = ESX.GetPlayerFromId(source)
+	local data = {}
+	for i, v in ipairs(prints) do
+		if xPlayer.getInventoryItem(v).count == 0 then
+			table.insert(data, {label = v, value = v})
+		end
+	end
+	TriggerClientEvent('yp_crafting:openResearchMenu', source, data)
 end)

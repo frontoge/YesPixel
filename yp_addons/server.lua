@@ -80,4 +80,22 @@ RegisterCommand('911', function(source, args)
 	TriggerClientEvent('yp_addons:find911Blip', source, args)
 end)
 
+ESX.RegisterUsableItem('arAmmo', function(source)
+	TriggerClientEvent('yp_addons:addAmmo', source, 'arAmmo')
+end)
+
+ESX.RegisterUsableItem('pAmmo', function(source)
+	TriggerClientEvent('yp_addons:addAmmo', source, 'pAmmo')
+end)
+
+ESX.RegisterUsableItem('mgAmmo', function(source)
+	TriggerClientEvent('yp_addons:addAmmo', source, 'mgAmmo')
+end)
+
+ESX.RegisterUsableItem('sgAmmo', function(source)
+	TriggerClientEvent('yp_addons:addAmmo', source, 'sgAmmo')
+end)
+
+
+
 
