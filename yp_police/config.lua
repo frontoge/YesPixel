@@ -18,8 +18,9 @@ medSupplies = {{label = 'Bandages', value = 'bandage', cost = 10},
 
 pdVehicles = {{label = 'Taurus', value = 'fpis'},
 			  {label = 'Explorer', value = 'sp106'},
-			  {label = 'Police Vic', value = 'sheriff'},
-			  {label = 'Police Cruiser', value = 'sheriff2'},
+			  {label = 'Police Vic', value = 'police'},
+			  {label = 'Police Cruiser', value = 'police2'},
+			  {label = 'Police Cruiser 2', value = 'police3'},
 			  {label = 'Unmarked Vic', value = 'police4'},
 			  {label = 'Unmarked Charger', value = 'polchgr'}}
 
@@ -33,9 +34,9 @@ uniforms = {{tshirt_1 = 59, tshirt_2 = 1, torso_1 = 55, torso_2 = 0, decals_1 = 
 			{tshirt_1 = 58, tshirt_2 = 0, torso_1 = 55, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 74, pants_1 = 25, pants_2 = 2, shoes_1 = 54, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Sergant
 			{tshirt_1 = 131, tshirt_2 = 1, torso_1 = 95, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 26, pants_1 = 25, pants_2 = 0, shoes_1 = 71, shoes_2 = 1, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Lieutenant
 			{tshirt_1 = 131, tshirt_2 = 1, torso_1 = 95, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 26, pants_1 = 59, pants_2 = 9, shoes_1 = 60, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Major
-			{tshirt_1 = 122, tshirt_2 = 0, torso_1 = 13, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 11, pants_1 = 25, pants_2 = 0, shoes_1 = 20, shoes_2 = 7, chain_1 = 10, chain_2 = 2, helmet_1 = -1, helmet_2 = 0}, --Captain
-			{tshirt_1 = 7, tshirt_2 = 0, torso_1 = 11, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 0, pants_1 = 25, pants_2 = 0, shoes_1 = 40, shoes_2 = 2, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, -- Deputy Sheriff
-			{tshirt_1 = 33, tshirt_2 = 1, torso_1 = 77, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 11, pants_1 = 13, pants_2 = 0, shoes_1 = 20, shoes_2 = 5, chain_1 = 26, chain_2 = 2, helmet_1 = -1, helmet_2 = 0}} --Sheriff
+			{tshirt_1 = 131, tshirt_2 = 1, torso_1 = 95, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 26, pants_1 = 59, pants_2 = 9, shoes_1 = 60, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Captain
+			{tshirt_1 = 131, tshirt_2 = 1, torso_1 = 95, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 26, pants_1 = 59, pants_2 = 9, shoes_1 = 60, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, -- Deputy Sheriff
+			{tshirt_1 = 131, tshirt_2 = 1, torso_1 = 95, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 26, pants_1 = 59, pants_2 = 9, shoes_1 = 60, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}} --Sheriff
 
 
 uniformsF = {{tshirt_1 = 3, torso_1 = 48, arms = 14, pants_1 = 23, pants_2 = 10, shoes_1 = 9}, --Cadet

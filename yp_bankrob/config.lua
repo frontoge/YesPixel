@@ -1,5 +1,5 @@
 CooldownMax = 30
-CopsMin = 2
+CopsMin = 0
 
 Drops = 
 {
