@@ -18,7 +18,11 @@ AddEventHandler('yp_storerob:alertPolice', function(store, storeIndex)
 		local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
 		if xPlayer.job.name == 'police' then
 			TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = store.name .. ' is being robbed!' , length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
-			TriggerClientEvent('yp_storerob:addBlip', xPlayers[i], store.safe, storeIndex)
+			if store.safe ~= nil then
+				TriggerClientEvent('yp_storerob:addBlip', xPlayers[i], store.safe, storeIndex)
+			else
+				TriggerClientEvent('yp_storerob:addBlip', xPlayers[i], store.registers[1], storeIndex)
+			end
 		end
 	end
 end)
@@ -26,7 +30,7 @@ end)
 RegisterServerEvent('yp_storerob:payoutRegister')
 AddEventHandler('yp_storerob:payoutRegister', function()
 	local xPlayer = ESX.GetPlayerFromId(source)
-	local payout = math.random(250, 500)
+	local payout = math.random(100, 250)
 
 	xPlayer.addMoney(payout)
 	TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'success', text = 'You robbed the register and got $' .. payout , length = 3000})
@@ -41,11 +45,6 @@ end)
 RegisterServerEvent('yp_storerob:updateRobbery')
 AddEventHandler('yp_storerob:updateRobbery', function(store)
 	TriggerClientEvent('yp_storerob:addRobber', -1, source, store)
-end)
-
-RegisterServerEvent('yp_storerob:updateRobbery')
-AddEventHandler('yp_storerob:updateRobbery', function(store, src)
-	TriggerClientEvent('yp_storerob:addRobber', -1, src, store)
 end)
 
 RegisterServerEvent('yp_storerob:startSafeRob')
@@ -80,6 +79,29 @@ AddEventHandler('yp_storerob:failedSafe', function(store)
 
 	xPlayer.removeInventoryItem('lockpick', 1)
 	TriggerClientEvent('yp_storerob:enableSafe', -1, store)
+end)
+
+RegisterServerEvent('yp_storerob:failedRegister')
+AddEventHandler('yp_storerob:failedRegister', function(store, register)
+	local xPlayer = ESX.GetPlayerFromId(source)
+
+	xPlayer.removeInventoryItem('lockpick', 1)
+	TriggerClientEvent('yp_storerob:enableRegister', -1, store, register)
+end)
+
+RegisterServerEvent('yp_storerob:startRegister')
+AddEventHandler('yp_storerob:startRegister', function(store, register, storeData)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	if xPlayer.getInventoryItem('lockpick').count > 0 then
+		TriggerEvent('yp_storerob:updateRobbery', store, source)
+		if not storeData.beingRobbed then
+			TriggerEvent('yp_storerob:alertPolice', storeData, store)
+		end
+		TriggerClientEvent('yp_storerob:robRegister', source, store, register)
+	else
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'error', text = 'You do not have a lockpick!' , length = 3000})
+		TriggerClientEvent('yp_storerob:enableRegister', -1, store, register)
+	end
 end)
 
 RegisterServerEvent('yp_storerob:endRob')

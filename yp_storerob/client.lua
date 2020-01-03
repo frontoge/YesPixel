@@ -61,32 +61,74 @@ AddEventHandler('yp_storerob:addBlip', function(pos, store)
 end)
 
 RegisterNetEvent('yp_storerob:robRegister')
-AddEventHandler('yp_storerob:robRegister', function()
-	Citizen.CreateThread(function()
-		local searchTime = math.random(25,40)
-		local searched = 0
-
-		exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")
-		exports['yp_base']:FreezePlayer()
-		local playerPed = GetPlayerPed(-1)
-		loadAnimDict("anim@heists@ornate_bank@grab_cash") 
-		TaskPlayAnim( playerPed, "anim@heists@ornate_bank@grab_cash", "grab", 8.0, 1.0, -1, 2, 0, 0, 0, 0 )
-
-		while searched ~= searchTime do
-			searched = searched + 1
-			Citizen.Wait(1000)
+AddEventHandler('yp_storerob:robRegister', function(store, register)
+	exports['mythic_notify']:DoHudText('inform', 'Lockpicking starting')
+	local failed = 0
+	local correct = 0
+	TriggerServerEvent('yp_storerob:updateRegisterState', store, register)
+	Citizen.CreateThread(function()--Main Thread for the lockpicking
+		Citizen.Wait(2500)
+		while failed < 1  and correct < 5 do 
+			local letter = math.random(1,4)
+			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttons[letter].char)
+			listening = true
+			listenForPress(buttons[letter].value)
+			Citizen.Wait(850) --Timer to press Key
+			listening = false
+			--Parsing the results of the loop
+			if pressed then
+				correct = correct + 1
+				if correct == 1 then
+					exports['mythic_notify']:DoShortHudText('success', 'Finding tension')
+				elseif correct == 2 then
+					exports['mythic_notify']:DoShortHudText('success', 'Found tension')
+				elseif correct == 3 then
+					exports['mythic_notify']:DoShortHudText('success', 'Raking pins')
+				elseif correct == 4 then
+					exports['mythic_notify']:DoShortHudText('success', 'Rotating Cylinder')
+				else
+					exports['mythic_notify']:DoShortHudText('success', 'Door unlocked')
+				end
+			else
+				exports['mythic_notify']:DoShortHudText('error', 'Your Lockpick broke!')
+				failed = failed + 1
+			end
+			pressed = false
+			Citizen.Wait(2500)
 		end
+		if failed == 1 then
+			TriggerServerEvent('yp_storerob:failedRegister', store, register)
+		else
+			Citizen.CreateThread(function()
+				local searchTime = math.random(20,25)
+				local searched = 0
+				exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")
+				exports['yp_base']:FreezePlayer()
+				local playerPed = GetPlayerPed(-1)
+				loadAnimDict("anim@heists@ornate_bank@grab_cash") 
+				TaskPlayAnim( playerPed, "anim@heists@ornate_bank@grab_cash", "grab", 8.0, 1.0, -1, 2, 0, 0, 0, 0 )
 
-		TriggerServerEvent('yp_storerob:payoutRegister')
-		ClearPedTasksImmediately(playerPed)
-		exports['yp_base']:UnFreezePlayer()
+				while searched ~= searchTime do
+					searched = searched + 1
+					Citizen.Wait(1000)
+				end
+				TriggerServerEvent('yp_storerob:payoutRegister')
+				ClearPedTasksImmediately(playerPed)
+				exports['yp_base']:UnFreezePlayer()
+			end)
+		end
 	end)
-
 end)
+
 
 RegisterNetEvent('yp_storerob:toggleRegister')
 AddEventHandler('yp_storerob:toggleRegister', function(store, register)
 	Stores[store].registers[register].robbed = true
+end)
+
+RegisterNetEvent('yp_storerob:enableRegister')
+AddEventHandler('yp_storerob:enableRegister', function(store, register)
+	Stores[store].registers[register].robbed = false
 end)
 
 RegisterNetEvent('yp_storerob:addRobber')
@@ -118,7 +160,7 @@ AddEventHandler('yp_storerob:lockpickSafe', function(store)
 	local failed = 0
 	local correct = 0
 	Citizen.CreateThread(function()--Main Thread for the lockpicking
-	Citizen.Wait(2500)
+		Citizen.Wait(2500)
 		while failed < 1  and correct < 5 do 
 			local letter = math.random(1,4)
 			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttons[letter].char)
@@ -151,7 +193,7 @@ AddEventHandler('yp_storerob:lockpickSafe', function(store)
 			TriggerServerEvent('yp_storerob:failedSafe', store)
 		else
 			Citizen.CreateThread(function()
-				local searchTime = math.random(20,25)
+				local searchTime = math.random(30,35)
 				local searched = 0
 
 				exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")
@@ -199,11 +241,10 @@ Citizen.CreateThread(function()
 							exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to rob the register')
 							if IsControlJustPressed(0,51) then 
 								if not v.onCooldown then --Is the store not on cooldown
-									if not v.beingRobbed then --Is the store not already beingRobbed?
+									--[[if not v.beingRobbed then --Is the store not already beingRobbed?
 										TriggerServerEvent('yp_storerob:alertPolice', v, i)
-									end
-									TriggerEvent('yp_storerob:robRegister')
-									TriggerServerEvent('yp_storerob:updateRegisterState', i, i2)
+									end]]
+									TriggerServerEvent('yp_storerob:startRegister', i, i2, v)
 									TriggerServerEvent('yp_storerob:updateRobbery', i)
 								else
 									exports['mythic_notify']:DoHudText('error', 'This store has already been robbed, come back in ' .. v.cooldown .. 's')
