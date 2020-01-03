@@ -72,15 +72,20 @@ end)
 --Thread for screen shaking
 Citizen.CreateThread(function()
 	while true do
-		if stressed == 3 then
-			ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 1.0)
-		elseif stressed == 2 then
-			ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.75)
-		elseif stressed == 1 then
-			ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.5)
-		elseif stressed == 0 then
-			ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.25)
-		end
+		TriggerEvent('esx_status:getStatus', 'stress', function(status)--Check if the player has stress
+			if status.val ~= lastStress then 
+				if status.val >= 150000 then--Set the stressed value accordingly
+					ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.25)
+				elseif status.val >= 300000 then
+					ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.5)
+				elseif status.val >= 500000 then
+					ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.75)
+				elseif status.val >= 750000 then
+					ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 1.0)
+				end
+				lastStress = status.val
+			end
+		end)
 		Citizen.Wait(12000)--Run the loop once per 12 seconds
 	end
 end)
@@ -97,23 +102,6 @@ Citizen.CreateThread(function()
 			DisableControlAction(0, 35, true) --D
 			DisableControlAction(0, 73, true) --X
 		end
-
-		TriggerEvent('esx_status:getStatus', 'stress', function(status)--Check if the player has stress
-			if status.val ~= lastStress then 
-				if status.val >= 150000 and stressed ~= 0 then--Set the stressed value accordingly
-					stressed = 0
-				elseif status.val >= 300000 and stressed ~= 1 then
-					stressed = 1
-				elseif status.val >= 500000 and stressed ~= 2 then
-					stressed = 2
-				elseif status.val >= 750000 and stressed ~= 3 then
-					stressed = 3
-				elseif status.val < 150000 and stressed ~= -1 then
-					stressed = -1
-				end
-				lastStress = status.val
-			end
-		end)
 
 		if IsPedShooting(playerPed) then
 			addStress(math.random(100,250))
