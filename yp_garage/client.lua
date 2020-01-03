@@ -10,7 +10,7 @@ ESX = nil
 --Mod enum
 local vehMods =
 {
-	"modSpoilers",
+	[0] = "modSpoilers",
 	"modFrontBumper",
 	"modRearBumper",
 	"modSideSkirt",
@@ -63,7 +63,7 @@ local vehMods =
 
 local garageBlips = {}
 
-function modelVehicle(vehicle, list, plate)
+function modelVehicle(vehicle, list, plate)--Called when spawning vehicle
 	local color1 = list.color1
 	local color2 = list.color2
 	local tint = list.windowTint
@@ -75,21 +75,27 @@ function modelVehicle(vehicle, list, plate)
 		SetVehicleWindowTint(vehicle, tint)
 	end
 
+	SetVehicleEngineHealth(vehicle, tonumber(list.engineHealth))
+	SetVehicleBodyHealth(vehicle, tonumber(list.bodyHealth))
+	SetVehiclePetrolTankHealth(vehicle, tonumber(list.fuelTankHealth))
+	SetVehicleFuelLevel(vehicle, tonumber(list.fuelLevel))
+	DecorSetFloat(vehicle, "_FUEL_LEVEL", GetVehicleFuelLevel(vehicle))
+
 	--Add Mods 
-	for i, v in ipairs(vehMods) do
-		local value = list[v]
+	SetVehicleModKit(vehicle, 0)
+	for i = 0, #vehMods, 1 do
+		local value = list[vehMods[i]]
 		if value == 'true' then
-			value = true
+			ToggleVehicleMod(vehicle, i, true)
 		elseif value == 'false' then
-			value = false
+			ToggleVehicleMod(vehicle, i, true)
 		else
-			value = tonumber(value)
+			SetVehicleMod(vehicle, i, tonumber(value)) --May need to be i-1 if there are issues
 		end
-		SetVehicleMod(vehicle, i, value) --May need to be i-1 if there are issues
 	end
 end
 
-function getVehicleData(vehicle)
+function getVehicleData(vehicle)--Called when storing vehicle, gets all the vehicleMods
 	local data = {}
 	local c1, c2 = GetVehicleColours(vehicle)
 	data['color1'] = c1
@@ -100,19 +106,33 @@ function getVehicleData(vehicle)
 	data['bodyHealth'] = GetVehicleBodyHealth(vehicle)
 	data['fuelTankHealth'] = GetVehiclePetrolTankHealth(vehicle)
 	data['plate'] = GetVehicleNumberPlateText(vehicle)
+	data['fuelLevel'] = GetVehicleFuelLevel(vehicle)
 
 
-	for i, v in ipairs(vehMods) do
-		if string.find(v, 'UNK') == nil then
+	for i = 0, #vehMods, 1 do
+		if string.find(vehMods[i], 'UNK') == nil then
 			local temp = GetVehicleMod(vehicle, i)
-			print(v .. ' ' .. temp)
-			data[v] = temp
+			data[vehMods[i]] = temp
 		end
 	end
 
-	return data --Table of vehicle mods + values
+	return data
 
 end
+
+RegisterCommand('showMods', function(source, args)
+	local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
+	local c1, c2 = GetVehicleColours(vehicle)
+
+	for i = 0, #vehMods, 1 do
+		if string.find(vehMods[i], 'UNK') == nil then
+			print(vehMods[i] .. ' ' .. GetVehicleMod(vehicle, i))
+		end
+	end
+	print('color1 ' .. c1)
+	print('color2 ' .. c2)
+	print('windowTint ' .. GetVehicleWindowTint(vehicle))
+end, false)
 
 RegisterNetEvent('yp_garage:deleteCar')
 AddEventHandler('yp_garage:deleteCar', function()
@@ -256,11 +276,6 @@ AddEventHandler('yp_garage:openInsureMenu', function(data, garageName)
 
 end)
 
-RegisterCommand('checkMods', function(source, args)
-	local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-	getVehicleData(vehicle)
-end)
-
 --Create Blips 
 Citizen.CreateThread(function()
 	for i, v in ipairs(Garages) do
@@ -299,7 +314,8 @@ Citizen.CreateThread(function()
 								--Store Vehicle Data and check that the car is theirs first
 								--Or maybe not check tbh
 								local plateNum = GetVehicleNumberPlateText(vehicle)
-								TriggerServerEvent('yp_garage:storeVehicle', plateNum, v.name, getVehicleData(vehicle))
+								local vehData = getVehicleData(vehicle)
+								TriggerServerEvent('yp_garage:storeVehicle', plateNum, v.name, vehData)
 							end
 						end
 					end
