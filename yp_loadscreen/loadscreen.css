@@ -1,0 +1,16 @@
+body {
+	margin: 0;
+	padding: 0;
+	background-image: url("img.jpg"); 
+}
+
+p {
+	font-family: 'Kulim Park', sans-serif;
+	padding-left: 15px;
+	font-size: 40pt;
+	color: red;
+	position: absolute;
+	left: 35%;
+	top: 25%;
+	font-weight: bold;
+}
