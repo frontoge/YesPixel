@@ -8,3 +8,12 @@ server_scripts {
     "server.lua",
     "@mysql-async/lib/MySQL.lua"
 }
+
+ui_page 'index.html'
+
+files {
+	'html/index.html',
+	'html/style.css',
+	'html/img/lcso_back',
+	'html/img/ls_seal.png'
+}
