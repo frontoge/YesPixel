@@ -1,5 +1,6 @@
 $(function(){
 	var balance;
+	var societyName;
 	var amount = document.getElementById('amount');
 	var balanceText = document.getElementById('balance');
 
@@ -23,6 +24,7 @@ $(function(){
 		if (item.type == "ui") {
 			if (item.enable === true) {
 				display(true);
+				societyName = item.society;
 				balanceText.innerHTML += item.societyBalance;
 				balance = parseInt(item.societyBalance);
 				amount.max = balance;
@@ -36,7 +38,7 @@ $(function(){
 		if (e.key == "Escape" || e.which == 27) {
 			display(false);
 			resetUi();
-			$.post("http://yp_mechanic/exit", JSON.stringify({}));
+			$.post("http://yp_societymenu/exit", JSON.stringify({}));
 		}
 	};
 
@@ -52,16 +54,18 @@ $(function(){
 
 	withdraw.addEventListener('click', function(){
 		if (amount.value <= balance){
-			$.post("http://yp_mechanic/withdraw", JSON.stringify({
-				value: amount.value
+			$.post("http://yp_societymenu/withdraw", JSON.stringify({
+				value: amount.value,
+				society: societyName
 			}));
 			resetUi();
 		}
 	});
 
 	deposit.addEventListener('click', function(){
-		$.post("http://yp_mechanic/deposit", JSON.stringify({
-			value: amount.value
+		$.post("http://yp_societymenu/deposit", JSON.stringify({
+			value: amount.value,
+			society: societyName
 		}));
 		resetUi();
 	});

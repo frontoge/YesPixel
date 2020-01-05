@@ -23,43 +23,7 @@ end)
 
 --Script Globals
 local CurrentlyTowedVehicle = nil
-local uiEnabled = false
-local societyBalance = nil
 
-SetNuiFocus(false, false)
-
---UI Functions
-function enableUI(enable)
-	SetNuiFocus(enable, enable)
-	uiEnabled = enable
-	SendNUIMessage({
-		type = 'ui',
-		enable = enable,
-		societyBalance = societyBalance
-	})
-end
-
-RegisterCommand('exitui', function()
-	SetNuiFocus(false, false)
-end)
-
-RegisterNUICallback('exit', function(data, cb)
-	enableUI(false)
-	cb('ok')
-end)
-
-RegisterNUICallback('withdraw', function(data, cb)
-	print(data.value)
-	TriggerServerEvent('yp_mechanic:withdrawSociety', data.value)
-	enableUI(false)
-	cb('ok')
-end)
-
-RegisterNUICallback('deposit', function(data, cb)
-	TriggerServerEvent('yp_mechanic:depositSociety', data.value)
-	enableUI(false)
-	cb('ok')
-end)
 
 --Functions
 function cleanCar()
@@ -183,6 +147,7 @@ function repairVehicle()
 			SetVehicleEngineHealth(veh, 1000.0)
 			SetVehicleBodyHealth(veh, 1000.0)
 			SetVehicleDeformationFixed(veh)
+			SetVehicleFixed(veh)
 
 			for i = 0, 5, 1 do
 				SetVehicleTyreFixed(veh, i)
@@ -213,17 +178,12 @@ AddEventHandler('yp_mechanic:repairCar', function()
 			Citizen.Wait(10000)
 			SetVehicleEngineHealth(veh, 1000.0)
 			SetVehicleBodyHealth(veh, 1000.0)
+			SetVehicleFixed(veh)
 			exports['mythic_notify']:DoHudText('success', 'You repaired your vehicle')
 			SetVehicleDeformationFixed(veh)
 			ClearPedTasksImmediately(playerPed)
 		end
 	end)
-end)
-
-RegisterNetEvent('yp_mechanic:updateSocietyBalance')
-AddEventHandler('yp_mechanic:updateSocietyBalance', function(amount)
-	societyBalance = amount
-	enableUI(true)
 end)
 
 RegisterNetEvent('yp_mechanic:repairEngine')
@@ -280,7 +240,7 @@ Citizen.CreateThread(function()
 					if ESX.PlayerData.job.grade_name == 'boss' then
 						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to access mechanic funds')
 						if IsControlJustPressed(0, 51) then
-							TriggerServerEvent('yp_mechanic:getSocietyMoney')
+							TriggerEvent('yp_societymenu:openMenu', 'society_mechanic')
 						end
 					else
 						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to deposit funds')
@@ -289,7 +249,7 @@ Citizen.CreateThread(function()
 								function(data, menu)
 									if tonumber(data.value) > 0 then
 										menu.close()
-										TriggerServerEvent('yp_mechanic:depositMoney', tonumber(data.value))
+										TriggerServerEvent('yp_societymenu:depositSociety', tonumber(data.value), 'society_mechanic')
 									end
 								end,
 								function(data, menu)
