@@ -8,10 +8,12 @@ local inUniform = false
 local isBoss = false
 local invData = {}
 local pdBlip = nil
+local cops = {}
 
 
 --ESX Init
 ESX = nil
+YPlayer = nil
 
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(xPlayer)
@@ -21,6 +23,11 @@ end)
 RegisterNetEvent('esx:setJob')
 AddEventHandler('esx:setJob', function(job)
 	ESX.PlayerData.job = job
+end)
+
+RegisterNetEvent('yp:playerLoaded')
+AddEventHandler('yp:playerLoaded', function()
+	YPlayer = exports.yp_base:getYPlayer() 
 end)
 
 --Draw Blip
@@ -143,7 +150,7 @@ function openJobMenu()
 								menu3.close()
 								if tonumber(data3.value) > 0 then
 									TriggerServerEvent('yp_police:uncuffPlayer', GetPlayerServerId(closestPlayer))
-									TriggerServerEvent('esx_jail:sendToJail', GetPlayerServerId(closestPlayer), 60*tonumber(data3.value))
+									TriggerServerEvent('esx_jail:JailPlayer', GetPlayerServerId(closestPlayer), 60*tonumber(data3.value))
 								else
 									exports['mythic_notify']:DoHudText('error', "Can't jail for less than 0 months")
 								end
@@ -458,9 +465,47 @@ AddEventHandler('yp_police:setJob', function(status)
 	isPolice = status
 end)
 
+RegisterNetEvent('yp_police:recieveLocation')
+AddEventHandler('yp_police:recieveLocation', function(playerId, name)
+	if playerId ~= PlayerId() then
+		cops[playerId] = AddBlipForEntity(GetPlayerPed(playerId))
+		SetBlipSprite(cops[playerId] , 1)
+	    SetBlipScale(cops[playerId] , 1.0)
+	    SetBlipColour(cops[playerId], 3)
+	    SetBlipAsShortRange(cops[playerId], true)
+		BeginTextCommandSetBlipName("STRING")
+		AddTextComponentString(name)
+		EndTextCommandSetBlipName(cops[playerId])
+	end
+end)
+
+RegisterNetEvent('yp_police:removeCop')
+AddEventHandler('yp_police:removeCop', function(playerId)
+	RemoveBlip(cops[playerId])
+end)
+
+--Keep Blips up to date with other players
+Citizen.CreateThread(function()
+	
+
+	while ESX == nil do
+		Citizen.Wait(0)
+	end
+
+	while ESX.PlayerData == nil do
+		Citizen.Wait(0)
+	end
+	while true do
+		
+		Citizen.Wait(0)
+	end
+end)
+
+
 --Main
 Citizen.CreateThread(function()
 	local pos = nil
+	local locationSent = false
 	while ESX == nil do
 		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 		Citizen.Wait(0)
@@ -472,12 +517,22 @@ Citizen.CreateThread(function()
 
 	ESX.PlayerData = ESX.GetPlayerData()
 
+	while YPlayer == nil do
+		Citizen.Wait(0)
+	end
+
 	while true do--Main Loop
 		local playerPed = GetPlayerPed(-1)
 		pos = GetEntityCoords(playerPed)
 
 		--Draw Markers
 		if ESX.PlayerData.job.name == 'police' then
+			if not locationSent then
+				TriggerServerEvent('yp_police:sendLocation', PlayerId())
+				TriggerServerEvent('yp_police:getLocations')
+				locationSent = true
+			end
+
 			if Vdist(pos.x, pos.y, pos.z, 477.2778, -988.1365, 24.9147) < 20 then --Evidence Locker
 				DrawMarker(1, 477.8778, -984.2165, 23.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
 			end
@@ -517,12 +572,14 @@ Citizen.CreateThread(function()
 			end
 
 			local objects = pdObjects
-			for i, v in ipairs(objects) do
-				local entity = GetClosestObjectOfType(pos.x, pos.y, pos.z, 3.0, GetHashKey(v.value))
-				if entity ~= 0 then
-					DisplayHelpText('Press ~INPUT_CONTEXT~ to Delete Object')				
-					if IsControlJustPressed(0,51) then
-						ESX.Game.DeleteObject(entity)
+			if not IsPedInAnyVehicle(GetPlayerPed(-1)) then
+				for i, v in ipairs(objects) do
+					local entity = GetClosestObjectOfType(pos.x, pos.y, pos.z, 3.0, GetHashKey(v.value))
+					if entity ~= 0 then
+						DisplayHelpText('Press ~INPUT_CONTEXT~ to Delete Object')				
+						if IsControlJustPressed(0,51) then
+							ESX.Game.DeleteObject(entity)
+						end
 					end
 				end
 			end
@@ -614,7 +671,15 @@ Citizen.CreateThread(function()
 						end)
 				end
 			end
+			
+		elseif locationSent then
+			TriggerServerEvent('yp_police:removeLocation', PlayerId())
+			locationSent = false
 		end
+		::continue::
 		Citizen.Wait(0)
 	end
+	TriggerServerEvent('yp_police:removeLocation', PlayerId())
 end)
+
+

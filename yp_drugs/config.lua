@@ -10,12 +10,22 @@ Prices =
 	['rollingpapers'] = 1
 }
 
+CocaFarm = 
+{
+	{x = 500.9393, y = 6491.3823, z = 30.7170},
+	{x = 517.7846, y = 6488.0625, z = 30.7581},
+	{x = 509.8317, y = 6488.3144, z = 30.7573}
+}
+
+CocaDropMin = 5
+CocaDropMax = 10
+
 WeedArmorTimer = 300 --Time you have extra armor from smoking weed in seconds
 ArmorBonusWeed = 20 --Armor Bonus from 1 gram of weed (1 in a joint, 2 in blunt)
 
 SpeedMultCoke = 1.25 --Speed multiplier for cocaine, goes up to 1.49
 
-ArmorBonusMeth = 30 --Armor bonus from meth
+ArmorBonusMeth = 50 --Armor bonus from meth
 MethArmorTimer = 300 -- Timer from meth armor in seconds
 
 ArmorBonusVicodin = 30 -- Armor bonus from Vicodin

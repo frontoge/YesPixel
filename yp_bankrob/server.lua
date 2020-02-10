@@ -61,14 +61,19 @@ function canRob()
 			cops = cops + 1
 		end
 	end
-	return (cops >= CopsMin)
+	if cops >= CopsMin and robberyCount == 0 then
+		robberyCount = 1
+		return true
+	else
+		return false
+	end
 end
 
 function tripAlarm(bankInd)
 	local xPlayers = ESX.GetPlayers()
 	for i = 1, #xPlayers, 1 do
 		local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-		if xPlayer.job.name == 'police' then
+		if xPlayer.job.name == 'police' or xPlayer.job.name == 'reporter' then
 			TriggerClientEvent('yp_bankrob:createAlarmBlip', xPlayers[i], bankInd)
 			TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = Banks[bankInd].name .. ' is being robbed!', length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
 		end
@@ -79,7 +84,7 @@ function endpolice(bankInd)
 	local xPlayers = ESX.GetPlayers()
 	for i = 1, #xPlayers, 1 do
 		local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-		if xPlayer.job.name == 'police' then
+		if xPlayer.job.name == 'police' or xPlayer.job.name == 'reporter' then
 			TriggerClientEvent('yp_bankrob:removeBlip', xPlayers[i])
 			TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = Banks[bankInd].name .. ' has been robbed!', length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
 		end
@@ -137,7 +142,6 @@ AddEventHandler('yp_bankrob:startHack', function(bankInd, hackInd)
 					if enoughCops then
 						tripAlarm(bankInd)
 
-						robberyCount = robberyCount + 1
 						bankData[bankInd].beingRobbed = true
 
 					else
@@ -179,7 +183,6 @@ AddEventHandler('yp_bankrob:startPick', function(bankInd)
 					if enoughCops then
 						tripAlarm(bankInd)
 
-						robberyCount = robberyCount + 1
 						bankData[bankInd].beingRobbed = true
 					else
 						TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The door seems to be sealed.' , length = 2500})
@@ -259,8 +262,8 @@ RegisterServerEvent('yp_bankrob:payoutRegister')
 AddEventHandler('yp_bankrob:payoutRegister', function()
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
-	local payout = math.random(250, 400)
-	xPlayer.addAccountMoney('black_money', payout)
+	local payout = math.random(400, 600)
+	xPlayer.addMoney(payout)
 	TriggerClientEvent('mythic_notify:client:SendAlert', src, {type = 'success', text = 'You grabbed $' .. payout, length = 2500})
 end)
 
@@ -272,7 +275,12 @@ AddEventHandler('yp_bankrob:finishDrilling', function()
 	local dropItem = Drops[index].item
 	local dropAmount = math.random(Drops[index].lower, Drops[index].upper)
 
-	xPlayer.addInventoryItem(dropItem, dropAmount)
+	if dropItem == 'cash' then
+		xPlayer.addMoney(dropAmount)
+	else
+		xPlayer.addInventoryItem(dropItem, dropAmount)
+	end
+
 	TriggerClientEvent('mythic_notify:client:SendAlert', src, {type = 'success', text = 'You stole ' .. dropAmount .. ' ' .. dropItem .. '(s)', length = 2500})
 end)
 
@@ -344,5 +352,6 @@ AddEventHandler('yp_bankrob:endRob', function(bankInd)
 		startCooldown(bankInd)
 		endpolice(bankInd)
 		notifyPlayers(bankInd)
+		robberyCount = robberyCount - 1
 	end
 end)

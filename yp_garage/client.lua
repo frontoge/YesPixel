@@ -81,14 +81,22 @@ function modelVehicle(vehicle, list, plate)--Called when spawning vehicle
 	SetVehicleFuelLevel(vehicle, tonumber(list.fuelLevel))
 	DecorSetFloat(vehicle, "_FUEL_LEVEL", GetVehicleFuelLevel(vehicle))
 
-	--Add Mods 
 	SetVehicleModKit(vehicle, 0)
+	
+	SetVehicleNumberPlateTextIndex(vehicle, tonumber(list.plateType))
+	SetVehicleTyreSmokeColor(vehicle, list.tyreSmokeColor.r, list.tyreSmokeColor.g, list.tyreSmokeColor.b)
+	SetVehicleExtraColours(vehicle, list.pearlColor, list.wheelColor)
+
+	for i = 0, 3, 1 do
+		SetVehicleNeonLightEnabled(vehicle, i, true)
+	end
+	SetVehicleNeonLightsColour(vehicle, list.neonsColor.r, list.neonsColor.g, list.neonsColor.b)
+	
+	--Add Mods 
 	for i = 0, #vehMods, 1 do
 		local value = list[vehMods[i]]
-		if value == 'true' then
-			ToggleVehicleMod(vehicle, i, true)
-		elseif value == 'false' then
-			ToggleVehicleMod(vehicle, i, true)
+		if i > 17 and i < 23 then
+			ToggleVehicleMod(vehicle, i, value)
 		else
 			SetVehicleMod(vehicle, i, tonumber(value)) --May need to be i-1 if there are issues
 		end
@@ -107,13 +115,22 @@ function getVehicleData(vehicle)--Called when storing vehicle, gets all the vehi
 	data['fuelTankHealth'] = GetVehiclePetrolTankHealth(vehicle)
 	data['plate'] = GetVehicleNumberPlateText(vehicle)
 	data['fuelLevel'] = GetVehicleFuelLevel(vehicle)
+	data['plateType'] = GetVehicleNumberPlateTextIndex(vehicle)
+	data['neons'] = IsVehicleNeonLightEnabled(vehicle, 0)
+	if data['neons'] then
+		local r, g, b = GetVehicleNeonLightsColour(vehicle)
+		data['neonsColor'] = {r = r, g = g, b = b}
+	else
+		data['neonsColor'] = {r = 0, g = 0, b = 0}
+	end
+	local r, g, b = GetVehicleTyreSmokeColor(vehicle)
+	data['tyreSmokeColor'] = {r = r, g = g, b = b}
+	data['pearlColor'], data['wheelColor'] = GetVehicleExtraColours(vehicle)
 
 
 	for i = 0, #vehMods, 1 do
-		if string.find(vehMods[i], 'UNK') == nil then
-			local temp = GetVehicleMod(vehicle, i)
-			data[vehMods[i]] = temp
-		end
+		local temp = GetVehicleMod(vehicle, i)
+		data[vehMods[i]] = temp
 	end
 
 	return data
@@ -123,11 +140,11 @@ end
 RegisterCommand('showMods', function(source, args)
 	local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
 	local c1, c2 = GetVehicleColours(vehicle)
+	local r, g, b = GetVehicleTyreSmokeColor(vehicle)
+	print (r .. ' ' .. g .. ' ' .. b)
 
 	for i = 0, #vehMods, 1 do
-		if string.find(vehMods[i], 'UNK') == nil then
-			print(vehMods[i] .. ' ' .. GetVehicleMod(vehicle, i))
-		end
+		print(vehMods[i] .. ' ' .. GetVehicleMod(vehicle, i))
 	end
 	print('color1 ' .. c1)
 	print('color2 ' .. c2)

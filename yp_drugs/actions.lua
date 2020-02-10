@@ -4,6 +4,11 @@
  * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
 ]]--
 
+--[[Important coords
+--Weed Farm: x = 1065.1511, y = -3183.4865, z = -39.1635
+--Cocaine Lockup: x = 1088.7777, y = -3188.9726, z = -38.9934
+]]--
+
 --ESX Init
 ESX = nil
 
@@ -249,6 +254,7 @@ AddEventHandler('yp_drugs:crafting:makeMeth', function()
 	end
 	count = 0
 	timer = math.random(15, 25)
+	Citizen.Wait(500)
 	exports['progressBars']:startUI(timer * 1000, 'Cooking meth')
 	while count < timer do
 		count = count + 1
@@ -259,6 +265,44 @@ AddEventHandler('yp_drugs:crafting:makeMeth', function()
 	TriggerServerEvent('yp_base:addItem', 'meth', payout)
 	exports['mythic_notify']:DoHudText("success", "You cooked " .. payout .. " meth")
 	cooking = false
+end)
+
+RegisterNetEvent('yp_drugs:crafting:makeCoke')
+AddEventHandler('yp_drugs:crafting:makeCoke', function()
+	cooking = true
+	local count = 0
+	exports['mythic_notify']:DoHudText('inform', 'Started making cocaine')
+	exports['progressBars']:startUI(10000, 'Mixing ingredients')
+	while count < 10 do
+		count = count + 1
+		Citizen.Wait(1000)
+	end
+	count = 0
+	timer = math.random(15, 25)
+	Citizen.Wait(500)
+	exports['progressBars']:startUI(timer * 1000, 'Packaging Cocaine')
+	while count < timer do
+		count = count + 1
+		Citizen.Wait(1000)
+	end
+
+	local payout = math.random(3, 5)
+	TriggerServerEvent('yp_base:addItem', 'cocaine', payout)
+	exports['mythic_notify']:DoHudText("success", "You made " .. payout .. ' cocaine')
+	cooking = false
+end)
+
+RegisterNetEvent('yp_drugs:pickCoca')
+AddEventHandler('yp_drugs:pickCoca', function()
+	Citizen.CreateThread(function()
+		local payout = math.random(CocaDropMin, CocaDropMax)
+		local playerPed = GetPlayerPed(-1)
+		exports['progressBars']:startUI(10000, "Picking...")
+		TaskStartScenarioInPlace(playerPed, 'WORLD_HUMAN_GARDENER_PLANT', 0, true)
+		Citizen.Wait(10000)
+		ClearPedTasksImmediately(playerPed)
+		TriggerServerEvent('yp_base:addItem', 'cocaleaf', payout)
+	end)
 end)
 
 Citizen.CreateThread(function() -- Create Blip for store
@@ -333,12 +377,46 @@ Citizen.CreateThread(function()
 				end
 			end
 		end
-		if Vdist(pos.x, pos.y, pos.z, 1390.5275, 3605.5852, 39.7759) < 3 and not cooking then
+
+		for i, v in ipairs(CocaFarm) do 
+			if Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z) < 2 then
+				exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to tend to the crops')
+				if IsControlJustPressed(0, 51) then
+					TriggerServerEvent('yp_drugs:farmCoca', i)
+				end
+			end
+		end
+
+		--Locations
+		if Vdist(pos.x, pos.y, pos.z, 1390.5275, 3605.5852, 39.7759) < 3 and not cooking then --Meth Cooking
 			exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to cook meth')
 			if IsControlJustPressed(0, 51) then
 				TriggerServerEvent('yp_drugs:cookMeth')
 			end
+		elseif Vdist(pos.x, pos.y, pos.z, 1093.9084, -3195.7758, -38.1202) < 3 and not cooking then
+			exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to make cocaine')
+			if IsControlJustPressed(0, 51) then
+				TriggerServerEvent('yp_drugs:makeCoke')
+			end
+		--TP to coke room
+		elseif Vdist(pos.x, pos.y, pos.z, 1088.7777, -3188.9726, -38.9934) < 20 then --Exit cocaine Lockup
+			DrawMarker(1, 1088.7777, -3188.9726, -39.9934, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			if Vdist(pos.x, pos.y, pos.z, 1088.7777, -3188.9726, -38.9934) < 1 then
+				exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to leave')
+				if IsControlJustPressed(0, 51) then
+					SetEntityCoords(playerPed, 387.6297, 3585.9726, 33.2922, 1, 0, 0, 1)
+				end
+			end
+		elseif Vdist(pos.x, pos.y, pos.z, 387.6297, 3585.9726, 33.2922) < 20 then --Entrance cocaine lockup
+			DrawMarker(1, 387.6297, 3585.9726, 32.2922, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+			if Vdist(pos.x, pos.y, pos.z, 387.6297, 3585.9726, 33.2922) < 1 then
+				exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to go inside')
+				if IsControlJustPressed(0, 51) then
+					SetEntityCoords(playerPed, 1088.7777, -3188.9726, -38.9934, 1, 0, 0, 1)
+				end
+			end
 		end
+
 		Citizen.Wait(0)
 	end
 end)

@@ -6,6 +6,7 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 RegisterServerEvent('yp_societymenu:getSocietyMoney')
 AddEventHandler('yp_societymenu:getSocietyMoney', function(society)
 	local src = source
+	print(society)
 	MySQL.Async.fetchAll('SELECT money FROM addon_account_data WHERE account_name = @name', {['@name'] = society}, 
 		function(result)
 			local amount = result[1].money

@@ -5,7 +5,7 @@
 ]]--
 
 local onCooldown = false
-local maxCooldown = 5*60
+local maxCooldown = 20*60
 local cooldownTime = 5*60
 
 

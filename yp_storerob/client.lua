@@ -152,9 +152,6 @@ RegisterNetEvent('yp_storerob:lockpickSafe')
 AddEventHandler('yp_storerob:lockpickSafe', function(store)
 	exports['yp_base']:FreezePlayer()
 	local success = false
-	if not Stores[store].beingRobbed then
-		TriggerServerEvent('yp_storerob:alertPolice', v, i)
-	end
 
 	exports['mythic_notify']:DoHudText('inform', 'Lockpicking starting')
 	local failed = 0
@@ -245,7 +242,7 @@ Citizen.CreateThread(function()
 										TriggerServerEvent('yp_storerob:alertPolice', v, i)
 									end]]
 									TriggerServerEvent('yp_storerob:startRegister', i, i2, v)
-									TriggerServerEvent('yp_storerob:updateRobbery', i)
+									--TriggerServerEvent('yp_storerob:updateRobbery', i)
 								else
 									exports['mythic_notify']:DoHudText('error', 'This store has already been robbed, come back in ' .. v.cooldown .. 's')
 								end

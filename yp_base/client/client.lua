@@ -8,6 +8,9 @@ local frozen = false
 local newStress = 0
 local lastStress = -1
 
+local playerReady = false
+local YPlayerData = nil
+
 --Functions
 function DisplayHelpText(str)
 	SetTextComponentFormat("STRING")
@@ -41,11 +44,11 @@ function deleteVehicle(entity)
 	Citizen.InvokeNative(0xEA386986E786A54F, Citizen.PointerValueIntInitialized(entity))
 end
 
---Events
-RegisterNetEvent('yp_base:disableHPRegen')
-AddEventHandler('yp_base:disableHPRegen', function()
-end)
+function getYPlayer()
+	return YPlayerData
+end
 
+--Events
 RegisterNetEvent('yp_base:freezePlayer')
 AddEventHandler('yp_base:freezePlayer', function()
 	FreezePlayer()
@@ -54,6 +57,21 @@ end)
 RegisterNetEvent('yp_base:unFreezePlayer')
 AddEventHandler('yp_base:unFreezePlayer', function()
 	UnFreezePlayer()
+end)
+
+RegisterNetEvent('yp_base:ready')
+AddEventHandler("yp_base:ready", function()
+	playerReady = true
+end)
+
+RegisterNetEvent('yp_base:setPlayerData')
+AddEventHandler('yp_base:setPlayerData', function(data)
+	YPlayerData = data
+end)
+
+RegisterNetEvent('yp_base:sendOrgUpdate')
+AddEventHandler('yp_base:sendOrgUpdate', function(org, level, sender)
+	TriggerServerEvent('yp_base:setOrg', org, level, sender)
 end)
 
 --Stress Status
@@ -69,21 +87,22 @@ AddEventHandler('esx_status:loaded', function(status)
 	end)
 end)
 
+RegisterCommand('ready', function(source, args)
+	playerReady = true
+end)
+
 --Thread for screen shaking
 Citizen.CreateThread(function()
 	while true do
 		TriggerEvent('esx_status:getStatus', 'stress', function(status)--Check if the player has stress
-			if status.val ~= lastStress then 
-				if status.val >= 150000 then--Set the stressed value accordingly
-					ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.25)
-				elseif status.val >= 300000 then
-					ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.5)
-				elseif status.val >= 500000 then
-					ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.75)
-				elseif status.val >= 750000 then
-					ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 1.0)
-				end
-				lastStress = status.val
+			if status.val >= 150000 then--Set the stressed value accordingly
+				ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.25)
+			elseif status.val >= 300000 then
+				ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.5)
+			elseif status.val >= 500000 then
+				ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 0.75)
+			elseif status.val >= 750000 then
+				ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', 1.0)
 			end
 		end)
 		Citizen.Wait(12000)--Run the loop once per 12 seconds
@@ -92,6 +111,14 @@ end)
 
 --Main Thread (once per tick)
 Citizen.CreateThread(function()
+	while not playerReady do
+		Citizen.Wait(0)
+	end
+	TriggerServerEvent('yp_base:loadPlayerData', YPlayerData)
+	while YPlayerData == nil do
+		Citizen.Wait(0)
+	end
+	TriggerEvent('yp:playerLoaded')
 	while true do
 		local playerPed = GetPlayerPed(-1)
 		SetPlayerHealthRechargeMultiplier(PlayerId(), 0.0)

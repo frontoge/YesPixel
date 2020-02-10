@@ -34,5 +34,5 @@ RepairModels =
 	1544229216
 }
 
-BasePrice = 150
+BasePrice = 75
 RepairTime = 5000

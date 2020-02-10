@@ -7,6 +7,16 @@
 --ESX Init
 ESX = nil
 
+RegisterNetEvent('esx:playerLoaded')
+AddEventHandler('esx:playerLoaded', function(xPlayer)
+	ESX.PlayerData = xPlayer
+end)
+
+RegisterNetEvent('esx:setJob')
+AddEventHandler('esx:setJob', function(job)
+	ESX.PlayerData.job = job
+end)
+
 blip = nil
 
 function loadAnimDict(dict)  
@@ -84,32 +94,50 @@ function openVehicleMenu(spawnPos)
 	end)
 end
 
+function openSupplyMenu()
+	local elements = SupplyItems
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'ems_supply', {
+		title = 'Supplies',
+		align = 'bottom-right',
+		elements = elements},
+		function(data, menu)
+			ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'ems_supply_amount', {title = 'Enter amount'}, 
+				function(data2, menu2)
+					TriggerServerEvent('yp_base:addItem', data.current.value, data2.value)
+					TriggerServerEvent('esx_addonaccount:getSharedAccount', 'society_city', function(account)
+				        account.removeMoney(data2.value * data.current.value)
+				    end)
+				    menu2.close()
+				end,
+				function(data2, menu2)
+					menu2.close()
+				end)
+		end,
+		function(data, menu)
+			menu.close()
+		end)
+end
+
 RegisterNetEvent('yp_ems:doCPR')
-AddEventHandler("yp_ems:doCPR", function(chance)
+AddEventHandler("yp_ems:doCPR", function(ems)
 	Citizen.CreateThread(function()
 		local closestPlayer, distance = ESX.Game.GetClosestPlayer()
 		local playerPed = GetPlayerPed(-1)
 		if closestPlayer ~= -1 and distance < 3 then
 			if IsPedDeadOrDying(GetPlayerPed(closestPlayer)) then
-				loadAnimDict('mini@cpr@char_a@cpr_str')
-				exports['mythic_notify']:DoHudText('inform', 'Started CPR')
-				exports['progressBars']:startUI(15000, 'Performing CPR')
+				if not ems then
+					loadAnimDict('mini@cpr@char_a@cpr_str')
+					exports['mythic_notify']:DoHudText('inform', 'Started CPR')
+					exports['progressBars']:startUI(15000, 'Performing CPR')
 
-				for i = 0, 30, 1 do
-					TaskPlayAnim(playerPed, "mini@cpr@char_a@cpr_str", "cpr_pumpchest", 8.0, -8.0, -1, 0, 0, false, false, false)
-					Citizen.Wait(500)
-				end
-
-				if chance then
-					local num = math.random(1, 100)
-					if num <= 20 then
-						TriggerServerEvent('yp_ems:revivePlayer', GetPlayerServerId(closestPlayer))
-						exports['mythic_notify']:DoHudText('success', 'CPR Successful')
-					else
-						exports['mythic_notify']:DoHudText('error', 'CPR Failed')
+					for i = 0, 30, 1 do
+						TaskPlayAnim(playerPed, "mini@cpr@char_a@cpr_str", "cpr_pumpchest", 8.0, -8.0, -1, 0, 0, false, false, false)
+						Citizen.Wait(500)
 					end
-				else
+
 					TriggerServerEvent('yp_ems:revivePlayer', GetPlayerServerId(closestPlayer))
+				else
+					exports['mythic_notify']:DoHudText('inform', 'This persons wounds are too severe for you to help.', 3500)
 				end
 				ClearPedSecondaryTask(playerPed)
 			else
@@ -176,31 +204,46 @@ Citizen.CreateThread(function()
 			end
 		end
 
-		--Vehicle Spawner
-		for i, v in ipairs(VehicleSpawners) do
-			if Vdist(x, y, z, v.marker.x, v.marker.y, v.marker.z) < 40 then
-				DrawMarker(36, v.marker.x, v.marker.y, v.marker.z, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0, 255, 180, 100, false, false, 2, true, nil, nil, false)
-				if Vdist(x, y, z, v.marker.x, v.marker.y, v.marker.z) < 1.0 then
-					exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to grab a car')
-					if IsControlJustPressed(0, 51) then
-						openVehicleMenu(v.spawn)
+		if ESX.PlayerData.job.name == 'ems' then
+
+			--Vehicle Spawner
+			for i, v in ipairs(VehicleSpawners) do
+				if Vdist(x, y, z, v.marker.x, v.marker.y, v.marker.z) < 40 then
+					DrawMarker(36, v.marker.x, v.marker.y, v.marker.z, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0, 255, 180, 100, false, false, 2, true, nil, nil, false)
+					if Vdist(x, y, z, v.marker.x, v.marker.y, v.marker.z) < 1.0 then
+						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to grab a car')
+						if IsControlJustPressed(0, 51) then
+							openVehicleMenu(v.spawn)
+						end
 					end
 				end
 			end
-		end
 
-		--Vehicle Returns
-		for i, v in ipairs(VehicleDrops) do
-			if Vdist(x, y, z, v.x, v.y, v.z) < 40 then
-				DrawMarker(1, v.x, v.y, v.z-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 0.5, 255, 0, 0, 100, false, false, 2, false, nil, nil, false)
-				if IsPedInAnyVehicle(playerPed) then
-					if Vdist(x, y, z, v.x, v.y, v.z) < 3 then
-						exports['yp_base']:DisplayHelpText("Press ~INPUT_CONTEXT~ to return the vehicle")
-						if IsControlJustPressed(0, 51) then
-							local vehicle = GetVehiclePedIsIn(playerPed)
-							if GetPedInVehicleSeat(vehicle, -1) == playerPed then
-								exports['yp_base']:deleteVehicle(vehicle)
+			--Vehicle Returns
+			for i, v in ipairs(VehicleDrops) do
+				if Vdist(x, y, z, v.x, v.y, v.z) < 40 then
+					DrawMarker(1, v.x, v.y, v.z-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 0.5, 255, 0, 0, 100, false, false, 2, false, nil, nil, false)
+					if IsPedInAnyVehicle(playerPed) then
+						if Vdist(x, y, z, v.x, v.y, v.z) < 3 then
+							exports['yp_base']:DisplayHelpText("Press ~INPUT_CONTEXT~ to return the vehicle")
+							if IsControlJustPressed(0, 51) then
+								local vehicle = GetVehiclePedIsIn(playerPed)
+								if GetPedInVehicleSeat(vehicle, -1) == playerPed then
+									exports['yp_base']:deleteVehicle(vehicle)
+								end
 							end
+						end
+					end
+				end
+			end
+
+			for i, v in ipairs(SupplyClosets) do --Supply Closet
+				if Vdist(x, y, z, v.x, v.y, v.z) < 40 then
+					DrawMarker(1, v.x, v.y, v.z-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 0.5, 0, 255, 255, 100, false, false, 2, false, nil, nil, false)
+					if Vdist(x, y, z, v.x, v.y, v.z) < 1.5 then
+						exports['yp_base']:DisplayHelpText("Press ~INPUT_CONTEXT~ to get supplies")
+						if IsControlJustPressed(0, 51) then
+							openSupplyMenu()
 						end
 					end
 				end

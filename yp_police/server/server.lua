@@ -9,6 +9,8 @@ ESX = nil
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
+local cops = {}
+
 --Functions
 function resultToSkin(sqlString)
      --Take result string of skin components and turn it into a table using substring methods
@@ -183,11 +185,9 @@ function resultToSkin(sqlString)
           else
                value = tonumber(string.sub(tempString, string.find(tempString, ':')+1, string.find(tempString, '}')-1))
           end
-
      end
      return skin
 end
-
 
 --Events
 RegisterServerEvent('yp_police:cuffPlayer')
@@ -252,16 +252,25 @@ AddEventHandler('yp_police:depositItem', function(value, amount, itemType)
 end)
 
 RegisterServerEvent('yp_police:buyWeapon')
-AddEventHandler('yp_police:buyWeapon', function(weaponName, cost)
+AddEventHandler('yp_police:buyWeapon', function(name, cost)
      local src = source
      local xPlayer = ESX.GetPlayerFromId(src)
+
+     if string.find(name, "WEAPON") ~= nil then
+          --Give The weapon
+          xPlayer.addWeapon(name, 250)
+     else
+          if xPlayer.getInventoryItem(name).count < xPlayer.getInventoryItem(name).limit then
+               xPlayer.addInventoryItem(name, 1)
+          else
+               TriggerClientEvent('mythic_notify:client:SendAlert', src, {type = 'error', text = 'You are already carrying a radio', length = 3000})
+          end
+     end
+
      --Charge the city
      TriggerEvent('esx_addonaccount:getSharedAccount', 'society_city', function(account)
           account.removeMoney(cost)
      end)
-
-     --Give The weapon
-     xPlayer.addWeapon(weaponName, 250)
 
 end)
 
@@ -377,6 +386,47 @@ AddEventHandler('yp_police:getOwnerFromId', function(id, src)
           local name = result[1].firstname .. ' ' .. result[1].lastname
           TriggerClientEvent('yp_police:showPlayerName', src, name)
      end)
+end)
+
+RegisterServerEvent('yp_police:sendLocation')
+AddEventHandler('yp_police:sendLocation', function(player)
+     local players = ESX.GetPlayers()
+     for i = 1, #players, 1 do
+          local xPlayer = ESX.GetPlayerFromId(players[i])
+          if xPlayer.job.name == 'police' then
+               MySQL.Async.fetchAll('SELECT firstname, lastname FROM users WHERE identifier = @identifier', {['@identifier'] = ESX.GetPlayerFromId(source).identifier},
+                    function(result)
+                         local name = result[1].firstname .. ' ' .. result[1].lastname
+                         TriggerEvent('yp_police:addCop', player, name)
+                         TriggerClientEvent('yp_police:recieveLocation', players[i], player, name)
+                    end)
+               
+          end
+     end
+end)
+
+RegisterServerEvent('yp_police:addCop')
+AddEventHandler('yp_police:addCop', function(player, name)
+     cops[source] = {player = player, name = name}
+end)
+
+RegisterServerEvent('yp_police:removeLocation')
+AddEventHandler('yp_police:removeLocation', function(player)
+     local players = ESX.GetPlayers()
+     cops[source] = nil
+     for i = 1, #players, 1 do
+          local xPlayer = ESX.GetPlayerFromId(players[i])
+          if xPlayer.job.name == 'police' then
+               TriggerClientEvent('yp_police:removeCop', players[i], player)
+          end
+     end
+end)
+
+RegisterServerEvent('yp_police:getLocations')
+AddEventHandler('yp_police:getLocations', function()
+     for i, v in pairs(cops) do
+          TriggerClientEvent('yp_police:recieveLocation', source, v.player, v.name)
+     end
 end)
 
 

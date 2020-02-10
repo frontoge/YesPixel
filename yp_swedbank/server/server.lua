@@ -123,7 +123,7 @@ AddEventHandler('yp_swedbank:tripAlarm', function()
 	local xPlayers = ESX.GetPlayers()
 	for i = 1, #xPlayers, 1 do
 		local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-		if xPlayer.job.name == 'police' then
+		if xPlayer.job.name == 'police' or xPlayer.job.name == 'reporter' then
 			TriggerClientEvent('yp_swedbank:createBlip', xPlayers[i])
 			TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = 'Swedbank is being robbed!', length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
 		end

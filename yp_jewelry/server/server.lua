@@ -71,7 +71,7 @@ function robberyEnd()
   local xPlayers = ESX.GetPlayers()
   for i = 1, #xPlayers, 1 do
     local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-    if xPlayer.job.name == 'police' or xPlayer.job.name == 'sheriff' then
+    if xPlayer.job.name == 'police' or xPlayer.job.name == 'reporter' then
       TriggerClientEvent('killAlarm', xPlayers[i]) 
       TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = 'The Robbery at the jewelry has been cancelled.', length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
     end
@@ -88,13 +88,13 @@ AddEventHandler('yp_jewelry:startCase', function(caseNumber)
   local case = caseNumber
   
   if firstCase then
-	local xPlayers = ESX.GetPlayers()
-	for i = 1, #xPlayers, 1 do
-		local player = ESX.GetPlayerFromId(xPlayers[i])
-		if player.job.name == 'police' then
-			copsOn = copsOn + 1
-		end
-	end
+  	local xPlayers = ESX.GetPlayers()
+  	for i = 1, #xPlayers, 1 do
+  		local player = ESX.GetPlayerFromId(xPlayers[i])
+  		if player.job.name == 'police' then
+  			copsOn = copsOn + 1
+  		end
+  	end
   end
   
   if copsOn >= copMin then
@@ -179,7 +179,7 @@ AddEventHandler('tripAlarm', function()
     local xPlayers = ESX.GetPlayers()
     for i = 1, #xPlayers, 1 do
       local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-      if xPlayer.job.name == 'police' or xPlayer.job.name == 'sheriff' then
+      if xPlayer.job.name == 'police' or xPlayer.job.name == 'reporter' then
         TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = 'The jewelry is being robbed!', length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
         TriggerClientEvent('alarmBlip', xPlayers[i], pos)
       end

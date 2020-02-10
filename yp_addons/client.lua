@@ -93,7 +93,7 @@ AddEventHandler('yp_addons:addAmmo', function(ammoType)
 		hash = GetHashKey('WEAPON_ASSAULTRIFLE')
 	elseif ammoType == 'sgAmmo' then
 		hash = GetHashKey('WEAPON_PUMPSHOTGUN')
-	elseif ammoType == 'mgAmmo' then
+	elseif ammoType == 'smgAmmo' then
 		hash = GetHashKey('WEAPON_SMG')
 	end
 	AddAmmoToPed(ped, hash, 30)

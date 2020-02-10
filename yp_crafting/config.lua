@@ -204,7 +204,7 @@ recipes = {
 					{item = 'arbarrel', count = 1},
 					{item = 'armag', count = 1},
 					{item = 'arstock', count = 1},
-					{item = 'wood', count = 2} --Wood for Wooden Stock
+					--{item = 'wood', count = 2} --Wood for Wooden Stock
 				 }
 	},
 	{
@@ -219,18 +219,6 @@ recipes = {
 					{item = 'armag', count = 1},
 					{item = 'arstock', count = 1},
 					{item = 'metal', count = 2}
-				 }
-	},
-	{
-		blueprint = 'arprint',
-		label = 'Combat PDW',
-		value = 'WEAPON_COMBATPDW',
-		recipe = {
-					{item = 'spring', count = 1},
-					{item = 'arbody', count = 1},
-					{item = 'argrip', count = 1},
-					{item = 'arbarrel', count = 1},
-					{item = 'arclip', count = 1}
 				 }
 	},
 	{
@@ -347,7 +335,7 @@ recipes = {
 		label = 'AR Body',
 		value = 'arbody',
 		recipe = {
-					{item = 'metal', count = 5}
+					{item = 'metal', count = 10}
 				 }
 	},
 	{
@@ -356,8 +344,8 @@ recipes = {
 		value = 'armag',
 		recipe = {
 					{item = 'plastic', count = 3},
-					{item = 'spring', count = 1},
-					{item = 'metal', count = 1}
+					{item = 'spring', count = 2},
+					{item = 'metal', count = 3}
 				 }
 	},
 	{
@@ -365,8 +353,8 @@ recipes = {
 		label = 'AR Grip',
 		value = 'argrip',
 		recipe = {
-					{item = 'metal', count = 3},
-					{item = 'rubber', count = 3}
+					{item = 'metal', count = 6},
+					{item = 'rubber', count = 5}
 				 }
 	},
 	{
@@ -374,7 +362,7 @@ recipes = {
 		label = 'AR Barrel',
 		value = 'arbarrel',
 		recipe = {
-					{item = 'metal', count = 5}
+					{item = 'metal', count = 10}
 				 }
 	},
 	{
@@ -382,7 +370,7 @@ recipes = {
 		label = 'AR Stock',
 		value = 'arstock',
 		recipe = {
-					{item = 'metal', count = 3}
+					{item = 'metal', count = 6}
 				 }
 	},
 	{
@@ -390,7 +378,7 @@ recipes = {
 		label = 'AR Drum',
 		value = 'ardrum',
 		recipe = {
-					{item = 'metal', count = 5}
+					{item = 'metal', count = 10}
 				 }
 	},
 	{
@@ -407,17 +395,17 @@ recipes = {
 		value = 'pistolmag',
 		recipe = {
 					{item = 'plastic', count = 1},
-					{item = 'spring', count = 1},
-					{item = 'metal', count = 1}
+					{item = 'spring', count = 2},
+					{item = 'metal', count = 2}
 				 }
 	},
 	{
 		blueprint = 'partsprint',
 		label = 'Pistol Grip',
-		value = 'pistolbody',
+		value = 'pistolgrip',
 		recipe = {
 					{item = 'metal', count = 2},
-					{item = 'rubber', count  = 1}
+					{item = 'rubber', count  = 3}
 				 }
 	},
 	{
@@ -425,7 +413,7 @@ recipes = {
 		label = 'Pistol Barrel',
 		value = 'pistolbarrel',
 		recipe = {
-					{item = 'metal', count = 3}
+					{item = 'metal', count = 4}
 				 }
 	},
 	{
@@ -433,7 +421,7 @@ recipes = {
 		label = 'SMG Body',
 		value = 'smgbody',
 		recipe = {
-					{item = 'metal', count = 4}
+					{item = 'metal', count = 6}
 				 }
 	},
 	{
@@ -441,9 +429,9 @@ recipes = {
 		label = 'SMG Magazine',
 		value = 'smgmag',
 		recipe = {
-					{item = 'plastic', count = 2},
-					{item = 'spring', count = 1},
-					{item = 'metal', count = 1}
+					{item = 'plastic', count = 4},
+					{item = 'spring', count = 4},
+					{item = 'metal', count = 3}
 				 }
 	},
 	{
@@ -452,7 +440,7 @@ recipes = {
 		value = 'smggrip',
 		recipe = {
 					{item = 'metal', count = 2},
-					{item = 'rubber', count  = 2}
+					{item = 'rubber', count  = 4}
 				 }
 	},
 	{
@@ -460,7 +448,7 @@ recipes = {
 		label = 'SMG Barrel',
 		value = 'smgbarrel',
 		recipe = {
-					{item = 'metal', count = 4}
+					{item = 'metal', count = 6}
 				 }
 	},
 	{
@@ -468,7 +456,7 @@ recipes = {
 		label = 'SMG Stock',
 		value = 'smgstock',
 		recipe = {
-					{item = 'metal', count = 2}
+					{item = 'metal', count = 5}
 				 }
 	},
 	{
@@ -476,7 +464,7 @@ recipes = {
 		label = 'Shotgun Body',
 		value = 'sgbody',
 		recipe = {
-					{item = 'metal', count = 4}
+					{item = 'metal', count = 6}
 				 }
 	},
 	{
@@ -484,7 +472,7 @@ recipes = {
 		label = 'Shotgun Barrel',
 		value = 'sgbarrel',
 		recipe = {
-					{item = 'metal', count = 6} --Shotgun barrels need more metal than other guns
+					{item = 'metal', count = 8} --Shotgun barrels need more metal than other guns
 				 }
 	},
 	{
@@ -492,8 +480,8 @@ recipes = {
 		label = 'Shotgun Grip',
 		value = 'sggrip',
 		recipe = {
-					{item = 'metal', count = 2},
-					{item = 'rubber', count  = 2}
+					{item = 'metal', count = 5},
+					{item = 'rubber', count  = 4}
 				 }
 	},
 	{
@@ -501,7 +489,15 @@ recipes = {
 		label = 'Shotgun Stock',
 		value = 'sgstock',
 		recipe = {
-					{item = 'metal', count = 3}
+					{item = 'metal', count = 4}
 				 }
 	},
+	{
+		blueprint = 'partsprint',
+		label = 'Spring',
+		value = 'spring',
+		recipe = {
+					{item = 'metal', count = 2}
+				 }
+	}
 }	

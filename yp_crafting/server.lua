@@ -34,8 +34,7 @@ AddEventHandler('yp_crafting:craftItem', function(item, recipe)
 	for i, v in ipairs(recipe) do
 		if xPlayer.getInventoryItem(v.item).count < v.count then
 			canCraft = false;
-			TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'You do not have the needed materials for this...' , length = 2500})
-			break
+			TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'error', text = 'You do not have enough ' .. v.item , length = 2500})
 		end
 	end
 
@@ -45,9 +44,9 @@ AddEventHandler('yp_crafting:craftItem', function(item, recipe)
 		end
 
 		if string.find(item, 'WEAPON') ~= nil then
-			xPlayer.addWeapon(item)
+			xPlayer.addWeapon(item, 0)
 		else
-			xPlayer.addInventoryItem(item)
+			xPlayer.addInventoryItem(item, 1)
 		end
 	end
 end)

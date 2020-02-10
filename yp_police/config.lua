@@ -28,17 +28,15 @@ pdObjects = {{label = 'Spike Strip', value = 'p_ld_stinger_s'},
 			 {label = 'Traffic cone', value = 'prop_roadcone02a'},
 			 {label = 'Barrier', value = 'prop_barrier_work05'}}
 
-uniforms = {{tshirt_1 = 59, tshirt_2 = 1, torso_1 = 55, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 74, pants_1 = 25, pants_2 = 2, shoes_1 = 54, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = 46, helmet_2 = 0}, --Cadet
-			{tshirt_1 = 58, tshirt_2 = 0, torso_1 = 55, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 74, pants_1 = 25, pants_2 = 2, shoes_1 = 54, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = 46, helmet_2 = 0}, --Deputy
-			{tshirt_1 = 58, tshirt_2 = 0, torso_1 = 55, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 74, pants_1 = 25, pants_2 = 2, shoes_1 = 54, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Corporal
-			{tshirt_1 = 58, tshirt_2 = 0, torso_1 = 55, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 74, pants_1 = 25, pants_2 = 2, shoes_1 = 54, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Sergant
-			{tshirt_1 = 131, tshirt_2 = 1, torso_1 = 95, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 26, pants_1 = 25, pants_2 = 0, shoes_1 = 71, shoes_2 = 1, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Lieutenant
-			{tshirt_1 = 131, tshirt_2 = 1, torso_1 = 95, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 26, pants_1 = 59, pants_2 = 9, shoes_1 = 60, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Major
-			{tshirt_1 = 131, tshirt_2 = 1, torso_1 = 95, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 26, pants_1 = 59, pants_2 = 9, shoes_1 = 60, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Captain
-			{tshirt_1 = 131, tshirt_2 = 1, torso_1 = 95, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 26, pants_1 = 59, pants_2 = 9, shoes_1 = 60, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, -- Deputy Sheriff
-			{tshirt_1 = 131, tshirt_2 = 1, torso_1 = 95, torso_2 = 1, decals_1 = 0, decals_2 = 0, arms = 26, pants_1 = 59, pants_2 = 9, shoes_1 = 60, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}} --Sheriff
-
+uniforms = {{tshirt_1 = 15, tshirt_2 = 0, torso_1 = 93, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 0, pants_1 = 22, pants_2 = 0, shoes_1 = 25, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = 10, helmet_2 = 6}, --Cadet
+			{tshirt_1 = 122, tshirt_2 = 0, torso_1 = 18, torso_2 = 0, decals_1 = 0, decals_2 = 0, arms = 30, pants_1 = 10, pants_2 = 3, shoes_1 = 51, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Officer
+			{tshirt_1 = 122, tshirt_2 = 0, torso_1 = 29, torso_2 = 0, decals_1 = 8, decals_2 = 0, arms = 30, pants_1 = 10, pants_2 = 3, shoes_1 = 51, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Corporal
+			{tshirt_1 = 122, tshirt_2 = 0, torso_1 = 29, torso_2 = 0, decals_1 = 11, decals_2 = 0, arms = 30, pants_1 = 10, pants_2 = 3, shoes_1 = 51, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Sergant
+			{tshirt_1 = 122, tshirt_2 = 0, torso_1 = 29, torso_2 = 2, decals_1 = 0, decals_2 = 0, arms = 30, pants_1 = 10, pants_2 = 3, shoes_1 = 51, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Lieutenant
+			{tshirt_1 = 122, tshirt_2 = 0, torso_1 = 29, torso_2 = 3, decals_1 = 0, decals_2 = 0, arms = 30, pants_1 = 10, pants_2 = 3, shoes_1 = 51, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Major
+			{tshirt_1 = 122, tshirt_2 = 0, torso_1 = 29, torso_2 = 3, decals_1 = 11, decals_2 = 0, arms = 30, pants_1 = 10, pants_2 = 3, shoes_1 = 51, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, --Captain
+			{tshirt_1 = 122, tshirt_2 = 0, torso_1 = 52, torso_2 = 3, decals_1 = 0, decals_2 = 0, arms = 30, pants_1 = 10, pants_2 = 3, shoes_1 = 51, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}, -- Deputy Chief
+			{tshirt_1 = 122, tshirt_2 = 0, torso_1 = 52, torso_2 = 3, decals_1 = 0, decals_2 = 0, arms = 30, pants_1 = 10, pants_2 = 3, shoes_1 = 51, shoes_2 = 0, chain_1 = 0, chain_2 = 0, helmet_1 = -1, helmet_2 = 0}} --Chief
 
 uniformsF = {{tshirt_1 = 3, torso_1 = 48, arms = 14, pants_1 = 23, pants_2 = 10, shoes_1 = 9}, --Cadet
 			{tshirt_1 = 3, torso_1 = 48, arms = 14, pants_1 = 23, pants_2 = 10, shoes_1 = 9}}
-

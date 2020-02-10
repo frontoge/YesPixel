@@ -82,18 +82,26 @@ end)
 
 ESX.RegisterUsableItem('arAmmo', function(source)
 	TriggerClientEvent('yp_addons:addAmmo', source, 'arAmmo')
+	local xPlayer = ESX.GetPlayerFromId(source)
+	xPlayer.removeInventoryItem('arAmmo', 1)
 end)
 
 ESX.RegisterUsableItem('pAmmo', function(source)
 	TriggerClientEvent('yp_addons:addAmmo', source, 'pAmmo')
+	local xPlayer = ESX.GetPlayerFromId(source)
+	xPlayer.removeInventoryItem('pAmmo', 1)
 end)
 
-ESX.RegisterUsableItem('mgAmmo', function(source)
-	TriggerClientEvent('yp_addons:addAmmo', source, 'mgAmmo')
+ESX.RegisterUsableItem('smgAmmo', function(source)
+	TriggerClientEvent('yp_addons:addAmmo', source, 'smgAmmo')
+	local xPlayer = ESX.GetPlayerFromId(source)
+	xPlayer.removeInventoryItem('smgAmmo', 1)
 end)
 
 ESX.RegisterUsableItem('sgAmmo', function(source)
 	TriggerClientEvent('yp_addons:addAmmo', source, 'sgAmmo')
+	local xPlayer = ESX.GetPlayerFromId(source)
+	xPlayer.removeInventoryItem('sgAmmo', 1)
 end)
 
 

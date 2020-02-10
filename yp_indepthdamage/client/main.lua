@@ -7,8 +7,8 @@
 --Config Locals
 local IdleDecay = 0.0001--Engine Percentage that will be lost per second
 local DecayMultiplier = 0.0002--Multiplier affecting the rate engine decay while moving, Higher the number faster the decay.
-local engineFactor = 10.0 --Rate at which collisions affect engine damage, higher the number the more damage per colision
-local bodyFactor = 10.0 --Rate at which collisions affect body damage, 
+local engineFactor = 14.0 --Rate at which collisions affect engine damage, higher the number the more damage per colision
+local bodyFactor = 14.0 --Rate at which collisions affect body damage, 
 local fuelFactor = 3.0 -- Rate at which collisions affect fueltank body damage
 
 --Script Locals

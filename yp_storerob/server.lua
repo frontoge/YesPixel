@@ -6,7 +6,28 @@
 
 ESX = nil
 
+local minCops = 1
+local robberies = false
+
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+
+function enoughCops()
+	local players = ESX.GetPlayers()
+	local count = 0
+	for i = 1, #players, 1 do
+		local xPlayer = ESX.GetPlayerFromId(players[i])
+		if xPlayer.job.name == 'police' then
+			count = count + 1
+		end
+	end
+	if count > minCops and not robberies then
+		robberies = true
+		return true
+	else
+		return false
+	end
+end
+
 
 --Events
 RegisterServerEvent('yp_storerob:alertPolice')
@@ -43,7 +64,7 @@ AddEventHandler('yp_storerob:updateRegisterState', function(store, register)
 end)
 
 RegisterServerEvent('yp_storerob:updateRobbery')
-AddEventHandler('yp_storerob:updateRobbery', function(store)
+AddEventHandler('yp_storerob:updateRobbery', function(store, source)
 	TriggerClientEvent('yp_storerob:addRobber', -1, source, store)
 end)
 
@@ -52,11 +73,16 @@ AddEventHandler('yp_storerob:startSafeRob', function(storeIndex, store)
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
 	if xPlayer.getInventoryItem('lockpick').count > 0 then
-		TriggerClientEvent('yp_storerob:lockpickSafe', src, storeIndex)
-		TriggerClientEvent('yp_storerob:disableSafe', -1, storeIndex)
-		TriggerEvent('yp_storerob:updateRobbery', storeIndex, src)
 		if not store.beingRobbed then
-			TriggerEvent('yp_storerob:alertPolice', store, storeIndex)
+			local canRob = enoughCops()
+			if canRob then
+				TriggerEvent('yp_storerob:alertPolice', store, storeIndex)
+				TriggerClientEvent('yp_storerob:lockpickSafe', src, storeIndex)
+				TriggerClientEvent('yp_storerob:disableSafe', -1, storeIndex)
+				TriggerEvent('yp_storerob:updateRobbery', storeIndex, src)
+			else
+				TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'inform', text = 'The safe is sealed shut.', length = 3000})
+			end
 		end
 	else
 		TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'error', text = 'You do not have a lockpick!' , length = 3000})
@@ -67,7 +93,7 @@ RegisterServerEvent('yp_storerob:payoutSafe')
 AddEventHandler('yp_storerob:payoutSafe', function()
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
-	local payout = math.random(1800, 2375)
+	local payout = math.random(1300, 1875)
 
 	xPlayer.addMoney(payout)
 	TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'success', text = 'You robbed the safe and got $' .. payout , length = 3000})
@@ -93,11 +119,17 @@ RegisterServerEvent('yp_storerob:startRegister')
 AddEventHandler('yp_storerob:startRegister', function(store, register, storeData)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	if xPlayer.getInventoryItem('lockpick').count > 0 then
-		TriggerEvent('yp_storerob:updateRobbery', store, source)
 		if not storeData.beingRobbed then
-			TriggerEvent('yp_storerob:alertPolice', storeData, store)
+			local canRob = enoughCops()
+			if canRob then
+				TriggerEvent('yp_storerob:alertPolice', storeData, store)
+				TriggerEvent('yp_storerob:updateRobbery', store, source)
+				TriggerClientEvent('yp_storerob:robRegister', source, store, register)
+			else
+				TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'inform', text='The register seems broken...', length=3000})
+				TriggerClientEvent('yp_storerob:enableRegister', -1, store, register)
+			end
 		end
-		TriggerClientEvent('yp_storerob:robRegister', source, store, register)
 	else
 		TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'error', text = 'You do not have a lockpick!' , length = 3000})
 		TriggerClientEvent('yp_storerob:enableRegister', -1, store, register)
@@ -123,10 +155,11 @@ AddEventHandler('yp_storerob:endRob', function(storeIndex, store)
 		local xPlayers = ESX.GetPlayers()
 		for i = 1, #xPlayers, 1 do
 			local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-			if xPlayer.job.name == 'police' then
+			if xPlayer.job.name == 'police' or xPlayer.job.name == 'reporter' then
 				TriggerClientEvent('yp_storerob:endBlip', xPlayers[i], storeIndex)
 			end	
 		end
+		robberies = false
 	end
 
 end)

@@ -1,14 +1,14 @@
 CooldownMax = 30
-CopsMin = 0
+CopsMin = 2
 
 Drops = 
 {
-	{item = 'rolex', lower = 10, upper = 15},
+	{item = 'rolex', lower = 15, upper = 25},
 	{item = 'goldchain', lower = 15, upper = 20},
 	{item = 'valuablegoods', lower = 1, upper = 1},
-	{item = 'lsd', lower = 5, upper = 20},
-	{item = 'pistolprint', lower = 1, uppper = 1},
-	{item = 'arprint', lower = 1, upper = 1}
+	{item = 'cash', lower = 4000, upper = 5000},
+	{item = 'packed_pistol', lower = 1, upper = 1},
+	{item = 'packed_smg', lower = 1, upper = 1},
 }
 
 Banks = 

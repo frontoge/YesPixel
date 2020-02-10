@@ -9,6 +9,21 @@ ESX = nil
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
+local cooldownTime = 7200000
+
+local farmStrips = 
+{
+	false, false, false
+
+}
+
+function startGrowth(index)
+	Citizen.CreateThread(function()
+		Citizen.Wait(cooldownTime)
+		farmStrips[index] = false
+	end)
+end
+
 --Events
 RegisterServerEvent('yp_drugs:buyFromDispensary')
 AddEventHandler('yp_drugs:buyFromDispensary', function(item, amount, cost, card)
@@ -71,6 +86,51 @@ AddEventHandler('yp_drugs:cookMeth', function()
 		xPlayer.removeInventoryItem('coldmeds', 1)
 		xPlayer.removeInventoryItem('roadflare', 1)
 		TriggerClientEvent('yp_drugs:crafting:makeMeth', source)
+	end
+end)
+
+RegisterServerEvent('yp_drugs:makeCoke')
+AddEventHandler('yp_drugs:makeCoke', function()
+	local xPlayer = ESX.GetPlayerFromId(source)
+	local cloth = xPlayer.getInventoryItem('cheesecloth').count > 0
+	local lido = xPlayer.getInventoryItem('lidocaine').count > 0
+	local cocaleaf = xPlayer.getInventoryItem('cocaleaf').count > 1
+
+	local canMake = true
+
+	if not cloth then
+		canMake = false
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You need Cheese Cloth', length = 2500})
+	end
+
+	if not lido then
+		canMake = false
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You need Lidocaine', length = 2500})
+	end
+
+	if not cocaleaf then
+		canMake = false
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You need more Coca Leaves', length = 2500})
+	end
+
+	if canMake then
+		xPlayer.removeInventoryItem('cocaleaf', 2)
+		xPlayer.removeInventoryItem('lidocaine', 1)
+		xPlayer.removeInventoryItem('cheesecloth', 1)
+		TriggerClientEvent('yp_drugs:crafting:makeCoke', source)
+	end
+
+
+end)
+
+RegisterServerEvent('yp_drugs:farmCoca')
+AddEventHandler('yp_drugs:farmCoca', function(farmInd)
+	if not farmStrips[farmInd] then
+		farmStrips[farmInd] = true
+		startGrowth(farmInd)
+		TriggerClientEvent('yp_drugs:pickCoca', source)
+	else
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'This crop is not ready to harvest.', length = 3000})
 	end
 end)
 

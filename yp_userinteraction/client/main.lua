@@ -681,7 +681,7 @@ Citizen.CreateThread(function()
 	local targetPed
 
 	while true do
-		Citizen.Wait(1)
+		Citizen.Wait(0)
 
 		if isCuffed then
 			playerPed = PlayerPedId()
@@ -735,9 +735,10 @@ Citizen.CreateThread(function()
 
 			DisableControlAction(0, 289, true) -- Inventory
 			DisableControlAction(0, 167, true) -- Job
+      DisableControlAction(0, 137, true) -- Job
+
 
 			DisableControlAction(0, 73, true) -- Disable clearing animation
-			DisableControlAction(2, 199, true) -- Disable pause screen
 
 			DisableControlAction(0, 59, true) -- Disable steering in vehicle
 			DisableControlAction(0, 71, true) -- Disable driving forward in vehicle

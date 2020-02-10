@@ -23,7 +23,25 @@ end)
 
 --Script Globals
 local CurrentlyTowedVehicle = nil
+local uiEnabled = false
+local societyBalance = nil
 
+SetNuiFocus(false, false)
+
+--UI Functions
+function enableUI(enable)
+	SetNuiFocus(enable, enable)
+	uiEnabled = enable
+	SendNUIMessage({
+		type = 'ui',
+		enable = enable,
+		societyBalance = societyBalance
+	})
+end
+
+RegisterCommand('exitui', function()
+	SetNuiFocus(false, false)
+end)
 
 --Functions
 function cleanCar()
@@ -139,6 +157,7 @@ function repairVehicle()
 		local veh = GetVehiclePedIsIn(playerPed)
 		local engine = GetVehicleEngineHealth(veh)
 		local body = GetVehicleBodyHealth(veh)
+		local fuel = GetVehicleFuelLevel(veh)
 		local price = (BasePrice/2 * ((1000 - body) / 1000.0 + 1)) + (BasePrice/2 * ((1000 - engine) / 1000.0 + 1))
 		if DoesEntityExist(veh) then
 			exports['mythic_notify']:DoHudText('inform', 'You are repairing the vehicle')
@@ -152,6 +171,8 @@ function repairVehicle()
 			for i = 0, 5, 1 do
 				SetVehicleTyreFixed(veh, i)
 			end
+
+			SetVehicleFuelLevel(veh, fuel)
 
 			exports['mythic_notify']:DoHudText('success', 'You repaired your vehicle')
 
@@ -178,12 +199,17 @@ AddEventHandler('yp_mechanic:repairCar', function()
 			Citizen.Wait(10000)
 			SetVehicleEngineHealth(veh, 1000.0)
 			SetVehicleBodyHealth(veh, 1000.0)
-			SetVehicleFixed(veh)
 			exports['mythic_notify']:DoHudText('success', 'You repaired your vehicle')
 			SetVehicleDeformationFixed(veh)
 			ClearPedTasksImmediately(playerPed)
 		end
 	end)
+end)
+
+RegisterNetEvent('yp_mechanic:updateSocietyBalance')
+AddEventHandler('yp_mechanic:updateSocietyBalance', function(amount)
+	societyBalance = amount
+	enableUI(true)
 end)
 
 RegisterNetEvent('yp_mechanic:repairEngine')
@@ -231,84 +257,84 @@ Citizen.CreateThread(function()
 			if IsControlJustPressed(0,167) then
 				openJobMenu()
 			end
-		end
 
-		for i, v in ipairs(Shops) do
-			if Vdist(x, y, z , v.funds.x, v.funds.y, v.funds.z) < 20 then
-				DrawMarker(1, v.funds.x, v.funds.y, v.funds.z -1 , 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 255, 255, 0, 100, false, false, 2, false, nil, nil, false)
-				if Vdist(x, y, z , v.funds.x, v.funds.y, v.funds.z) < 1 then
-					if ESX.PlayerData.job.grade_name == 'boss' then
-						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to access mechanic funds')
-						if IsControlJustPressed(0, 51) then
-							TriggerEvent('yp_societymenu:openMenu', 'society_mechanic')
-						end
-					else
-						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to deposit funds')
-						if IsControlJustPressed(0, 51) then
-							ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'deposit_money', {title = 'Amount to deposit'},
-								function(data, menu)
-									if tonumber(data.value) > 0 then
+			for i, v in ipairs(Shops) do
+				if Vdist(x, y, z , v.funds.x, v.funds.y, v.funds.z) < 20 then
+					DrawMarker(1, v.funds.x, v.funds.y, v.funds.z -1 , 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 255, 255, 0, 100, false, false, 2, false, nil, nil, false)
+					if Vdist(x, y, z , v.funds.x, v.funds.y, v.funds.z) < 1 then
+						if ESX.PlayerData.job.grade_name == 'boss' then
+							exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to access mechanic funds')
+							if IsControlJustPressed(0, 51) then
+								TriggerEvent('yp_societymenu:openMenu', 'society_mechanic')
+							end
+						else
+							exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to deposit funds')
+							if IsControlJustPressed(0, 51) then
+								ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'deposit_money', {title = 'Amount to deposit'},
+									function(data, menu)
+										if tonumber(data.value) > 0 then
+											menu.close()
+											TriggerServerEvent('yp_mechanic:depositMoney', tonumber(data.value))
+										end
+									end,
+									function(data, menu)
 										menu.close()
-										TriggerServerEvent('yp_societymenu:depositSociety', tonumber(data.value), 'society_mechanic')
-									end
-								end,
-								function(data, menu)
-									menu.close()
-								end)
+									end)
+							end
 						end
 					end
 				end
-			end
 
-			if Vdist(x, y, z, v.crafting.x, v.crafting.y, v.crafting.z) < 20 then
-				DrawMarker(1, v.crafting.x, v.crafting.y, v.crafting.z - 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 255, 255, 0, 100, false, false, 2, false, nil, nil, false)
-				if Vdist(x, y, z, v.crafting.x, v.crafting.y, v.crafting.z) < 1 then
-					exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to craft repair kit')
-					if IsControlJustPressed(0, 51) then
-						ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'repair_amount', {title = "Amount of Kits"},
-							function(data, menu)
-								local amount = tonumber(data.value)
-								if amount > 0 and amount <= 5 then
-									menu.close()
-									TriggerServerEvent('yp_mechanic:craftRepairKit', amount)
-								end
-							end,
-							function(data, menu)
-								menu.close()
-							end)
-					end
-				end
-			end
-
-			if Vdist(x, y, z, v.spawn.x, v.spawn.y, v.spawn.z) < 20 then
-				DrawMarker(1, v.spawn.x, v.spawn.y, v.spawn.z - 1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.5, 2.5, 1.0, 255, 255, 0, 100, false, false, 2, false, nil, nil, false)
-				if Vdist(x, y, z, v.spawn.x, v.spawn.y, v.spawn.z) < 3 then
-					if IsPedInAnyVehicle(playerPed, false) then
-						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to put away vehicle')
+				if Vdist(x, y, z, v.crafting.x, v.crafting.y, v.crafting.z) < 20 then
+					DrawMarker(1, v.crafting.x, v.crafting.y, v.crafting.z - 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 255, 255, 0, 100, false, false, 2, false, nil, nil, false)
+					if Vdist(x, y, z, v.crafting.x, v.crafting.y, v.crafting.z) < 1 then
+						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to craft repair kit')
 						if IsControlJustPressed(0, 51) then
-							local vehicle = GetVehiclePedIsIn(playerPed)
-							ESX.Game.DeleteVehicle(vehicle)
-						end
-					else
-						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to grab a vehicle')
-						if IsControlJustPressed(0, 51) then 
-							local elements = Vehicles
-							ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_menu',{
-								title = 'Vehicles',
-								align = 'bottom-right',
-								elements = elements},
+							ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'repair_amount', {title = "Amount of Kits"},
 								function(data, menu)
-									menu.close()
-									local vehicle = GetHashKey(data.current.value)
-									RequestModel(vehicle)
-									while not HasModelLoaded(vehicle) do
-										Citizen.Wait(0)
+									local amount = tonumber(data.value)
+									if amount > 0 and amount <= 5 then
+										menu.close()
+										TriggerServerEvent('yp_mechanic:craftRepairKit', amount)
 									end
-									CreateVehicle(vehicle, v.vehLoc.x, v.vehLoc.y, v.vehLoc.z, 1, true, true)
 								end,
 								function(data, menu)
 									menu.close()
 								end)
+						end
+					end
+				end
+
+				if Vdist(x, y, z, v.spawn.x, v.spawn.y, v.spawn.z) < 20 then
+					DrawMarker(1, v.spawn.x, v.spawn.y, v.spawn.z - 1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.5, 2.5, 1.0, 255, 255, 0, 100, false, false, 2, false, nil, nil, false)
+					if Vdist(x, y, z, v.spawn.x, v.spawn.y, v.spawn.z) < 3 then
+						if IsPedInAnyVehicle(playerPed, false) then
+							exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to put away vehicle')
+							if IsControlJustPressed(0, 51) then
+								local vehicle = GetVehiclePedIsIn(playerPed)
+								ESX.Game.DeleteVehicle(vehicle)
+							end
+						else
+							exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to grab a vehicle')
+							if IsControlJustPressed(0, 51) then 
+								local elements = Vehicles
+								ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_menu',{
+									title = 'Vehicles',
+									align = 'bottom-right',
+									elements = elements},
+									function(data, menu)
+										menu.close()
+										local vehicle = GetHashKey(data.current.value)
+										RequestModel(vehicle)
+										while not HasModelLoaded(vehicle) do
+											Citizen.Wait(0)
+										end
+										CreateVehicle(vehicle, v.vehLoc.x, v.vehLoc.y, v.vehLoc.z, 1, true, true)
+									end,
+									function(data, menu)
+										menu.close()
+									end)
+							end
 						end
 					end
 				end

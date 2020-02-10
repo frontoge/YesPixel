@@ -8,11 +8,18 @@ server_scripts {
 client_scripts {
 	"client/client.lua"
 }
+
 exports { 
 	"DisplayHelpText",
 	"FreezePlayer",
 	"UnFreezePlayer",
 	"addStress",
 	"removeStress",
-	"deleteVehicle"
+	"deleteVehicle",
+	"getYPlayer"
+}
+
+server_exports {
+	"getPlayers",
+	"getPlayerBySource"
 }

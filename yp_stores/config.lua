@@ -3,7 +3,8 @@ Menus =
 	['convenience'] = 
 		{
 			{label = 'Bread ($2)', value = 'bread', cost = 2},
-			{label = 'Water Bottle ($2)', value = 'water', cost = 2}
+			{label = 'Water Bottle ($2)', value = 'water', cost = 2},
+			{label = 'Cheese Cloth ($5)', value = 'cheesecloth', cost = 5}
 		},
 	['burgershot'] = 
 		{
