@@ -9,11 +9,12 @@ server_scripts {
     "@mysql-async/lib/MySQL.lua"
 }
 
-ui_page 'index.html'
+ui_page 'html/index.html'
 
 files {
 	'html/index.html',
 	'html/style.css',
-	'html/img/lcso_back',
+	'html/listener.js',
+	'html/img/lcso_back.png',
 	'html/img/ls_seal.png'
 }

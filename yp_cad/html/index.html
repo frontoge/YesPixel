@@ -1,40 +1,105 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>LSCO CAD</title>
+		<title>LSPD CAD</title>
 		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="nui://game/ui/jquery.js" type="text/javascript"></script>
 	</head>
 	<body>
-		<!--Header-->
-		<div class="nav"><img id="lspd_logo" src="img/ls_seal.png"> <h1 id="lcso_title">Los Santos County Police Department</h1></div>
-		<div class="breakline"></div>
-
-		<!--Start Login Page-->
-		<div id="login_page">
-			<div class="box" id="login_box">
-				<form id="login_form">
-					<div class="login_item">Username: <input class="login_input" id="username" type="text" name="name" maxlength=20 value="flockwood"></div><br>
-					<div class="login_item">Password: <input class="login_input" id="password" type="password" name="pass" maxlength=10 value="Password"></div>
-					<button id="login_button" value="submit">Login</button>
-				</form>
+		<div id="container">
+			<!--Header-->
+			<div id="nav">
+				<img id="lspd_logo" src="img/ls_seal.png"> <h1 id="lcso_title">Los Santos County Police Department</h1>
+				<button class="nav_button" id="home_button">Home</button>
+				<button class="nav_button" id="records_button">Records</button>
+				<button class="nav_button" id="warrants_button">Warrants</button>
+				<button class="nav_button" id="bolos_button">Bolos</button>
+				<button class="nav_button" id="reports_button">Reports</button>
+				<div class="breakline"></div>
 			</div>
-		</div>
 
-		<!--Public Records search page -->
-		<div id="public_page">
-			<h2 class="page_head" id="pr_head">Public Records</h2>
-			<div id="pr_headbreak" class="breakline"></div>
-			<div id="pr_searchbox" class="box">
-				<h3 id="pr_searchlabel">Search</h3>
-				<div class="searchbar">
-					<input id="pr_searchbar" type="text" name="searchbar">
+			
+
+			<!--Start Login Page-->
+			<div id="login_page">
+				<img id="login_seal" src="img/ls_seal.png">
+				<div class="box" id="login_box">
+					<div id="login_form">
+						<div class="login_item">Username: <input class="login_input" id="username" type="text" name="name" maxlength=15 value="flockwood"></div>
+						<div class="login_item">Password: <br><input class="login_input" id="password" type="password" name="pass" maxlength=15 value="Password"></div><br>
+						<button id="login_button" value="submit">Login</button>
+					</div>
 				</div>
-				<button id='pr_searchbutton'>Find</button>
 			</div>
-			<div id="pr_results" class='box'>
 
+			<!--Public Records search page -->
+			<div id="public_page">
+				<h2 class="page_head" id="pr_head">Public Records</h2>
+				<div id="pr_headbreak" class="breakline"></div>
+				<div id="pr_searchbox" class="box">
+					<h3 id="pr_searchlabel">Search</h3>
+					<div class="searchbar">
+						<input id="pr_searchbar" type="text" name="searchbar">
+					</div>
+					<button id='pr_searchbutton'>Find</button>
+				</div>
+				<div id="pr_results" class='box'>
+					<h3 id='pr_r_head'>Results</h3>
+					<ul id='pr_output'>
+						<li class='pr_output_item' id='pr_r_name'>Name: </li>
+						<li class="pr_output_item" id='pr_r_dob'>DOB: </li>
+						<li class="pr_output_item" id='pr_r_age'>Age: </li>
+						<li class="pr_output_item" id='pr_r_sex'>Sex: </li>
+						<li class="pr_output_item" id='pr_r_dmv'>DMV Pts: </li>
+						<li class="pr_output_item" id='pr_r_felon'>Felon: </li>
+						<li id='pr_r_record'>
+							<div class="box" id='pr_r_record_frame'>
+								<ul id='pr_r_record_list'>
+								</ul>
+							</div>
+						</li>
+					</ul>
+				</div>
 			</div>
+
+			<!--Create Report page -->
+			<div id="reports_page">
+				<h2 class="page_head" id="reports_head">Create Report</h2>
+				<button class="reports_type_button" id="reports_traffic_button">Traffic</button>
+				<button class="reports_type_button" id="reports_arrest_button">Arrest</button>
+				<div id="reports_search">
+					<p id="reports_search_label">Name: </p><input id='reports_search_input' type='text' name='name' maxlength=15>
+					<button id='reports_searchbutton'>Search</button>
+				</div>
+				<div class='box' id="reports_arrest">
+					<h3 id="reports_arrest_head">Create Arrest</h3>
+					<h3 id="reports_traffic_head">Create Citation</h3>
+					<div id='reports_headline' class="breakline"></div>
+					<h4 id="reports_charges_label">Charges:</h4>
+					<ul id="reports_charges">
+						<li class="reports_charge_item">
+							<p class="charge_name">Felony</p><button class="charge_felony_button">20 Months</button>
+						</li>
+					</ul>
+				</div>
+				<div class='box' id="reports_results">
+					<h3 id="reports_results_head">Record</h3>
+					<ul id="reports_results_output">
+						<li class="reports_results_item">Name: </li>
+						<li class="reports_results_item">DOB: </li>
+						<li class="reports_results_item">Age: </li>
+						<li class="reports_results_item">Sex: </li>
+						<li class="reports_results_item">DMV pts: </li>
+						<li class="reports_results_item">Felon: </li>
+						<li class="box" id="reports_results_record_frame">
+							<ul id="reports_results_record">
+									<li class="reports_results_r_item">Attempted Murder x2</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<script src="listener.js" type="text/javascript"></script>
 		</div>
-
 	</body>
 </html>
