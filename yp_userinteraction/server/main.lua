@@ -127,6 +127,13 @@ AddEventHandler('takePlayerItem', function(item, amount, itemType, target)
   end
 end)
 
+RegisterServerEvent('yp_userinteraction:consumePick')
+AddEventHandler("yp_userinteraction:consumePick", function()
+  local xPlayer = ESX.GetPlayerFromId(source)
+  
+  xPlayer.removeInventoryItem('lockpick', 1)
+end)
+
 --Chat Commands
 RegisterCommand('coords', function(source, args)
   local xPlayer = ESX.GetPlayerFromId(source)

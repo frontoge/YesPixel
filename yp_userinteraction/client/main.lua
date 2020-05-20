@@ -74,6 +74,7 @@ end)
 
 RegisterNetEvent('yp_userinteraction:lockpickvehicle')
 AddEventHandler('yp_userinteraction:lockpickvehicle', function()
+  if not IsPedInAnyVehicle(GetPlayerPed(-1)) then
     local vehicle = ESX.Game.GetVehicleInDirection()
       if DoesEntityExist(vehicle) then
         local playerPed = GetPlayerPed(-1)
@@ -86,6 +87,29 @@ AddEventHandler('yp_userinteraction:lockpickvehicle', function()
       else
         exports['mythic_notify']:DoHudText('error', 'No Vehicle Nearby!')
       end
+  else 
+    Citizen.CreateThread(function()
+      local count = 0
+      while count < 3 do
+        local timer = math.random(10000, 20000)
+        exports['progressBars']:startUI(timer, "Stage " .. count + 1)
+        Citizen.Wait(timer)
+        count = count + 1
+        Citizen.Wait(100)
+      end
+      
+      local chance = math.random(0, 100)
+      if chance < 20 then
+        TriggerServerEvent('yp_userinteraction:consumePick')
+        exports['mythic_notify']:DoHudText('error', 'Hotwire failed!', 3000)
+      else
+        exports['mythic_notify']:DoHudText('inform', 'Vehicle Started!', 3000)
+        local plate = GetVehicleNumberPlateText(GetVehiclePedIsIn(GetPlayerPed(-1)))
+        exports['EngineToggle']:addKey(plate)
+        TriggerEvent('EngineToggle:Engine')
+      end
+    end)
+  end
 end)
 
 RegisterNetEvent('userinteraction:windowcommand')
@@ -133,7 +157,7 @@ end)
 
 RegisterNetEvent('yp_userinteraction:escort')
 AddEventHandler('yp_userinteraction:escort', function(dragger)
-	if not isCuffed then
+	if not isCuffed and not IsPedDeadOrDying(GetPlayerPed(-1), true) then
 		return
 	end
 
@@ -143,30 +167,14 @@ end)
 
 RegisterNetEvent('putInVehicle')
 AddEventHandler('putInVehicle', function()
-	local playerPed = PlayerPedId()
+	local playerPed = GetPlayerPed(-1)
 	local coords = GetEntityCoords(playerPed)
-
-	if not isCuffed then
-		return
-	end
 
 	if IsAnyVehicleNearPoint(coords, 5.0) then
 		local vehicle = GetClosestVehicle(coords, 5.0, 0, 71)
 
 		if DoesEntityExist(vehicle) then
-			local maxSeats, freeSeat = GetVehicleMaxNumberOfPassengers(vehicle)
-
-			for i=maxSeats - 1, 0, -1 do
-				if IsVehicleSeatFree(vehicle, i) then
-					freeSeat = i
-					break
-				end
-			end
-
-			if freeSeat then
-				TaskWarpPedIntoVehicle(playerPed, vehicle, freeSeat)
-				dragStatus.isDragged = false
-			end
+      SetPedIntoVehicle(playerPed, vehicle, -2)
 		end
 	end
 end)
@@ -641,12 +649,7 @@ function OpenInteractionMenu()
                 
               elseif action2 == 'toggle_engine' then
                 if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                  if GetIsVehicleEngineRunning(vehicle) then
-                    SetVehicleEngineOn(vehicle, false, false, true)
-                  else
-                    SetVehicleEngineOn(vehicle, true, false)
-                  end
+                  TriggerEvent('EngineToggle:Engine')
                 else
                   exports['mythic_notify']:DoHudText('error', 'Not in a Vehicle!')
                 end
@@ -681,9 +684,9 @@ Citizen.CreateThread(function()
 	local targetPed
 
 	while true do
-		Citizen.Wait(0)
+		Citizen.Wait(1)
 
-		if isCuffed then
+		if isCuffed or IsPedDeadOrDying(GetPlayerPed(-1)) then
 			playerPed = PlayerPedId()
 
 			if dragStatus.isDragged then

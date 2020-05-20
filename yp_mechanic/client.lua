@@ -53,6 +53,7 @@ function cleanCar()
 		exports['progressBars']:startUI(5000, "Cleaning car")
 		Citizen.Wait(5000)
 		ClearPedTasksImmediately(playerPed)
+		SetVehicleDirtLevel(vehicle, 0.0)
 		exports['mythic_notify']:DoHudText('inform', 'Car Cleaned')
     end)
 end
@@ -167,6 +168,7 @@ function repairVehicle()
 			SetVehicleBodyHealth(veh, 1000.0)
 			SetVehicleDeformationFixed(veh)
 			SetVehicleFixed(veh)
+			SetVehicleDirtLevel(veh, 0.0)
 
 			for i = 0, 5, 1 do
 				SetVehicleTyreFixed(veh, i)
@@ -216,9 +218,22 @@ RegisterNetEvent('yp_mechanic:repairEngine')
 AddEventHandler('yp_mechanic:repairEngine', function()
 	Citizen.CreateThread(function()
 	  	local vehicle = ESX.Game.GetVehicleInDirection()
-	  	local playerPed = GetPlayerPed(-1)
-	  	if DoesEntityExist(vehicle) then
-	  		if not (GetVehicleEngineHealth(vehicle) >= 950.0 and GetVehicleBodyHealth(vehicle) == 1000.0) then
+		local playerPed = GetPlayerPed(-1)
+		  
+		if DoesEntityExist(vehicle) then
+			local broken = false
+			if not (GetVehicleEngineHealth(vehicle) >= 950.0 and GetVehicleBodyHealth(vehicle) == 1000.0) then
+				broken = true
+			else
+				for i = 1, 5, 1 do --Fix tires
+					if IsVehicleTyreBurst(vehicle, i) then
+						broken = true
+						break
+					end
+				end
+			end
+
+	  		if broken then
 		  		exports['mythic_notify']:DoHudText('inform', 'You are repairing your vehicle')
 		      	TaskStartScenarioInPlace(playerPed, 'PROP_HUMAN_BUM_BIN', 0, true)
 		      	exports['progressBars']:startUI(7000, "Repairing vehicle")
@@ -226,7 +241,10 @@ AddEventHandler('yp_mechanic:repairEngine', function()
 		      	SetVehicleEngineHealth(vehicle, 1000.0)
 		      	SetVehicleBodyHealth(vehicle, 1000.0)
 		      	SetVehicleDeformationFixed(vehicle)
-		      	ClearPedTasksImmediately(playerPed)
+				ClearPedTasksImmediately(playerPed)
+				for i = 0, 5, 1 do --Fix tires
+					SetVehicleTyreFixed(vehicle, i)
+				end
 		      	exports['mythic_notify']:DoLongHudText('success', 'You repaired your vehicle')
 		      	TriggerServerEvent('yp_base:removeItem', 'advrepair', 1)
 		    else
