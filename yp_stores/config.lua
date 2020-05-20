@@ -4,7 +4,15 @@ Menus =
 		{
 			{label = 'Bread ($2)', value = 'bread', cost = 2},
 			{label = 'Water Bottle ($2)', value = 'water', cost = 2},
-			{label = 'Cheese Cloth ($5)', value = 'cheesecloth', cost = 5}
+			{label = 'Cheese Cloth ($5)', value = 'cheesecloth', cost = 5},
+			{label = 'Notepad ($1)' , value = 'notepad' , cost = 1},
+			{label = 'Chips ($5)' , value = 'chips' , cost = 5},
+			{label = 'Sandwich ($5)' , value = 'sandwich' , cost = 5},
+			{label = 'Sprunk ($3)' , value = 'sprunk' , cost = 3},
+			{label = 'E Cola ($3)' , value = 'ecola' , cost = 3},
+			{label = 'Chocolate Box ($10)' , value = 'chocolatebox' , cost = 10},
+			{label = 'Hersheys Kisses ($4)' , value = 'kisses' , cost = 4}
+
 		},
 	['burgershot'] = 
 		{
@@ -13,11 +21,33 @@ Menus =
 	['liquor'] = 
 		{
 			{label = 'Beer', value = 'beer', cost = 3}
+		},
+
+	['bolls'] = 
+		{
+			{label = 'LSD', value = 'lsd', cost = 150},
+			{label = 'Rebreather', value = 'rebreather', cost = 500}
 		}
 }
 
 Stores = 
 {
+
+		{
+		name = 'Bolls',
+		type = 'bolls',
+		cart = {x = 3618.0100, y = 3720.8620, z = 29.6894},
+		registers = 
+			{
+				{x = 3608.6997, y = 3727.7529, z = 29.6894},
+				{x = 3605.9379, y = 3727.9396, z = 29.6893}
+			},
+		exits = 
+			{
+				{x = 3622.0034, y = 3751.2001, z = 28.6929}
+			}
+	},
+
 	{
 		name = 'Strawberry',
 		type = 'convenience',
@@ -254,10 +284,10 @@ Stores =
 	{
 		name = 'Grand Senora Dessert Convenience',
 		type = 'convenience',
-		cart = {x = 1165.6031, y = 2709.4023, z = 38.1577},
+		cart = {x = 1164.0836, y = 2707.6364, z = 38.1577},
 		registers = 
 			{
-				{x = 1164.0836, y = 2707.6364, z = 38.1577},
+				{x = 1165.6031, y = 2709.4023, z = 38.1577},
 			},
 		exits = 
 			{

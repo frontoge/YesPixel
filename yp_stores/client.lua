@@ -117,7 +117,7 @@ Citizen.CreateThread(function()
 
 		for i, v in ipairs(Stores) do
 			if Vdist(pos.x, pos.y, pos.z, v.cart.x, v.cart.y, v.cart.z) < 30 then
-				DrawMarker(1, v.cart.x, v.cart.y, v.cart.z-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.75, 2.75, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
+				DrawMarker(1, v.cart.x, v.cart.y, v.cart.z-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.75, 2.75, 1.0, 0, 0, 255, 255, false, false, 2, false, nil, nil, false)
 				if Vdist(pos.x, pos.y, pos.z, v.cart.x, v.cart.y, v.cart.z) < 2 then -- Add items to cart
 					exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to browse items')
 					if IsControlJustPressed(0,51) then
