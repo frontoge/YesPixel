@@ -100,7 +100,7 @@ AddEventHandler('yp_storerob:robRegister', function(store, register)
 			TriggerServerEvent('yp_storerob:failedRegister', store, register)
 		else
 			Citizen.CreateThread(function()
-				local searchTime = math.random(20,25)
+				local searchTime = math.random(30,35)
 				local searched = 0
 				exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")
 				exports['yp_base']:FreezePlayer()
@@ -190,7 +190,7 @@ AddEventHandler('yp_storerob:lockpickSafe', function(store)
 			TriggerServerEvent('yp_storerob:failedSafe', store)
 		else
 			Citizen.CreateThread(function()
-				local searchTime = math.random(30,35)
+				local searchTime = math.random(35,40)
 				local searched = 0
 
 				exports['progressBars']:startUI(searchTime * 1000, "Grabbing cash")

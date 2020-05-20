@@ -74,7 +74,7 @@ AddEventHandler('yp_storerob:startSafeRob', function(storeIndex, store)
 	local xPlayer = ESX.GetPlayerFromId(src)
 	if xPlayer.getInventoryItem('lockpick').count > 0 then
 		if not store.beingRobbed then
-			local canRob = enoughCops()
+			local canRob = exports['yp_police']:getNumCops() >= minCops
 			if canRob then
 				TriggerEvent('yp_storerob:alertPolice', store, storeIndex)
 				TriggerClientEvent('yp_storerob:lockpickSafe', src, storeIndex)
@@ -83,6 +83,10 @@ AddEventHandler('yp_storerob:startSafeRob', function(storeIndex, store)
 			else
 				TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'inform', text = 'The safe is sealed shut.', length = 3000})
 			end
+		else
+			TriggerClientEvent('yp_storerob:lockpickSafe', src, storeIndex)
+			TriggerClientEvent('yp_storerob:disableSafe', -1, storeIndex)
+			TriggerEvent('yp_storerob:updateRobbery', storeIndex, src)
 		end
 	else
 		TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'error', text = 'You do not have a lockpick!' , length = 3000})
@@ -91,12 +95,22 @@ end)
 
 RegisterServerEvent('yp_storerob:payoutSafe')
 AddEventHandler('yp_storerob:payoutSafe', function()
-	local src = source
-	local xPlayer = ESX.GetPlayerFromId(src)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	local payoutNum = math.random(1, 100)
 	local payout = math.random(1300, 1875)
-
-	xPlayer.addMoney(payout)
-	TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'success', text = 'You robbed the safe and got $' .. payout , length = 3000})
+	
+	if (payoutNum <= 75) then
+		xPlayer.addMoney(payout)
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'success', text = 'You robbed the safe and got $' .. payout , length = 3000})
+	elseif payoutNum <= 95 then
+		local cardNum = math.random(1, #Cards - 1)
+		xPlayer.addInventoryItem(Cards[cardNum].name, 1)
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'success', text = 'You robbed the safe and got a ' .. Cards[cardNum].label, length = 3000})
+	else
+		local cardNum = 4
+		xPlayer.addInventoryItem(Cards[cardNum].name, 1)
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'success', text = 'You robbed the safe and got a ' .. Cards[cardNum].label, length = 3000})
+	end
 end)
 
 RegisterServerEvent('yp_storerob:failedSafe')
@@ -120,7 +134,7 @@ AddEventHandler('yp_storerob:startRegister', function(store, register, storeData
 	local xPlayer = ESX.GetPlayerFromId(source)
 	if xPlayer.getInventoryItem('lockpick').count > 0 then
 		if not storeData.beingRobbed then
-			local canRob = enoughCops()
+			local canRob = exports['yp_police']:getNumCops() >= minCops
 			if canRob then
 				TriggerEvent('yp_storerob:alertPolice', storeData, store)
 				TriggerEvent('yp_storerob:updateRobbery', store, source)
@@ -129,6 +143,9 @@ AddEventHandler('yp_storerob:startRegister', function(store, register, storeData
 				TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'inform', text='The register seems broken...', length=3000})
 				TriggerClientEvent('yp_storerob:enableRegister', -1, store, register)
 			end
+		else
+			TriggerEvent('yp_storerob:updateRobbery', store, source)
+			TriggerClientEvent('yp_storerob:robRegister', source, store, register)
 		end
 	else
 		TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'error', text = 'You do not have a lockpick!' , length = 3000})
@@ -155,7 +172,7 @@ AddEventHandler('yp_storerob:endRob', function(storeIndex, store)
 		local xPlayers = ESX.GetPlayers()
 		for i = 1, #xPlayers, 1 do
 			local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-			if xPlayer.job.name == 'police' or xPlayer.job.name == 'reporter' then
+			if xPlayer.job.name == 'police' then
 				TriggerClientEvent('yp_storerob:endBlip', xPlayers[i], storeIndex)
 			end	
 		end

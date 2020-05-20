@@ -8,8 +8,8 @@ local collecting = false
 local blipRobbery = nil
 
 class0Wep = {'WEAPON_KNIFE', 'WEAPON_NIGHTSTICK', 'WEAPON_HAMMER', 'WEAPON_BAT', 'WEAPON_GOLFCLUB', 'WEAPON_CROWBAR'}
-class1Wep = {'WEAPON_PISTOL', 'WEAPON_COMBATPISTOL', 'WEAPON_PISTOL50', 'WEAPON_REVOLVER', 'WEAPON_SNSPISTOL', 'WEAPON_HEAVYPISTOL', 'WEAPON_VINTAGEPISTOL', 'WEAPON_PUMPSHOTGUN', 'WEAPON_SAWNOFFSHOTGUN'}
-class2Wep = {'WEAPON_APPISTOL', 'WEAPON_MICROSMG', 'WEAPON_SMG', 'WEAPON_MINISMG', 'WEAPON_MACHINEPISTOL', 'WEAPON_ASSAULTSHOTGUN', 'WEAPON_BULLPUPSHOTGUN', 'WEAPON_HEAVYSHOTGUN'}
+class1Wep = {'WEAPON_PISTOL', 'WEAPON_COMBATPISTOL', 'WEAPON_PISTOL50', 'WEAPON_REVOLVER', 'WEAPON_SNSPISTOL', 'WEAPON_HEAVYPISTOL', 'WEAPON_VINTAGEPISTOL', 'WEAPON_SAWNOFFSHOTGUN'}
+class2Wep = {'WEAPON_APPISTOL', 'WEAPON_MICROSMG', 'WEAPON_SMG', 'WEAPON_MINISMG', 'WEAPON_MACHINEPISTOL', 'WEAPON_ASSAULTSHOTGUN', 'WEAPON_BULLPUPSHOTGUN', 'WEAPON_HEAVYSHOTGUN','WEAPON_PUMPSHOTGUN'}
 class3Wep = {'WEAPON_ASSAULTSMG', 'WEAPON_COMBATPDW', 'WEAPON_ASSAULTRIFLE', 'WEAPON_CARBINERIFLE', 'WEAPON_ADVANCEDRIFLE', 'WEAPON_SPECIALCARBINE', 'WEAPON_BULLPUPRIFLE', 'WEAPON_COMPACTRIFLE'}
 
 
@@ -89,24 +89,26 @@ end
 
 --Events
 
-RegisterNetEvent('breakCase')
-AddEventHandler('breakCase', function(caseNumber)
+RegisterNetEvent('yp_jewelry:breakCase')
+AddEventHandler('yp_jewelry:breakCase', function(caseNumber)
   local playerPed = GetPlayerPed(-1)
   local weaponClass = checkWepClass(GetSelectedPedWeapon(playerPed))
-  if weaponClass ~= -1 then
-    TriggerServerEvent('tripAlarm')
-    StartParticleFxLoopedAtCoord("scr_jewel_cab_smash", cases[caseNumber].x, cases[caseNumber].y, cases[caseNumber].z, 0.0, 0.0, 0.0, 1.0, false, false, false, false)
-		loadAnimDict( "missheist_jewel" ) 
-		TaskPlayAnim( playerPed, "missheist_jewel", "smash_case", 8.0, 1.0, -1, 2, 0, 0, 0, 0 ) 
-    collecting = true
-		DisplayHelpText('Collection in progress')
-		DrawSubtitleTimed(5000, 1)
-		Citizen.Wait(5000)
-		ClearPedTasksImmediately(playerPed)
-    TriggerServerEvent('robCase', caseNumber, weaponClass)
-    collecting = false
-  else
-    exports['mythic_notify']:DoHudText('error', 'You need a weapon to break the glass!')
+  if not cases[caseNumber].robbed then
+    if weaponClass ~= -1 then
+      TriggerServerEvent('tripAlarm')
+      StartParticleFxLoopedAtCoord("scr_jewel_cab_smash", cases[caseNumber].x, cases[caseNumber].y, cases[caseNumber].z, 0.0, 0.0, 0.0, 1.0, false, false, false, false)
+      loadAnimDict( "missheist_jewel" ) 
+      TaskPlayAnim( playerPed, "missheist_jewel", "smash_case", 8.0, 1.0, -1, 2, 0, 0, 0, 0 ) 
+      collecting = true
+      DisplayHelpText('Collection in progress')
+      DrawSubtitleTimed(5000, 1)
+      Citizen.Wait(5000)
+      ClearPedTasksImmediately(playerPed)
+      TriggerServerEvent('robCase', caseNumber, weaponClass)
+      collecting = false
+    else
+      exports['mythic_notify']:DoHudText('error', 'You need a weapon to break the glass!')
+    end
   end
 end)
 
@@ -146,7 +148,6 @@ Citizen.CreateThread(function()
         if not v.robbed then
           DisplayHelpText('Press E to rob')
           if IsControlJustPressed(1, 51) then
-            print('robbing case')
             TriggerServerEvent('yp_jewelry:startCase', i)
           end
         end

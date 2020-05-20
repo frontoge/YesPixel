@@ -52,16 +52,22 @@ function isRobber(id)
   return false
 end
 
-function canRob()
-	local xPlayers = ESX.GetPlayers()
-	local cops = 0
-	for i = 1, #xPlayers, 1 do
-		local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-		if xPlayer.job.name == 'police' then
-			cops = cops + 1
+function canRob(src, bankNum, time)
+	local user = ESX.GetPlayerFromId(src)
+	local hasCard = false
+	if Banks[bankNum].name ~= 'Blaine County Savings' then
+		if time >= 7 and time < 10 then
+			hasCard = user.getInventoryItem('bluecard').count > 0
+		elseif time >= 12 and time < 15 then
+			hasCard = user.getInventoryItem('redcard').count > 0
+		elseif time >= 16 and time < 19 then
+			hasCard = user.getInventoryItem('purplecard').count > 0
 		end
+	else
+		hasCard = user.getInventoryItem('goldcard').count > 0
 	end
-	if cops >= CopsMin and robberyCount == 0 then
+
+	if exports['yp_police']:getNumCops() >= CopsMin and robberyCount == 0 and hasCard then
 		robberyCount = 1
 		return true
 	else
@@ -131,13 +137,13 @@ end
 
 --Events
 RegisterServerEvent('yp_bankrob:startHack')
-AddEventHandler('yp_bankrob:startHack', function(bankInd, hackInd)
+AddEventHandler('yp_bankrob:startHack', function(bankInd, hackInd, time)
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
 	if not bankData[bankInd].hacks[hackInd] then
 		if xPlayer.getInventoryItem('brutedrive').count > 0 then
 			if not bankData[bankInd].onCooldown then
-				local enoughCops = canRob()
+				local enoughCops = canRob(src, bankInd, time)
 				if not bankData[bankInd].beingRobbed then
 					if enoughCops then
 						tripAlarm(bankInd)
@@ -172,13 +178,13 @@ AddEventHandler('yp_bankrob:startHack', function(bankInd, hackInd)
 end)
 
 RegisterServerEvent('yp_bankrob:startPick')
-AddEventHandler('yp_bankrob:startPick', function(bankInd)
+AddEventHandler('yp_bankrob:startPick', function(bankInd, time)
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
 	if not bankData[bankInd].counterDoor then
 		if xPlayer.getInventoryItem('lockpick').count > 0 then
 			if not bankData[bankInd].onCooldown then
-				local enoughCops = canRob()
+				local enoughCops = canRob(src, bankInd, time)
 				if not bankData[bankInd].beingRobbed then
 					if enoughCops then
 						tripAlarm(bankInd)
@@ -262,7 +268,7 @@ RegisterServerEvent('yp_bankrob:payoutRegister')
 AddEventHandler('yp_bankrob:payoutRegister', function()
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
-	local payout = math.random(400, 600)
+	local payout = math.random(500, 750)
 	xPlayer.addMoney(payout)
 	TriggerClientEvent('mythic_notify:client:SendAlert', src, {type = 'success', text = 'You grabbed $' .. payout, length = 2500})
 end)
@@ -271,13 +277,32 @@ RegisterServerEvent('yp_bankrob:finishDrilling')
 AddEventHandler('yp_bankrob:finishDrilling', function()
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
-	local index = math.random(1, #Drops)
-	local dropItem = Drops[index].item
-	local dropAmount = math.random(Drops[index].lower, Drops[index].upper)
+	local dropItem
+	local num = math.random(0, 99)
+	
+	if num < 50 then --Cash
+		dropItem = "cash"
+	elseif num < 60 then --Card
+		dropItem = "card"
+	elseif num < 75 then --Rolex
+		dropItem = "rolex"
+	elseif num < 90 then --Chain
+		dropItem = "goldchain"
+	elseif num < 95 then --Armor
+		dropItem = "armor"
+	else --Valuable Goods
+		dropItem = "valuablegoods"
+	end
+
+	local dropAmount = math.random(Drops[dropItem].lower, Drops[dropItem].upper)
 
 	if dropItem == 'cash' then
 		xPlayer.addMoney(dropAmount)
 	else
+		if dropItem == 'card' then
+			num = math.random(1, #Cards)
+			dropItem = Cards[num].name
+		end
 		xPlayer.addInventoryItem(dropItem, dropAmount)
 	end
 

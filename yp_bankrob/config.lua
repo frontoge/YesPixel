@@ -1,14 +1,23 @@
-CooldownMax = 30
-CopsMin = 2
+CooldownMax = 60
+CopsMin = 0
 
 Drops = 
 {
-	{item = 'rolex', lower = 15, upper = 25},
-	{item = 'goldchain', lower = 15, upper = 20},
-	{item = 'valuablegoods', lower = 1, upper = 1},
-	{item = 'cash', lower = 4000, upper = 5000},
-	{item = 'packed_pistol', lower = 1, upper = 1},
-	{item = 'packed_smg', lower = 1, upper = 1},
+	['rolex'] = {lower = 15, upper = 25}, --15%
+	['goldchain'] = {lower = 15, upper = 20}, --15%
+	['valuablegoods'] = {lower = 1, upper = 2}, --5%
+	['armor'] = {lower = 1, upper = 2}, --5%
+	['cash'] = {item = 'cash', lower = 8000, upper = 12000}, --50%
+	['card'] = {lower = 1, upper = 5} --10%
+}
+
+Cards =
+{
+    [1] = {name = 'redcard', label = 'Red Card'},
+    [2] = {name = 'bluecard', label = 'Blue Card'},
+    [3] = {name = 'purplecard', label = 'Purple Card'},
+	[4] = {name = 'goldcard', label = 'Gold Card'},
+	[5] = {name = 'blackcard', label = 'Black Card'}
 }
 
 Banks = 

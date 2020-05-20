@@ -7,16 +7,21 @@
 local beingRobbed = false
 local onCooldown = false
 local firstCase = true
-local cooldownMax = 45 * 60 --Minutes until store is robbable
+local cooldownMax = 120 * 60 --Minutes until store is robbable
 local cooldown = cooldownMax
-local copMin = 3
-local copsOn = 0
+local copMin = 1
 local casesBroken = 0
 local robbers = {}
 local vgPrice = 6000 --Price of one Valuable good
 local rolexPrice = 300 --Price of a Rolex
 local chainPrice = 150 -- Price of a goldchain
 local ringPrice = 75 --Price of a ring
+
+local cases = {}
+
+for i = 1, 20, 1 do
+  cases[i] = false
+end
 
 ESX = nil
 
@@ -27,7 +32,6 @@ function resetStore()
   robbers = {}
   casesBroken = 0
   firstCase = true
-  copsOn = 0
   TriggerClientEvent('resetCases', -1)
 
 end
@@ -71,7 +75,7 @@ function robberyEnd()
   local xPlayers = ESX.GetPlayers()
   for i = 1, #xPlayers, 1 do
     local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-    if xPlayer.job.name == 'police' or xPlayer.job.name == 'reporter' then
+    if xPlayer.job.name == 'police' or xPlayer.job.name == 'sheriff' then
       TriggerClientEvent('killAlarm', xPlayers[i]) 
       TriggerClientEvent('mythic_notify:client:SendAlert', xPlayers[i], { type = 'inform', text = 'The Robbery at the jewelry has been cancelled.', length = 3000, style = {['background-color'] = '#eb8b0e', ['color'] = '#000000'}})
     end
@@ -88,25 +92,18 @@ AddEventHandler('yp_jewelry:startCase', function(caseNumber)
   local case = caseNumber
   
   if firstCase then
-  	local xPlayers = ESX.GetPlayers()
-  	for i = 1, #xPlayers, 1 do
-  		local player = ESX.GetPlayerFromId(xPlayers[i])
-  		if player.job.name == 'police' then
-  			copsOn = copsOn + 1
-  		end
-  	end
+  	
   end
   
-  if copsOn >= copMin then
+  if exports['yp_base']:getNumCops() >= copMin then
     if not onCooldown then
-      TriggerClientEvent('breakCase', src, case)
+      TriggerClientEvent('yp_jewelry:breakCase', src, case)
+      TriggerClientEvent('toggleCase', -1, caseNumber)
     else
       TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'The jewelry has already been robbed, come back in ' .. cooldown .. 's' , length = 2500})
-      copsOn = 0
     end
   else
     TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'There needs to be at least ' .. copMin .. ' cops on to rob the jewelry', length = 2500})
-    copsOn = 0
   end
 end)
 
@@ -132,7 +129,7 @@ AddEventHandler('robCase', function(caseNumber, weaponClass)
     end
   elseif weaponClass == 1 then
     if(itemChoice <= 2) then --2% chance of VG
-      xPlayer.addInventoryItem('valuablegoods', math.random(1, 3))--Amount of VG
+      xPlayer.addInventoryItem('valuablegoods', math.random(1, 1))--Amount of VG
     elseif(itemChoice <= 12) then --10% of Rolex
       xPlayer.addInventoryItem('rolex', math.random(5, 10))--Amount of rolex
     elseif(itemChoice <= 32) then -- 20% of Goldchain
@@ -143,18 +140,18 @@ AddEventHandler('robCase', function(caseNumber, weaponClass)
       TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'There was nothing in the case!', length = 2500})
     end
   elseif weaponClass == 2 then
-    if(itemChoice <= 5) then --5% chance of VG
-      xPlayer.addInventoryItem('valuablegoods', math.random(1, 4))--Amount of VG
-    elseif(itemChoice <= 30) then --25% of Rolex
-      xPlayer.addInventoryItem('rolex', math.random(10, 15))--Amount of rolex
-    elseif itemChoice <= 70 then -- 40% of Goldchain
+    if(itemChoice <= 5) then --8% chance of VG
+      xPlayer.addInventoryItem('valuablegoods', math.random(1, 2))--Amount of VG
+    elseif(itemChoice <= 30) then --30% of Rolex
+      xPlayer.addInventoryItem('rolex', math.random(10, 20))--Amount of rolex
+    elseif itemChoice <= 70 then -- 35% of Goldchain
       xPlayer.addInventoryItem('goldchain', math.random(10, 25))--Amount of goldchain
     else
       TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'There was nothing in the case!', length = 2500})
     end
   elseif weaponClass == 3 then
-    if(itemChoice <= 7) then --7% chance of VG
-      xPlayer.addInventoryItem('valuablegoods', math.random(1, 4))--Amount of VG
+    if(itemChoice <= 7) then --10% chance of VG
+      xPlayer.addInventoryItem('valuablegoods', math.random(1, 3))--Amount of VG
     elseif itemChoice <= 57 then --50% of Rolex
       xPlayer.addInventoryItem('rolex', math.random(10, 15))--Amount of rolex
     elseif itemChoice <= 80 then -- 23% of Goldchain
@@ -163,8 +160,7 @@ AddEventHandler('robCase', function(caseNumber, weaponClass)
       TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'There was nothing in the case!', length = 2500})
     end
   end
-  
-  TriggerClientEvent('toggleCase', -1, caseNumber)
+
   casesBroken = casesBroken + 1
   if casesBroken == 20 then
     robberyEnd()

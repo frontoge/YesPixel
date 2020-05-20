@@ -6,7 +6,7 @@
 
 --Config Locals
 local cooldownMax = 60 * 60
-local copsMin = 4
+local copsMin = 0
 
 --ESX Init
 ESX = nil
@@ -18,7 +18,6 @@ local doors = {true, true, true, true, true, true}--Status of doorlocks
 local cooldown = cooldownMax
 local onCooldown = false
 local beingRobbed = false
-local copsOn = 0
 local firstAction = true
 local robbers = {}
 local vaultRotation = 160.0
@@ -43,7 +42,6 @@ function startCooldown()
 		vaultRotation = 160.0
 		TriggerClientEvent('yp_swedbank:resetClient', -1)
 		firstAction = true
-		copsOn = 0
 		cooldown = cooldownMax
 		onCooldown = false
 		robbers = {}
@@ -65,19 +63,16 @@ AddEventHandler('yp_swedbank:startLockpick', function(doorNum)
 	local xPlayer = ESX.GetPlayerFromId(src)
 	
 	if firstAction then--Get Cops on if this is the first action performed in the bank.
-		firstAction = false
-		local xPlayers = ESX.GetPlayers()
-		for i = 1, #xPlayers, 1 do
-			local player = ESX.GetPlayerFromId(xPlayers[i])
-			if player.job.name == 'police' then
-				copsOn = copsOn + 1
-			end
+		if xPlayer.getInventoryItem('blackcard').count <= 0 then
+			TriggerClientEvent('mythic_notify:client:SendAlert', src, {type = 'error', text = 'You do not have the proper card for this.', length = 3000})
+			return
 		end
+		firstAction = false
 	end
 	
 	if xPlayer.getInventoryItem('lockpick').count > 0 then
 		if not onCooldown then
-			if copsOn >= copsMin then
+			if exports['yp_police']:getNumCops() >= copsMin then
 				TriggerClientEvent('yp_swedbank:lockpick', src, doorNum)
 				if not beingRobbed then
 					beingRobbed = true
@@ -88,7 +83,6 @@ AddEventHandler('yp_swedbank:startLockpick', function(doorNum)
 				end
 			else
 				TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'error', text = 'There needs to be at least '.. copsMin .. ' cops on to rob the bank' , length = 2500})
-				copsOn = 0
 				firstAction = true
 			end
 		else
@@ -232,8 +226,25 @@ RegisterServerEvent('yp_swedbank:finishDrilling')
 AddEventHandler('yp_swedbank:finishDrilling', function(drillNum)
 	local src = source
 	local xPlayer = ESX.GetPlayerFromId(src)
-	local payout = math.random(25000,40000)
-	xPlayer.addAccountMoney('black_money', payout)
-	TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = 'success', text = 'You got $' .. payout .. ' black money!' , length = 2500})
+	local dropNum = math.random(1, 100)
+	local index = -1
+	if dropNum <= 75 then
+		index = #Drops - 1
+	elseif dropNum <= 85 then
+		index = #Drops
+	else
+		index = math.random(1, #Drops - 2)
+	local dropItem = Drops[index].item
+	local dropAmount = math.random(Drops[index].lower, Drops[index].upper)
+
+	if dropItem == 'cash' then
+		xPlayer.addMoney(dropAmount)
+	elseif dropItem == 'card' then
+		xPlayer.addInventoryItem(Cards[dropAmount], 1)
+	else
+		xPlayer.addInventoryItem(dropItem, dropAmount)
+	end
+
+	TriggerClientEvent('mythic_notify:client:SendAlert', src, {type = 'success', text = 'You stole ' .. dropAmount .. ' ' .. dropItem .. '(s)', length = 2500})
 	TriggerClientEvent('yp_swedbank:drillBox', -1, drillNum)
 end)

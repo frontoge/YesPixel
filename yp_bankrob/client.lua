@@ -226,7 +226,7 @@ end
 function drill()
 	local playerPed = GetPlayerPed(-1)
 	Citizen.CreateThread(function()
-		local drillTime = math.random(10,15)
+		local drillTime = math.random(20,25)
 		TaskStartScenarioInPlace(playerPed, 'WORLD_HUMAN_WELDING', 0, true)
 		exports['progressBars']:startUI(drillTime * 1000, "Opening Box")
 		Citizen.Wait(drillTime * 1000)
@@ -380,7 +380,7 @@ Citizen.CreateThread(function()
 					if Vdist(pos.x, pos.y, pos.z, v2.x, v2.y, v2.z) < 0.5 then
 						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to hack')
 						if IsControlJustPressed(0, 51) then
-							TriggerServerEvent('yp_bankrob:startHack', i, i2)
+							TriggerServerEvent('yp_bankrob:startHack', i, i2, GetClockHours())
 						end
 					end
 				end
@@ -388,7 +388,7 @@ Citizen.CreateThread(function()
 				if Vdist(pos.x, pos.y, pos.z, v.counterDoor.x, v.counterDoor.y, v.counterDoor.z) < 1 then
 					exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to lockpick the door')
 					if IsControlJustPressed(0,51) then
-						TriggerServerEvent('yp_bankrob:startPick', i)
+						TriggerServerEvent('yp_bankrob:startPick', i, GetClockHours())
 					end
 				end
 
