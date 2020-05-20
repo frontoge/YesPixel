@@ -336,7 +336,11 @@ function heliMenu()
 		while not HasModelLoaded(vehicle) do
 			Citizen.Wait(0)
 		end
-		CreateVehicle(vehicle, 449.3225, -981.2054, 43.6917, 1.0, true, true)
+		local vehPtr = CreateVehicle(vehicle, 449.3225, -981.2054, 43.6917, 1.0, true, true)
+		local plate = GetVehicleNumberPlateText(vehPtr)
+		exports['EngineToggle']:addKey(plate)
+		SetVehicleFuelLevel(vehPtr, 85.0)
+		DecorSetFloat(vehPtr, "_FUEL_LEVEL", GetVehicleFuelLevel(vehPtr))
 	end)
 end
 
