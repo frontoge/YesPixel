@@ -1,16 +1,37 @@
 body {
 	margin: 0;
 	padding: 0;
-	background-image: url("img.png"); 
+	background-image: url("img.jpg"); 
 }
 
-p {
-	font-family: 'Kulim Park', sans-serif;
-	padding-left: 15px;
-	font-size: 40pt;
-	color: red;
-	position: absolute;
-	left: 35%;
-	top: 25%;
-	font-weight: bold;
+#loadingTag {
+	position: fixed;
+    bottom: 10%;
+    left: 12.5%;
+    color: #de3333;
+    font-family: 'Kulim Park';
+    font-size: 45pt;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 20%;
+    background-color: #000000f2;
+}
+
+#loadbar {
+	position: fixed;
+	width: 80%;
+	left: 10%;
+	bottom: 7.5%;
+	height: 40px;
+	background-color: #eacaca85;
+	border-radius: 5%;
+}
+
+.progressBar {
+	width: 10%;
+	height: 40px;
+	border-radius: 5%;
+	background-color: #6b1c1c;
 }

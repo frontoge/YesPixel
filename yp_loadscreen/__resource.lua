@@ -4,7 +4,8 @@ files {
 	'index.html',
 	'img.jpg',
 	'loadscreen.css',
-	'logo.png'
+	'logo.png',
+	'loader.js'
 }
 
 loadscreen 'index.html'
