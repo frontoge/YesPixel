@@ -1,4 +1,4 @@
---[[Citizen.CreateThread(function()
+Citizen.CreateThread(function()
     while true do
         for ped in EnumeratePeds() do
             if DoesEntityExist(ped) then
@@ -16,7 +16,7 @@
 		end
 		Citizen.Wait(1000) 
     end
-end)]]--
+end)
 
 Citizen.CreateThread(function() 
     while true do
