@@ -229,17 +229,27 @@ Start Public Records*/
 }
 
 #pr_r_record {
-	padding-top: 2px;
+	padding-top: 5px;
 }
 
 #pr_r_record_frame {
 	position: absolute;
-	width: 80%;
+	width: 90%;
     margin-right: 5.5%;
-    height: 40%;
+    height: 50%;
     overflow-y: auto;
 	overflow-x: hidden;
+}
 
+#pr_r_record_list {
+	padding-left: 8px;
+}
+
+.pr_r_record_item_label {
+	margin: 0;
+	margin-top: 5px;
+	color: #c9a211;
+	font-size: 16pt;
 }
 
 .pr_crime_item {
@@ -247,6 +257,40 @@ Start Public Records*/
 	font-weight: bold;
 	font-size: 12.5pt;
 }
+
+#pr_suggestions {
+	position: absolute;
+	bottom: 7.5%;
+	left: 7.5%;
+	height: 15%;
+	width: 30%;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+#pr_suggestions_list {
+	padding-left: 10px;
+	margin-top: 8px;
+}
+
+.pr_suggestion {
+	color: #c9a211;
+}
+
+.pr_suggestion:hover {
+	background: rgba(255, 255, 255, 0.267);
+}
+
+.pr_suggestion_label {
+	position: relative;
+	width: 100%;
+	height: 20%;
+	left: 1%;
+	margin: 0;
+	font-size: 14pt;
+}
+
+
 /*End Public Records Page*/
 /*Start Reports Page*/
 #reports_page {
@@ -305,7 +349,7 @@ Start Public Records*/
 	font-size: 16pt;
 	margin: 0;
 	padding: 0;
-	top: 24.55%;
+	top: 17.55%;
 	left: 9%;
 }
 
@@ -313,14 +357,46 @@ Start Public Records*/
 	position: absolute;
 	font-size: 12pt;
 	left: 13%;
-	top: 24.425%;
+	top: 17.425%;
 }
 
 #reports_searchbutton {
 	position: absolute;
 	left: 27%;
-	top: 24.5%;
+	top: 17.5%;
 	font-size: 12pt;
+}
+
+#reports_suggestions {
+	position: absolute;
+	top: 23%;
+	height: 10%;
+	width: 25%;
+	left: 8%;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+#reports_suggestions_list {
+	padding-left: 10px;
+	margin-top: 8px;
+}
+
+.reports_suggestion {
+	color: #c9a211;
+}
+
+.reports_suggestion:hover {
+	background: rgba(255, 255, 255, 0.267);
+}
+
+.reports_suggestion_label {
+	position: relative;
+	width: 100%;
+	height: 20%;
+	left: 1%;
+	margin: 0;
+	font-size: 14pt;
 }
 
 /*Shared classes for both traffic and arrest*/
@@ -356,8 +432,6 @@ Start Public Records*/
 	border-bottom: 0;
 	border-right: 0;
 	font-weight: bold;
-
-
 }
 
 .charge_miss_button:hover {
@@ -415,7 +489,7 @@ Start Public Records*/
 #reports_charges {
 	position: relative;
 	top: -10px;
-	height: +300px;
+	height: +350px;
 	margin-top: 0;
 	overflow-y: auto;
 	overflow-x: none;
@@ -453,8 +527,29 @@ Start Public Records*/
 	overflow-y: auto;
 }
 
+#reports_charges_list {
+	position: relative;
+	color: #c9a211;
+	text-align: center;
+	margin: 0;
+	font-size: 14pt;
+	bottom: 20%;
+}
+
+#reports_submit {
+	position: absolute;
+	width: 25%;
+	height: 6%;
+	bottom: 3%;
+	left: 37.5%;
+}
+
 .reports_results_r_item {
 	color: #c9a211;
 	margin-top: 5px;
 	font-size: 14pt; 
+}
+
+.reports_results_r_item:hover {
+	background-color: rgba(245, 12, 12, 0.267);
 }
