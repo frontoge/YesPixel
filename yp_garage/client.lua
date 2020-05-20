@@ -80,27 +80,25 @@ function modelVehicle(vehicle, list, plate)--Called when spawning vehicle
 	SetVehiclePetrolTankHealth(vehicle, tonumber(list.fuelTankHealth))
 	SetVehicleFuelLevel(vehicle, tonumber(list.fuelLevel))
 	DecorSetFloat(vehicle, "_FUEL_LEVEL", GetVehicleFuelLevel(vehicle))
+	SetVehicleExtraColours(vehicle, list.pearlescent, list.wheelColor)
+	SetVehicleNumberPlateTextIndex(vehicle, list.plateType)
 
+	--Add Mods DO NOT PUT ANYTHING BELOW THIS
 	SetVehicleModKit(vehicle, 0)
-	
-	SetVehicleNumberPlateTextIndex(vehicle, tonumber(list.plateType))
-	SetVehicleTyreSmokeColor(vehicle, list.tyreSmokeColor.r, list.tyreSmokeColor.g, list.tyreSmokeColor.b)
-	SetVehicleExtraColours(vehicle, list.pearlColor, list.wheelColor)
-
-	for i = 0, 3, 1 do
-		SetVehicleNeonLightEnabled(vehicle, i, true)
-	end
-	SetVehicleNeonLightsColour(vehicle, list.neonsColor.r, list.neonsColor.g, list.neonsColor.b)
-	
-	--Add Mods 
-	for i = 0, #vehMods, 1 do
+	for i = 0, #vehMods-2, 1 do
 		local value = list[vehMods[i]]
-		if i > 17 and i < 23 then
+		if i >= 17 and i <= 22 then
 			ToggleVehicleMod(vehicle, i, value)
 		else
 			SetVehicleMod(vehicle, i, tonumber(value)) --May need to be i-1 if there are issues
 		end
 	end
+	if GetVehicleLiveryCount(vehicle) ~= -1 then
+		SetVehicleLivery(vehicle, list.modLivery)
+	end
+	--[[if list.modSmokeEnabled then
+		SetVehicleTyreSmokeColor(vehicle, list['smokeColor'].r, list['smokeColor'].g, list['smokeColor'].b)
+	end]]
 end
 
 function getVehicleData(vehicle)--Called when storing vehicle, gets all the vehicleMods
@@ -115,22 +113,19 @@ function getVehicleData(vehicle)--Called when storing vehicle, gets all the vehi
 	data['fuelTankHealth'] = GetVehiclePetrolTankHealth(vehicle)
 	data['plate'] = GetVehicleNumberPlateText(vehicle)
 	data['fuelLevel'] = GetVehicleFuelLevel(vehicle)
+	data['pearlescent'], data['wheelColor'] = GetVehicleExtraColours(vehicle)
 	data['plateType'] = GetVehicleNumberPlateTextIndex(vehicle)
-	data['neons'] = IsVehicleNeonLightEnabled(vehicle, 0)
-	if data['neons'] then
-		local r, g, b = GetVehicleNeonLightsColour(vehicle)
-		data['neonsColor'] = {r = r, g = g, b = b}
-	else
-		data['neonsColor'] = {r = 0, g = 0, b = 0}
+
+
+	for i = 0, #vehMods-2, 1 do
+		if (i >= 17 and i <= 22)  then
+			data[vehMods[i]] = IsToggleModOn(vehicle, i)
+		else
+			data[vehMods[i]] = GetVehicleMod(vehicle, i)
+		end
 	end
-	local r, g, b = GetVehicleTyreSmokeColor(vehicle)
-	data['tyreSmokeColor'] = {r = r, g = g, b = b}
-	data['pearlColor'], data['wheelColor'] = GetVehicleExtraColours(vehicle)
-
-
-	for i = 0, #vehMods, 1 do
-		local temp = GetVehicleMod(vehicle, i)
-		data[vehMods[i]] = temp
+	if GetVehicleLiveryCount(vehicle) ~= -1 then
+		data['modLivery'] = GetVehicleLivery(vehicle)
 	end
 
 	return data
@@ -140,15 +135,25 @@ end
 RegisterCommand('showMods', function(source, args)
 	local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
 	local c1, c2 = GetVehicleColours(vehicle)
-	local r, g, b = GetVehicleTyreSmokeColor(vehicle)
-	print (r .. ' ' .. g .. ' ' .. b)
+	local pearlecent, wheelColor = GetVehicleExtraColours(vehicle)
 
-	for i = 0, #vehMods, 1 do
-		print(vehMods[i] .. ' ' .. GetVehicleMod(vehicle, i))
+	for i = 0, #vehMods-2, 1 do
+		if i >= 17 and i <=22 then
+			print(vehMods[i] .. ' ' .. tostring(IsToggleModOn(vehicle, i)))
+		else
+			print(vehMods[i] .. ' ' .. GetVehicleMod(vehicle, i))
+		end
 	end
+	print('livery ' .. GetVehicleLivery(vehicle))
 	print('color1 ' .. c1)
 	print('color2 ' .. c2)
+	print('pearlescent ' .. pearlecent)
+	print('wheelColor ' .. wheelColor)
 	print('windowTint ' .. GetVehicleWindowTint(vehicle))
+	print('plateType ' .. GetVehicleNumberPlateTextIndex(vehicle))
+	for i = 0, 3, 1 do
+		print(tostring(IsVehicleNeonLightEnabled(vehicle, i)))
+	end
 end, false)
 
 RegisterNetEvent('yp_garage:deleteCar')
@@ -181,6 +186,7 @@ AddEventHandler('yp_garage:openVehicleMenu', function(data)
 					TaskWarpPedIntoVehicle(GetPlayerPed(-1), vehicle, -1)
 					TriggerServerEvent('yp_garage:pullVehicle', data.current.plate)
 					modelVehicle(vehicle, props, data.current.plate)
+					exports['EngineToggle']:addKey(GetVehicleNumberPlateText(vehicle))
 					
 				else
 					exports['mythic_notify']:DoHudText('error', 'This vehicle is already outside')
@@ -200,7 +206,6 @@ AddEventHandler('yp_garage:openInsureMenu', function(data, garageName)
 		title = 'Vehicles',
 		align = 'bottom-right',
 		elements = elements},
-
 		function(data, menu)
 			local action = data.current
 			ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_type', {
@@ -229,6 +234,9 @@ AddEventHandler('yp_garage:openInsureMenu', function(data, garageName)
 									if action2 == 'y' then
 										TriggerServerEvent('yp_garage:storeVehicle', action.plate, garageName, nil)
 										TriggerServerEvent('yp_base:payFee', InsurePrice)
+										Wait(200)
+										TriggerServerEvent('yp_garage:getAllVehicles', garageName)
+										menu.close()
 										menu2.close()
 										menu3.close()
 									else
@@ -254,6 +262,9 @@ AddEventHandler('yp_garage:openInsureMenu', function(data, garageName)
 										if action2 == 'y' then
 											TriggerServerEvent('yp_garage:storeVehicle', action.plate, garageName, nil)
 											TriggerServerEvent('yp_base:payFee', MovePrice)
+											Wait(200)
+											TriggerServerEvent('yp_garage:getAllVehicles', garageName)
+											menu.close()
 											menu2.close()
 											menu3.close()
 										else
@@ -272,6 +283,8 @@ AddEventHandler('yp_garage:openInsureMenu', function(data, garageName)
 						ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'rename_option', {title = 'New Name'},
 							function(data3, menu3)
 								TriggerServerEvent('yp_garage:renameVehicle', action.plate, data3.value)
+								TriggerServerEvent('yp_garage:getAllVehicles', garageName)
+								menu.close()
 								menu2.close()
 								menu3.close()
 							end,

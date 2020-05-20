@@ -28,7 +28,7 @@ Garages =
         name = "vinewood_hills_garage",
         drop = {x = -66.9408, y = 891.7664, z = 235.5524},
         pick = {x = -71.9756, y = 902.9642, z = 235.6306},
-        insure = nil
+        insure = {x = -78.521, y = 909.034, z = 235.807}
     },
     {
         name = "vinewood_hills_theater_garage",
@@ -76,7 +76,7 @@ Garages =
         name = "davis_garage",
         drop = {x = -60.6066, y = -1829.2744, z = 26.8465},
         pick = {x = -67.5713, y = -1835.6975, z = 26.8819},
-        insure = nil
+        insure = {x = -74.101, y = -1825.1333, z = 26.9419}
     },
     {
         name = "rancho_garage",
@@ -104,5 +104,5 @@ Garages =
     }
 }
 
-InsurePrice = 750
+InsurePrice = 450
 MovePrice = 350
