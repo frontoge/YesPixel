@@ -1,6 +1,8 @@
-local houses = {}
-local loaded = {}
-local modified = false
+local houses = {} --Holds all the info from the database retrieved at the start of the script
+local loaded = {} --Holds interiors that are currently loaded to prevent duplicate rendering
+local modified = false --State of the data in houses table, true if modified
+
+local DEBUG = true
 
 ---Framework---
 ESX = nil
@@ -26,7 +28,8 @@ end)
 --Events
 RegisterServerEvent('yp_housing:requestHouseData')
 AddEventHandler('yp_housing:requestHouseData', function()
-    TriggerClientEvent('yp_housing:recieveHouseData', source, houses)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    TriggerClientEvent('yp_housing:receiveHouseData', source, houses, xPlayer.getIdentifier())
 end)
 
 RegisterServerEvent('yp_housing:requestInterior')
@@ -102,14 +105,11 @@ AddEventHandler('yp_housing:addItemToHouse', function(houseNum, itemData)
             v.value = v.value + itemData.value --Add item to house inv
             found = true
             if string.find(itemData.name, 'WEAPON') or string.find(itemData.name, 'GADGET') then --If its a weapon
-                print('weapon')
                 xPlayer.removeWeapon(itemData.name)
             elseif itemData.name == 'cash' then
                 xPlayer.removeMoney(itemData.value) --if its cash
-                print('cash')
             else
                 xPlayer.removeInventoryItem(itemData.name, itemData.value) --if its an item
-                print('item')
             end
             break
         end
@@ -118,16 +118,13 @@ AddEventHandler('yp_housing:addItemToHouse', function(houseNum, itemData)
         table.insert(houses[houseNum].inv, {name = itemData.name, value = itemData.value}) --Add item to house in a new slot
 
         if string.find(itemData.name, 'WEAPON') or string.find(itemData.name, 'GADGET') then --Take item from player
-            print('weapon')
             xPlayer.removeWeapon(itemData.name)
             found = true
         elseif itemData.name == 'cash' then
             xPlayer.removeMoney(itemData.value)
-            print('cash')
             found = true
         else
             xPlayer.removeInventoryItem(itemData.name, itemData.value)
-            print('item')
             found = true
         end
     end
@@ -147,10 +144,8 @@ AddEventHandler('yp_housing:removeItemFromHouse', function(houseNum, itemData)
                 xPlayer.addWeapon(itemData.name)
             elseif itemData.name == 'cash' then
                 xPlayer.addMoney(itemData.value) --if its cash
-                print('cash')
             else
                 xPlayer.addInventoryItem(itemData.name, itemData.value) --if its an item
-                print('item')
             end
             if v.value <= 0 then
                 table.remove(houses[houseNum].inv, i)
@@ -159,6 +154,34 @@ AddEventHandler('yp_housing:removeItemFromHouse', function(houseNum, itemData)
         end
     end
     modified = true
+end)
+
+RegisterServerEvent('yp_housing:sellHouse')
+AddEventHandler('yp_housing:sellHouse', function(target, houseId)
+    local xPlayer = ESX.GetPlayerFromId(source) --Person selling the house
+    if xPlayer.job.name == 'realtor' then
+        local targetPlayer = ESX.GetPlayerFromId(target) --Get target player
+        local amount = houses[houseId].price
+        TriggerClientEvent('yp_housing:sendHouseBill', source, target, amount * 0.95)
+        xPlayer.addAccountMoney('bank', amount * 5)
+        houses[houseId].owner = targetPlayer.getIdentifier() --Set house owner
+        TriggerClientEvent('yp_housing:getHouse', target, houseId)
+        modified = true
+    end
+end)
+
+RegisterServerEvent('yp_housing:setHouseLockCode')
+AddEventHandler('yp_housing:setHouseLockCode', function(houseId, code)
+    houses[houseId].code = code
+    modified = true
+    TriggerClientEvent('yp_housing:updateHouse', -1, houseId, houses[houseId])
+end)
+
+RegisterServerEvent('yp_housing:toggleLock')
+AddEventHandler('yp_housing:toggleLock', function(houseId)
+    houses[houseId].locked = (houses[houseId].locked + 1) % 2
+    modified = true
+    TriggerClientEvent('yp_housing:updateHouse', -1, houseId, houses[houseId])
 end)
 
 --Threads
@@ -174,7 +197,7 @@ Citizen.CreateThread(function() --Push the houses into the Database
                 values['@back'] = json.encode(values['@back'])
                 values['@inv'] = json.encode(values['@inv'])
 
-                MySQL.Async.execute('UPDATE houses SET owner = @owner, model = @model, front = @front, back = @back, inv = @inv, locked = @locked WHERE id = @id', values,
+                MySQL.Async.execute('UPDATE houses SET owner = @owner, model = @model, front = @front, back = @back, inv = @inv, locked = @locked, code = @code WHERE id = @id', values,
                 function()  end)
             end
             modified = false
@@ -184,32 +207,35 @@ Citizen.CreateThread(function() --Push the houses into the Database
 end)
 
 --Dev Remove before release
-RegisterServerEvent('finishHouse')
-AddEventHandler('finishHouse', function(house)
-    if house['@back'] and house['@garage'] then
-        MySQL.Async.execute("INSERT INTO houses (model, front, back, inv, locked, garage) VALUES(@model, @front, @back, @inv, @locked, @garage)", house, function()end)
-    elseif house['@back'] then
-        MySQL.Async.execute("INSERT INTO houses (model, front, back, inv, locked) VALUES(@model, @front, @back, @inv, @locked)", house, function()end)
-    elseif house['@garage'] then
-        MySQL.Async.execute("INSERT INTO houses (model, front, inv, locked, garage) VALUES(@model, @front, @inv, @locked, @garage)", house, function()end)
-    else
-        MySQL.Async.execute("INSERT INTO houses (model, front, inv, locked) VALUES(@model, @front, @inv, @locked)", house, function()end)
-    end
-end)
-
-RegisterCommand('getdb', function(source, args)
-    MySQL.Async.fetchAll('SELECT * FROM houses', {}, function(results)
-        for i, v in ipairs(results) do
-            houses[i] = v
-            houses[i].front = json.decode(houses[i].front)
-            houses[i].back = json.decode(houses[i].back)
-            houses[i].inv = json.decode(houses[i].inv)
-            loaded[i] = 0
+if DEBUG then
+    RegisterServerEvent('finishHouse')
+    AddEventHandler('finishHouse', function(house)
+        if house['@back'] and house['@garage'] then
+            MySQL.Async.execute("INSERT INTO houses (model, front, back, inv, locked, price, garage) VALUES(@model, @front, @back, @inv, @locked, @price, @garage)", house, function()end)
+        elseif house['@back'] then
+            MySQL.Async.execute("INSERT INTO houses (model, front, back, inv, locked, price) VALUES(@model, @front, @back, @inv, @locked, @price)", house, function()end)
+        elseif house['@garage'] then
+            MySQL.Async.execute("INSERT INTO houses (model, front, inv, locked, price, garage) VALUES(@model, @front, @inv, @locked, @price, @garage)", house, function()end)
+        else
+            MySQL.Async.execute("INSERT INTO houses (model, front, inv, locked, price) VALUES(@model, @front, @inv, @locked, @price)", house, function()end)
         end
     end)
-end)
 
-RegisterCommand('getPlayer', function(source, args)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    TriggerClientEvent('addPlayer', source, xPlayer)
-end)
+    RegisterCommand('getdb', function(source, args)
+        MySQL.Async.fetchAll('SELECT * FROM houses', {}, function(results)
+            for i, v in ipairs(results) do
+                houses[i] = v
+                houses[i].front = json.decode(houses[i].front)
+                houses[i].back = json.decode(houses[i].back)
+                houses[i].inv = json.decode(houses[i].inv)
+                loaded[i] = 0
+                print(houses[i].code)
+            end
+        end)
+    end)
+
+    RegisterCommand('getPlayer', function(source, args)
+        local xPlayer = ESX.GetPlayerFromId(source)
+        TriggerClientEvent('addPlayer', source, xPlayer)
+    end)
+end
