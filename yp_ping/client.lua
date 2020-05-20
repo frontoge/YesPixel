@@ -49,3 +49,8 @@ RegisterCommand('accept', function(source, args)
 		TriggerServerEvent('yp_ping:sendLocation', src, pos)
 	end
 end, false)
+
+RegisterCommand('model', function(source, args)
+	local veh = GetVehiclePedIsIn(GetPlayerPed(-1))
+	print(GetEntityModel(veh))
+end)
