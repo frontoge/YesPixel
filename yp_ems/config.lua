@@ -6,15 +6,14 @@ BuyLocations =
 VehicleSpawners =
 {
 	{
-		marker = {x = 334.6518, y = -559.7396, z = 28.7437},
-		spawn = {x = 329.2273, y = -548.8660, z = 28.7437}
+		marker = {x = 358.9005, y = -589.0745, z = 28.8020},
+		spawn = {x = 362.2792, y = -598.8172, z = 28.6628}
 	}
 }
 
 VehicleDrops =
 {
-	{x = 328.2120, y = -557.8983, z = 28.7438},
-	{x = 340.2717, y = -562.4873, z = 28.7437}
+	{x = 367.3788, y = -584.9346, z = 28.7133},
 }
 
 SupplyClosets = 
@@ -28,13 +27,7 @@ SupplyItems =
 	{label = 'Med-Kit', value = 'medikit', price = 30},
 	{label = 'Xanax', value = 'xanax', price = 15},
 	{label = 'Vicodin', value = 'vicodin', price = 40},
-	{label = 'Radio', value = 'radio', price = 60}
-}
-
-EMSItems = 
-{
-	{label = 'Bandage', value = 'bandage', price = 10},
-	{label = 'Med-Kit', value = 'medikit', price = 30},
+	{label = 'Radio', value = 'radio', price = 60},
 	{label = 'Cold Meds', value = 'coldmeds', price = 15},
 	{label = 'Lidocaine', value = 'lidocaine', price = 40}
 }
@@ -42,7 +35,17 @@ EMSItems =
 Vehicles = 
 {
 	{label = 'Ambulance', value = 'ambulance'},
-	{label = 'Explorer', value = 'qrv'}
+	{label = 'Explorer', value = 'fire3'},
+	{label = 'Charger', value = 'dodgeems'},
+	{label = 'Tahoe', value = 'fire1'},
+	{label = 'Crown Vic', value = 'fire2'},
+	{label = 'Silverado', value = 'fire4'},
+	{label = 'Firetruck', value = 'firetruk'}
+}
+
+DutyToggle = 
+{
+	{x = 364.15176391602, y = -593.04779052734, z = 28.68345451355}
 }
 
 Teleports =
@@ -56,16 +59,6 @@ Teleports =
 		start = {x = 360.6737, y = -585.4032, z = 28.8242},
 		dest = {x = 331.5675, y = -595.2905, z = 43.2840},
 		message = 'to go inside'
-	},
-	{
-		start = {x = 319.2433, y = -558.9528, z = 28.7438},
-		dest = {x = 332.6104, y = -569.8475, z = 43.2840},
-		message = 'to go inside'
-	},
-	{
-		start = {x = 332.6104, y = -569.8475, z = 43.2840},
-		dest = {x = 319.2433, y = -558.9528, z = 28.7438},
-		message = 'to go to the garage'
 	},
 	{
 		start = {x =  331.5675, y = -595.2905, z = 43.2840},

@@ -10,183 +10,11 @@ ESX = nil
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 local cops = {}
+local numCops = 0
 
 --Functions
-function resultToSkin(sqlString)
-     --Take result string of skin components and turn it into a table using substring methods
-     local tempString = sqlString
-     local skin = {chain_2 = 0, mask_2 = 0, hair_1 = 0, glasses_2 = 0, watches_2 = 0, eyebrows_3 = 0, bproof_1 = 0, hair_2 = 0, hair_color_1 = 0, tshirt_1 = 0, decals_2 = 0, 
-     pants_1 = 0, eyebrows_2 = 0, tshirt_2 = 0, face = 0, mask_1 = 0, bracelets_1 = 0, torso_1 = 0, lipstick_2 = 0, sun_2 = 0, bodyb_1 = 0, sex = 0, beard_1 = 0, makeup_3 = 0,
-     skin = 0, sun_1 = 0, blemishes_2 = 0, eyebrows_1 = 0, chest_1 = 0, glasses_1 = 0, shoes_2 = 0, torso_2 = 0, arms_2 = 0, hair_color_2 = 0, arms = 0, blush_3 = 0, bodyb_2 = 0,
-     bracelets_2 = 0, watches_1 = 0, eyebrows_4 = 0, makeup_1 = 0, helmet_1 = 0, age_2 = 0, blush_2 = 0, beard_2 = 0, beard_3 = 0, shoes_1 = 0, age_1 = 0, makeup_4 = 0, chain_1 = 0,
-     bags_2 = 0, beard_4 = 0, ears_1 = 0, complexion_2 = 0, decals_1 = 0, bproof_2 = 0, bags_1 = 0, lipstick_4 = 0, moles_2 = 0, blemishes_1 = 0, chest_2 = 0, lipstick_1 = 0, 
-     helmet_2 = 0, ears_2 = 0, moles_1 = 0, pants_2 = 0, eyecolor = 0, chest_3 = 0, makeup_2 = 0, complexion_1 = 0, blush_1 = 0}
-
-     local startInd = string.find(tempString, '"')
-     local lastInd = string.find(tempString, '"', startInd+1)
-     local elem = string.sub(tempString, startInd+1, lastInd-1)
-     local value = tonumber(string.sub(tempString, string.find(tempString, ':')+1, string.find(tempString, ',')-1))
-
-     while (string.find(tempString, ',') ~= nil) do
-          tempString = string.sub(tempString, string.find(tempString, ',')+1, string.len(tempString))
-          
-          if elem == 'chain_2' then
-               skin.chain_2 = value
-          elseif elem == 'mask_2' then
-               skin.mask_2 = value
-          elseif elem == 'hair_1' then
-               skin.hair_1 = value
-          elseif elem == 'glasses_2' then
-               skin.glasses_2 = value
-          elseif elem == 'watches_2' then
-               skin.watches_2 = value
-          elseif elem == 'eyebrows_3' then
-               skin.eyebrows_3 = value
-          elseif elem == 'bproof_1' then
-               skin.bproof_1 = value
-          elseif elem == 'hair_2' then
-               skin.hair_2 = value
-          elseif elem == 'hair_color_1' then
-               skin.hair_color_1 = value
-          elseif elem == 'tshirt_1' then
-               skin.tshirt_1 = value
-          elseif elem == 'decals_2' then
-               skin.decals_2 = value
-          elseif elem == 'pants_1' then
-               skin.pants_1 = value
-          elseif elem == 'eyebrows_2' then
-               skin.eyebrows_2 = value
-          elseif elem == 'tshirt_2' then
-               skin.tshirt_2 = value
-          elseif elem == 'face' then
-               skin.face = value
-          elseif elem == 'mask_1' then
-               skin.mask_1 = value
-          elseif elem == 'bracelets_1' then
-               skin.bracelets_1 = value
-          elseif elem == 'torso_1' then
-               skin.torso_1 = value
-          elseif elem == 'lipstick_2' then
-               skin.lipstick_2 = value
-          elseif elem == 'sun_2' then
-               skin.sun_2 = value
-          elseif elem == 'bodyb_1' then
-               skin.bodyb_1 = value
-          elseif elem == 'sex' then
-               skin.sex = value
-          elseif elem == 'beard_1' then
-               skin.beard_1 = value
-          elseif elem == 'makeup_3' then
-               skin.makeup_3 = value
-          elseif elem == 'skin' then
-               skin.skin = value
-          elseif elem == 'sun_1' then
-               skin.sun_1 = value
-          elseif elem == 'blemishes_2' then
-               skin.blemishes_2 = value
-          elseif elem == 'eyebrows_2' then
-               skin.eyebrows_2 = value
-          elseif elem == 'chest_1' then
-               skin.chest_1 = value
-          elseif elem == 'glasses_1' then
-               skin.glasses_1 = value
-          elseif elem == 'shoes_2' then
-               skin.shoes_2 = value
-          elseif elem == 'torso_2' then
-               skin.torso_2 = value
-          elseif elem == 'arms_2' then
-               skin.arms_2 = value
-          elseif elem == 'hair_color_2' then
-               skin.hair_color_2 = value
-          elseif elem == 'arms' then
-               skin.arms = value
-          elseif elem == 'blush_3' then
-               skin.blush_3 = value
-          elseif elem == 'bodyb_2' then
-               skin.bodyb_2 = value
-          elseif elem == 'bracelets_2' then
-               skin.bracelets_2 = value
-          elseif elem == 'watches_1' then
-               skin.watches_1 = value
-          elseif elem == 'eyebrows_4' then
-               skin.eyebrows_4 = value
-          elseif elem == 'makeup_1' then
-               skin.makeup_1 = value
-          elseif elem == 'helmet_1' then
-               skin.helmet_1 = value
-          elseif elem == 'age_2' then
-               skin.age_2 = value
-          elseif elem == 'blush_2' then
-               skin.blush_2 = value
-          elseif elem == 'beard_2' then
-               skin.beard_2 = value
-          elseif elem == 'beard_3' then
-               skin.beard_3 = value
-          elseif elem == 'shoes_1' then
-               skin.shoes_1 = value
-          elseif elem == 'age_1' then
-               skin.age_1 = value
-          elseif elem == 'makeup_4' then
-               skin.makeup_4 = value
-          elseif elem == 'chain_1' then
-               skin.chain_1 = value
-          elseif elem == 'bags_2' then
-               skin.bags_2 = value
-          elseif elem == 'beard_4' then
-               skin.beard_4 = value
-          elseif elem == 'ears_1' then
-               skin.ears_1 = value
-          elseif elem == 'complexion_2' then
-               skin.complexion_2 = value
-          elseif elem == 'decals_1' then
-               skin.decals_1 = value
-          elseif elem == 'bproof_2' then
-               skin.bproof_2 = value
-          elseif elem == 'bags_1' then
-               skin.bags_1 = value
-          elseif elem == 'lipstick_4' then
-               skin.lipstick_4 = value
-          elseif elem == 'moles_2' then
-               skin.moles_2 = value
-          elseif elem == 'blemishes_1' then
-               skin.blemishes_1 = value
-          elseif elem == 'chest_2' then
-               skin.chest_2 = value
-          elseif elem == 'lipstick_1' then
-               skin.lipstick_1 = value
-          elseif elem == 'helmet_2' then
-               skin.helmet_2 = value
-          elseif elem == 'ears_2' then
-               skin.ears_2 = value
-          elseif elem == 'moles_1' then
-               skin.moles_1 = value
-          elseif elem == 'pants_2' then
-               skin.pants_2 = value
-          elseif elem == 'eyecolor' then
-               skin.eyecolor = value
-          elseif elem == 'chest_3' then
-               skin.chest_3 = value
-          elseif elem == 'makeup_2' then
-               skin.makeup_2 = value
-          elseif elem == 'complexion_1' then
-               skin.complexion_1 = value
-          elseif elem == 'blush_1' then
-               skin.blush_1 = value
-          else
-               print("Error: Failed to assign component value")
-          end
-
-
-          startInd = string.find(tempString, '"')
-          lastInd = string.find(tempString, '"', startInd+1)
-          elem = string.sub(tempString, startInd+1, lastInd-1)
-          if string.find(tempString, ',') ~= nil then
-               value = tonumber(string.sub(tempString, string.find(tempString, ':')+1, string.find(tempString, ',')-1))
-          else
-               value = tonumber(string.sub(tempString, string.find(tempString, ':')+1, string.find(tempString, '}')-1))
-          end
-     end
-     return skin
+function getNumCops()
+     return numCops
 end
 
 --Events
@@ -255,6 +83,10 @@ RegisterServerEvent('yp_police:buyWeapon')
 AddEventHandler('yp_police:buyWeapon', function(name, cost)
      local src = source
      local xPlayer = ESX.GetPlayerFromId(src)
+     --Charge the city
+     TriggerEvent('esx_addonaccount:getSharedAccount', 'society_city', function(account)
+          account.removeMoney(cost)
+     end)
 
      if string.find(name, "WEAPON") ~= nil then
           --Give The weapon
@@ -263,14 +95,9 @@ AddEventHandler('yp_police:buyWeapon', function(name, cost)
           if xPlayer.getInventoryItem(name).count < xPlayer.getInventoryItem(name).limit then
                xPlayer.addInventoryItem(name, 1)
           else
-               TriggerClientEvent('mythic_notify:client:SendAlert', src, {type = 'error', text = 'You are already carrying a radio', length = 3000})
+               TriggerClientEvent('mythic_notify:client:SendAlert', src, {type = 'error', text = 'You are already carrying a ' .. name, length = 3000})
           end
      end
-
-     --Charge the city
-     TriggerEvent('esx_addonaccount:getSharedAccount', 'society_city', function(account)
-          account.removeMoney(cost)
-     end)
 
 end)
 
@@ -323,21 +150,9 @@ AddEventHandler('yp_police:getPlainSkin', function()
      MySQL.Async.fetchAll('SELECT skin FROM users WHERE identifier = @identifier', {
                ['@identifier'] = xPlayer.identifier }, 
           function(result)
-               local skin = resultToSkin(result[1].skin)
+               local skin = json.decode(result[1].skin)
                TriggerClientEvent('yp_police:outUniform', src, skin)
           end)
-end)
-
-RegisterServerEvent('yp_police:toggleDuty')
-AddEventHandler('yp_police:toggleDuty', function(state) 
-     local xPlayer = ESX.GetPlayerFromId(source)
-     if xPlayer.job.name == 'police' then
-          if state then
-               TriggerClientEvent('yp_police:offDuty', source)
-          else
-               TriggerClientEvent('yp_police:onDuty', source)
-          end
-     end
 end)
 
 RegisterServerEvent('yp_police:buyMeds')
@@ -389,36 +204,39 @@ AddEventHandler('yp_police:getOwnerFromId', function(id, src)
 end)
 
 RegisterServerEvent('yp_police:sendLocation')
-AddEventHandler('yp_police:sendLocation', function(player)
-     local players = ESX.GetPlayers()
-     for i = 1, #players, 1 do
-          local xPlayer = ESX.GetPlayerFromId(players[i])
-          if xPlayer.job.name == 'police' then
-               MySQL.Async.fetchAll('SELECT firstname, lastname FROM users WHERE identifier = @identifier', {['@identifier'] = ESX.GetPlayerFromId(source).identifier},
-                    function(result)
-                         local name = result[1].firstname .. ' ' .. result[1].lastname
-                         TriggerEvent('yp_police:addCop', player, name)
-                         TriggerClientEvent('yp_police:recieveLocation', players[i], player, name)
-                    end)
-               
-          end
+AddEventHandler('yp_police:sendLocation', function(player, src)
+     local players = cops
+     for i, v in pairs(players) do
+          MySQL.Async.fetchAll('SELECT firstname, lastname FROM users WHERE identifier = @identifier', {['@identifier'] = ESX.GetPlayerFromId(src).identifier},
+               function(result)
+                    local name = result[1].firstname .. ' ' .. result[1].lastname --get players name that went on duty
+                    TriggerClientEvent('yp_police:recieveLocation', i, player, name)
+               end)           
      end
 end)
 
-RegisterServerEvent('yp_police:addCop')
-AddEventHandler('yp_police:addCop', function(player, name)
-     cops[source] = {player = player, name = name}
+RegisterServerEvent('yp_police:onDuty')
+AddEventHandler('yp_police:onDuty', function(player)
+     numCops = numCops + 1
+     cops[source] = player
+     TriggerEvent('yp_police:sendLocation', player, source)
+     local src = source
+     for i, v in pairs(cops) do--Get the locations of all the other cops on duty
+          MySQL.Async.fetchAll('SELECT firstname, lastname FROM users WHERE identifier = @identifier', {['@identifier'] = ESX.GetPlayerFromId(i).identifier},
+               function(result)
+                    local name = result[1].firstname .. ' ' .. result[1].lastname --get players name that went on duty
+                    TriggerClientEvent('yp_police:recieveLocation', src, v, name)
+               end)
+     end
 end)
 
-RegisterServerEvent('yp_police:removeLocation')
-AddEventHandler('yp_police:removeLocation', function(player)
-     local players = ESX.GetPlayers()
+RegisterServerEvent('yp_police:offDuty')
+AddEventHandler('yp_police:offDuty', function(player)
+     numCops = numCops - 1
      cops[source] = nil
-     for i = 1, #players, 1 do
-          local xPlayer = ESX.GetPlayerFromId(players[i])
-          if xPlayer.job.name == 'police' then
-               TriggerClientEvent('yp_police:removeCop', players[i], player)
-          end
+     for i, v in pairs(cops) do
+          TriggerClientEvent('yp_police:removeCop', i, player)
+          TriggerClientEvent('yp_police:removeCop', source, v)
      end
 end)
 
@@ -429,17 +247,9 @@ AddEventHandler('yp_police:getLocations', function()
      end
 end)
 
-
-RegisterCommand('onduty', function(source, args)
-     local xPlayer = ESX.GetPlayerFromId(source)
-     if xPlayer.job.name == 'police' then
-          TriggerClientEvent('yp_police:onDuty', source)
-     end
-end)
-
-RegisterCommand('offduty', function(source, args)
-     local xPlayer = ESX.GetPlayerFromId(source)
-     if xPlayer.job.name == 'police' then
-          TriggerClientEvent('yp_police:offDuty', source)
+AddEventHandler('playerDropped', function(reason)
+     if cops[source] then
+          cops[source] = nil
+          numCops = numCops - 1
      end
 end)

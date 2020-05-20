@@ -7,6 +7,9 @@
 --ESX Init
 ESX = nil
 
+local blips = {}
+local onDuty = false
+
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(xPlayer)
 	ESX.PlayerData = xPlayer
@@ -80,13 +83,15 @@ function openVehicleMenu(spawnPos)
 	function(data, menu)
 		menu.close()
 		Citizen.CreateThread(function()
-			print('hello')
 			local vehicle = GetHashKey(data.current.value)
 			RequestModel(vehicle)
 			while not HasModelLoaded(vehicle) do
 				Citizen.Wait(0)
 			end
-			CreateVehicle(vehicle, spawnPos.x, spawnPos.y, spawnPos.z, -90.0, true, true)
+			local vehPtr = CreateVehicle(vehicle, spawnPos.x, spawnPos.y, spawnPos.z, 180.0, true, true)
+			exports['EngineToggle']:addKey(GetVehicleNumberPlateText(vehPtr))
+			SetVehicleFuelLevel(vehPtr, 85.0)
+			DecorSetFloat(vehPtr, "_FUEL_LEVEL", GetVehicleFuelLevel(vehPtr))
 		end)
 	end,
 	function(data, menu)
@@ -116,6 +121,76 @@ function openSupplyMenu()
 		function(data, menu)
 			menu.close()
 		end)
+end
+
+function openJobMenu()
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'ems_job', {
+		title = 'EMS',
+		align = 'bottom-right',
+		elements = {
+			{label = 'Inspect Person', value = 'inspect'},
+			{label = 'Revive Person', value = 'revive'},
+			{label = 'Heal Person', value = 'heal'},
+			{label = 'Escort', value = 'escort'},
+			{label = 'Put in Veh', value = 'in_veh'},
+			{label = 'Pull from Veh', value = 'out_veh'},
+			{label = 'Impound Vehicle', value = 'impound'}
+		}},
+		function(data, menu)
+			if (data.current.value == 'inspect') then
+				local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+				if closestPlayer ~= -1 and distance < 3.0 then
+					Citizen.CreateThread(function()
+						local playerPed = GetPlayerPed(-1)
+						exports['progressBars']:startUI(10000, "Inspecting...")
+						TaskStartScenarioInPlace(playerPed, 'CODE_HUMAN_MEDIC_KNEEL', 0, true)
+						Citizen.Wait(10000)
+						ClearPedTasksImmediately(playerPed)
+						TriggerServerEvent('medsystem:check', GetPlayerServerId(closestPlayer))
+					end)
+				else
+					exports['mythic_notify']:SendAlert('error', 'There is nobody to inspect', 2500)
+				end
+			elseif (data.current.value == 'revive') then
+				TriggerEvent('yp_ems:doCPR', false)
+			elseif (data.current.value == 'heal') then
+
+			elseif (data.current.value == 'escort') then
+				local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+				if closestPlayer ~= -1 and distance < 3.0 then
+					TriggerServerEvent('yp_ems:escort', GetPlayerServerId(closestPlayer))
+				end
+			elseif (data.current.value == 'in_veh') then
+				local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+		        if closestPlayer ~= -1 and distance <= 2 then
+		            TriggerServerEvent('yp_userinteraction:putInVehicle', GetPlayerServerId(closestPlayer))
+		        end
+			elseif (data.current.value == 'out_veh') then
+				local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+		        if closestPlayer ~= -1 and distance <= 2 then
+		            TriggerServerEvent('yp_userinteraction:pullOutVehicle', GetPlayerServerId(closestPlayer))
+		        end
+			elseif (data.current.value == 'impound') then
+				local vehicle = ESX.Game.GetVehicleInDirection()
+				if DoesEntityExist(vehicle) then
+					Citizen.CreateThread(function()
+						local playerPed = GetPlayerPed(-1)
+						exports['progressBars']:startUI(10000, "Impounding...")
+						TaskStartScenarioInPlace(playerPed, 'CODE_HUMAN_MEDIC_KNEEL', 0, true)
+					    Citizen.Wait(10000)
+					    ClearPedTasksImmediately(playerPed)
+					    ESX.Game.DeleteVehicle(vehicle)
+					end)
+					
+				else
+					exports['mythic_notify']:DoHudText('error', 'There is no vehicle nearby')
+				end
+			end
+		end,
+		function(data, menu)
+			menu.close()
+		end
+	)
 end
 
 RegisterNetEvent('yp_ems:doCPR')
@@ -149,6 +224,25 @@ AddEventHandler("yp_ems:doCPR", function(ems)
 	end)
 end)
 
+RegisterNetEvent('yp_ems:recieveLocation')
+AddEventHandler('yp_ems:recieveLocation', function(playerId, name)
+	if playerId ~= PlayerId() then
+		blips[playerId] = AddBlipForEntity(GetPlayerPed(playerId))
+		SetBlipSprite(blips[playerId] , 1)
+	    SetBlipScale(blips[playerId] , 1.0)
+	    SetBlipColour(blips[playerId], 1)
+	    SetBlipAsShortRange(blips[playerId], true)
+		BeginTextCommandSetBlipName("STRING")
+		AddTextComponentString(name)
+		EndTextCommandSetBlipName(blips[playerId])
+	end
+end)
+
+RegisterNetEvent('yp_ems:removePlayer')
+AddEventHandler('yp_ems:removePlayer', function(playerId)
+	RemoveBlip(blips[playerId])
+end)
+
 Citizen.CreateThread(function()
 	blip = AddBlipForCoord(319.7480, -593.4249, 43.2918)
 	SetBlipSprite(blip, 153)
@@ -178,18 +272,6 @@ Citizen.CreateThread(function()
 	while true do
 		local playerPed = GetPlayerPed(-1)
 		local x, y, z = table.unpack(GetEntityCoords(playerPed))
-		--Shops
-		for i, v in ipairs(BuyLocations) do
-			if Vdist(x, y, z, v.x, v.y, v.z) < 20 then
-				DrawMarker(1, v.x, v.y, v.z-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
-				if Vdist(x, y, z, v.x, v.y, v.z) < 1.5 then
-					exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to shop')
-					if IsControlJustPressed(0, 51) then
-						openHospitalShop()
-					end
-				end
-			end
-		end
 
 		--Teleports
 		for i, v in ipairs(Teleports) do
@@ -205,6 +287,10 @@ Citizen.CreateThread(function()
 		end
 
 		if ESX.PlayerData.job.name == 'ems' then
+
+			if IsControlJustPressed(0, 167) then
+				openJobMenu()
+			end
 
 			--Vehicle Spawner
 			for i, v in ipairs(VehicleSpawners) do
@@ -244,6 +330,27 @@ Citizen.CreateThread(function()
 						exports['yp_base']:DisplayHelpText("Press ~INPUT_CONTEXT~ to get supplies")
 						if IsControlJustPressed(0, 51) then
 							openSupplyMenu()
+						end
+					end
+				end
+			end
+
+			for i, v in ipairs(DutyToggle) do --On/Off Duty
+				local dist = Vdist(x, y, z, v.x, v.y, v.z)
+				if dist < 10 then
+					DrawMarker(27, v.x, v.y, v.z-0.85, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 255, 255, 100, false, false, 2, true, nil, nil, false)
+					if dist < 1 then
+						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to go on/off duty')
+						if IsControlJustPressed(0, 51) then
+							if onDuty then
+								exports['mythic_notify']:DoHudText('inform', 'You are now off duty!', 2500)
+								onDuty = false
+								TriggerServerEvent('yp_ems:offDuty', PlayerId())
+							else
+								exports['mythic_notify']:DoHudText('inform', 'You are now on duty!', 2500)
+								onDuty = true
+								TriggerServerEvent('yp_ems:onDuty', PlayerId())
+							end
 						end
 					end
 				end

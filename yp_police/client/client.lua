@@ -5,6 +5,7 @@
 ]]--
 
 local inUniform = false
+local onDuty = false
 local isBoss = false
 local invData = {}
 local pdBlip = nil
@@ -23,11 +24,6 @@ end)
 RegisterNetEvent('esx:setJob')
 AddEventHandler('esx:setJob', function(job)
 	ESX.PlayerData.job = job
-end)
-
-RegisterNetEvent('yp:playerLoaded')
-AddEventHandler('yp:playerLoaded', function()
-	YPlayer = exports.yp_base:getYPlayer() 
 end)
 
 --Draw Blip
@@ -172,8 +168,8 @@ function openJobMenu()
 				align = 'bottom-right',
 				elements = {
 					{label = 'Get Registration', value = 'registration'},
+					{label = 'Search Plate', value = 'plate'},
 					{label = 'Impound Vehicle', value = 'impound'},
-					{label = 'Search Glovebox', value = 'search_glovebox'},
 					{label = 'Lockpick', value = 'lockpick'}
 				}},
 			function(data2, menu2)
@@ -186,8 +182,7 @@ function openJobMenu()
 					else
 						exports['mythic_notify']:DoHudText('error', 'No vehicle nearby!')
 					end
-
-
+					
 				elseif action2 == 'impound' then
 					local vehicle = ESX.Game.GetVehicleInDirection()
 					if DoesEntityExist(vehicle) then
@@ -203,8 +198,14 @@ function openJobMenu()
 					else
 						exports['mythic_notify']:DoHudText('error', 'There is no vehicle nearby')
 					end
-				elseif action2 == 'search_glovebox' then
-
+				elseif action2 == 'plate' then
+					ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'search_plate', {title = 'Enter plate'},
+						function(data3, menu3)
+							TriggerServerEvent('yp_police:getRegistration', data3.value)
+						end,
+						function(data3, menu3)
+							menu3.close()
+						end)
 				else
 					TriggerEvent('yp_userinteraction:lockpickvehicle')
 
@@ -288,7 +289,15 @@ function vehicleMenu()
 				while not HasModelLoaded(vehicle) do
 					Citizen.Wait(0)
 				end
-				CreateVehicle(vehicle, 442.6445, -1018.7537, 28.6769, 1.0, true, true)
+				local vehPtr = CreateVehicle(vehicle, 442.6445, -1018.7537, 28.6769, 1.0, true, true)
+				exports['EngineToggle']:addKey(GetVehicleNumberPlateText(vehPtr))
+				SetVehicleFuelLevel(vehPtr, 85.0)
+				DecorSetFloat(vehPtr, "_FUEL_LEVEL", GetVehicleFuelLevel(vehPtr))
+				if data.current.extras then
+					for i = 1, #data.current.extras, 1 do
+						SetVehicleExtra(vehPtr, i, data.current.extras[i])
+					end
+				end
 			end)
 		end,
 		function(data, menu)
@@ -482,44 +491,24 @@ end)
 RegisterNetEvent('yp_police:removeCop')
 AddEventHandler('yp_police:removeCop', function(playerId)
 	RemoveBlip(cops[playerId])
+	cops[playerId] = nil
 end)
-
---Keep Blips up to date with other players
-Citizen.CreateThread(function()
-	
-
-	while ESX == nil do
-		Citizen.Wait(0)
-	end
-
-	while ESX.PlayerData == nil do
-		Citizen.Wait(0)
-	end
-	while true do
-		
-		Citizen.Wait(0)
-	end
-end)
-
 
 --Main
 Citizen.CreateThread(function()
 	local pos = nil
 	local locationSent = false
+
 	while ESX == nil do
 		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 		Citizen.Wait(0)
 	end
-
+	
 	while ESX.GetPlayerData().job == nil do
 		Citizen.Wait(10)
 	end
-
+	
 	ESX.PlayerData = ESX.GetPlayerData()
-
-	while YPlayer == nil do
-		Citizen.Wait(0)
-	end
 
 	while true do--Main Loop
 		local playerPed = GetPlayerPed(-1)
@@ -527,11 +516,11 @@ Citizen.CreateThread(function()
 
 		--Draw Markers
 		if ESX.PlayerData.job.name == 'police' then
-			if not locationSent then
+			--[[if not locationSent then
 				TriggerServerEvent('yp_police:sendLocation', PlayerId())
 				TriggerServerEvent('yp_police:getLocations')
 				locationSent = true
-			end
+			end]]
 
 			if Vdist(pos.x, pos.y, pos.z, 477.2778, -988.1365, 24.9147) < 20 then --Evidence Locker
 				DrawMarker(1, 477.8778, -984.2165, 23.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
@@ -625,6 +614,27 @@ Citizen.CreateThread(function()
 				if IsControlJustPressed(0,51) then
 					heliMenu()
 				end
+			else
+				for i, v in ipairs(dutyToggle) do
+					local dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
+					if dist < 10 then
+						DrawMarker(27, v.x, v.y, v.z-0.85, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 255, 255, 100, false, false, 2, true, nil, nil, false)
+						if dist < 1 then
+							DisplayHelpText('Press ~INPUT_CONTEXT~ to go on/off duty')
+							if IsControlJustPressed(0, 51) then
+								if onDuty then
+									exports['mythic_notify']:DoHudText('inform', 'You are now off duty!', 2500)
+									onDuty = false
+									TriggerServerEvent('yp_police:offDuty', PlayerId())
+								else
+									exports['mythic_notify']:DoHudText('inform', 'You are now on duty!', 2500)
+									onDuty = true
+									TriggerServerEvent('yp_police:onDuty', PlayerId())
+								end
+							end
+						end
+					end
+				end
 			end
 
 			if Vdist(pos.x, pos.y, pos.z, 462.7208, -1017.0921, 28.0829) < 3 then
@@ -636,18 +646,6 @@ Citizen.CreateThread(function()
 							ESX.Game.DeleteVehicle(vehicle)
 						end
 					end
-				end
-			end
-
-			if Vdist(pos.x, pos.y, pos.z, 459.5682, -975.8306, 35.9310) < 1 then -- on/offduty
-				if isPolice then
-					DisplayHelpText("Press ~INPUT_CONTEXT~ to go Off Duty")
-					
-				else
-					DisplayHelpText("Press ~INPUT_CONTEXT~ to go On Duty")
-				end
-				if IsControlJustPressed(0,51) then
-					TriggerServerEvent('yp_police:toggleDuty', isPolice)
 				end
 			end
 
@@ -672,14 +670,9 @@ Citizen.CreateThread(function()
 				end
 			end
 			
-		elseif locationSent then
-			TriggerServerEvent('yp_police:removeLocation', PlayerId())
-			locationSent = false
 		end
-		::continue::
 		Citizen.Wait(0)
 	end
-	TriggerServerEvent('yp_police:removeLocation', PlayerId())
 end)
 
 

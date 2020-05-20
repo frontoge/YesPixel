@@ -10,3 +10,7 @@ server_scripts {
     "server/server.lua",
     "config.lua"
 }
+
+server_exports {
+    'getNumCops'
+}
