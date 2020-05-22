@@ -101,7 +101,7 @@ AddEventHandler('yp_drugs:actions:useJoint', function()
 		end
 
 		exports['yp_base']:removeStress(150000)
-		getArmorFromHigh(ArmorBonusWeed, WeedArmorTimer)
+		--getArmorFromHigh(ArmorBonusWeed, WeedArmorTimer)
 
 		ClearPedSecondaryTask(playerPed)
 		DeleteObject(prop)
@@ -129,7 +129,7 @@ AddEventHandler('yp_drugs:actions:useBlunt', function(source)
 		end
 
 		exports['yp_base']:removeStress(300000)
-		getArmorFromHigh(ArmorBonusWeed * 2, WeedArmorTimer)
+		--getArmorFromHigh(ArmorBonusWeed * 2, WeedArmorTimer)
 
 		ClearPedSecondaryTask(playerPed)
 		DeleteObject(prop)
