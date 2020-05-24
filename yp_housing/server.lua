@@ -2,7 +2,7 @@ local houses = {} --Holds all the info from the database retrieved at the start 
 local loaded = {} --Holds interiors that are currently loaded to prevent duplicate rendering
 local modified = false --State of the data in houses table, true if modified
 
-local DEBUG = false
+local DEBUG = true
 
 ---Framework---
 ESX = nil

@@ -6,7 +6,7 @@ local currentHouse = nil
 local houseInd
 local id = nil
 
-local DEBUG = false
+local DEBUG = true
 local addingHouse = false --Dev Remove before release
 local newHouse = {}
 
@@ -136,70 +136,50 @@ function removeBlip(houseId)
     blips[houseId] = nil
 end
 
-function tryCode(entry)
+--Enter the code to get into the house
+function tryCode(id, houseData, position)
+    ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'enter_keycode', {title="Enter keycode"},
+    function(data, menu)
+        local value = tonumber(data.value)
+        if value < 0 or value > 9999 then
+            exports['mythic_notify']:DoHudText('error', 'This code is invalid, please use number between 0 and 9999')
+        elseif value == houseData.code then
+            print('correct code')
+            houseData.locked = 0
+            attemptToEnter(id, houseData, position)
+            houseData.locked = 1
+            menu.close()
+        end
+    end,
+    function(data, menu)
+        menu.close()
+    end)
+end
 
+function attemptToEnter(id, houseData, position)
+    if houseData.locked == 0 then--If the house is not locked 
+        currentHouse = houseData
+        houseId = id
+        if position == 'front'  then
+            TriggerServerEvent('yp_housing:requestInterior', id, houseData.front, 'front')
+        else
+            TriggerServerEvent('yp_housing:requestInterior', id, houseData.back, 'back')
+        end
+    else
+        exports['mythic_notify']:DoHudText('inform', 'This house is locked.')
+        tryCode(id, houseData, position)
+    end
 end
 
 --Commands
 RegisterCommand('enter', function(source, args)
     local pos = GetEntityCoords(GetPlayerPed(-1))
-    for i, v in pairs(houses) do
-        if not inside then --If the player is not inside and they are the owner or the door is unlocked
-            if (v.locked == 0) then --If the house is unlocked
-                if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then 
-                    currentHouse = v
-                    houseId = i
-                    TriggerServerEvent('yp_housing:requestInterior', i, v.front, 'front')
-                elseif v.back then
-                    if Vdist(pos.x, pos.y, pos.z, v.back.x, v.back.y, v.back.z) < 1 then
-                        currentHouse = v
-                        houseId = i
-                        TriggerServerEvent('yp_housing:requestInterior', i, v.front, 'back')
-                    end
-                end
-                break
-            else
-                if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then 
-                    exports['mythic_notify']:DoHudText('inform', 'This house is locked.')
-                    ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'enter_keycode', {title="Enter keycode"},
-                    function(data, menu)
-                        local value = tonumber(data.value)
-                        if value < 0 or value > 9999 then
-                            exports['mythic_notify']:DoHudText('error', 'This code is invalid, please use number between 0 and 9999')
-                        elseif value == v.code then
-                            print('correct code')
-                            currentHouse = v
-                            houseId = i
-                            TriggerServerEvent('yp_housing:requestInterior', i, v.front, 'front')
-                            menu.close()
-                        end
-                    end,
-                    function(data, menu)
-                        menu.close()
-                    end)
-                    break
-                elseif v.back and Vdist(pos.x, pos.y, pos.z, v.back.x, v.back.y, v.back.z) < 1 then
-                    exports['mythic_notify']:DoHudText('inform', 'This house is locked.')
-                    ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'enter_keycode', {title="Enter keycode"},
-                    function(data, menu)
-                        local value = tonumber(data.value)
-                        if value < 0 or value > 9999 then
-                            exports['mythic_notify']:DoHudText('error', 'This code is invalid, please use number between 0 and 9999', 3000)
-                        elseif value == v.code then
-                            currentHouse = v
-                            houseId = i
-                            TriggerServerEvent('yp_housing:requestInterior', i, v.back, 'front')
-                            menu.close()
-                        else
-                            exports['mythic_notify']:DoHudText('error', 'Incorrect Code', 3000)
-                        end
-                    end,
-                    function(data, menu)
-                        menu.close()
-                    end)
-                    break
-                end
-            end
+    if inside then return end
+    for i, v in ipairs(houses) do
+        if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then
+            attemptToEnter(i, v, 'front')
+        elseif v.back and Vdist(pos.x, pos.y, pos.z, v.back.x, v.back.y, v.back.z) < 1 then
+            attemptToEnter(i, v, 'back')
         end
     end
 end)
