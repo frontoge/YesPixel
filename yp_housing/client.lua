@@ -1,10 +1,12 @@
 local houses = {}
+local blips = {}
 local inside = false
 local model = nil
 local currentHouse = nil
+local houseInd
 local id = nil
 
-local DEBUG = true
+local DEBUG = false
 local addingHouse = false --Dev Remove before release
 local newHouse = {}
 
@@ -23,12 +25,16 @@ end)
 --Init
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(xPlayer)
-	PlayerData = xPlayer
-end)
-
-AddEventHandler('playerSpawned', function()
+    ESX.PlayerData = xPlayer
     TriggerServerEvent('yp_housing:requestHouseData')
 end)
+
+if DEBUG then
+    RegisterNetEvent('playerSpawned')
+    AddEventHandler('playerSpawned', function()
+        TriggerServerEvent('yp_housing:requestHouseData')
+    end)
+end
 
 function goInside(pos, door, load)
     Citizen.CreateThread(function()
@@ -64,7 +70,7 @@ function openHouseInvMenu()
             if (data.current.value == 'deposit') then
                 TriggerServerEvent('yp_housing:getPlayerInv')
             elseif data.current.value == 'remove' then
-                TriggerServerEvent("yp_housing:getHouseInv", currentHouse.id)
+                TriggerServerEvent("yp_housing:getHouseInv", houseId)
             end
             menu.close()
         end,
@@ -89,36 +95,111 @@ function setHouseLockCode(houseId)
     end)
 end
 
+function addBlip(houseId)
+    local house = houses[houseId]
+    blips[houseId] = AddBlipForCoord(house.front.x, house.front.y, house.front.z)
+	SetBlipSprite(blips[houseId], 492)
+	SetBlipScale(blips[houseId], 1.0)
+	SetBlipColour(blips[houseId], 69)
+	SetBlipAsShortRange(blips[houseId], true)
+	BeginTextCommandSetBlipName("STRING")
+	AddTextComponentString("House")
+	EndTextCommandSetBlipName(blips[houseId])
+end
+
+function addVacantBlip(houseId)
+    local house = houses[houseId]
+    blips[houseId] = AddBlipForCoord(house.front.x, house.front.y, house.front.z)
+	SetBlipSprite(blips[houseId], 374)
+	SetBlipScale(blips[houseId], 1.0)
+	SetBlipColour(blips[houseId], 0)
+	SetBlipAsShortRange(blips[houseId], true)
+	BeginTextCommandSetBlipName("STRING")
+	AddTextComponentString("House Sale")
+	EndTextCommandSetBlipName(blips[houseId])
+end
+
+function addSoldBlip(houseId)
+    local house = houses[houseId]
+    blips[houseId] = AddBlipForCoord(house.front.x, house.front.y, house.front.z)
+	SetBlipSprite(blips[houseId], 374)
+	SetBlipScale(blips[houseId], 1.0)
+	SetBlipColour(blips[houseId], 69)
+	SetBlipAsShortRange(blips[houseId], true)
+	BeginTextCommandSetBlipName("STRING")
+	AddTextComponentString("Sold House")
+	EndTextCommandSetBlipName(blips[houseId])
+end
+
+function removeBlip(houseId)
+    RemoveBlip(blips[houseId])
+    blips[houseId] = nil
+end
+
+function tryCode(entry)
+
+end
+
 --Commands
 RegisterCommand('enter', function(source, args)
     local pos = GetEntityCoords(GetPlayerPed(-1))
     for i, v in pairs(houses) do
-        if not inside and (v.locked == 0) then --If the player is not inside and they are the owner or the door is unlocked
-            if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then 
-                currentHouse = v
-                TriggerServerEvent('yp_housing:requestInterior', currentHouse.id, v.front, 'front')
-            elseif v.back then
-                if Vdist(pos.x, pos.y, pos.z, v.back.x, v.back.y, v.back.z) < 1 then
+        if not inside then --If the player is not inside and they are the owner or the door is unlocked
+            if (v.locked == 0) then --If the house is unlocked
+                if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then 
                     currentHouse = v
-                    TriggerServerEvent('yp_housing:requestInterior', currentHouse.id, v.front, 'back')
+                    houseId = i
+                    TriggerServerEvent('yp_housing:requestInterior', i, v.front, 'front')
+                elseif v.back then
+                    if Vdist(pos.x, pos.y, pos.z, v.back.x, v.back.y, v.back.z) < 1 then
+                        currentHouse = v
+                        houseId = i
+                        TriggerServerEvent('yp_housing:requestInterior', i, v.front, 'back')
+                    end
+                end
+                break
+            else
+                if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then 
+                    exports['mythic_notify']:DoHudText('inform', 'This house is locked.')
+                    ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'enter_keycode', {title="Enter keycode"},
+                    function(data, menu)
+                        local value = tonumber(data.value)
+                        if value < 0 or value > 9999 then
+                            exports['mythic_notify']:DoHudText('error', 'This code is invalid, please use number between 0 and 9999')
+                        elseif value == v.code then
+                            print('correct code')
+                            currentHouse = v
+                            houseId = i
+                            TriggerServerEvent('yp_housing:requestInterior', i, v.front, 'front')
+                            menu.close()
+                        end
+                    end,
+                    function(data, menu)
+                        menu.close()
+                    end)
+                    break
+                elseif v.back and Vdist(pos.x, pos.y, pos.z, v.back.x, v.back.y, v.back.z) < 1 then
+                    exports['mythic_notify']:DoHudText('inform', 'This house is locked.')
+                    ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'enter_keycode', {title="Enter keycode"},
+                    function(data, menu)
+                        local value = tonumber(data.value)
+                        if value < 0 or value > 9999 then
+                            exports['mythic_notify']:DoHudText('error', 'This code is invalid, please use number between 0 and 9999', 3000)
+                        elseif value == v.code then
+                            currentHouse = v
+                            houseId = i
+                            TriggerServerEvent('yp_housing:requestInterior', i, v.back, 'front')
+                            menu.close()
+                        else
+                            exports['mythic_notify']:DoHudText('error', 'Incorrect Code', 3000)
+                        end
+                    end,
+                    function(data, menu)
+                        menu.close()
+                    end)
+                    break
                 end
             end
-        elseif not inside then --If the house is locked
-            exports['mythic_notify']:DoHudText('inform', 'This house is locked.')
-            ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'enter_keycode', {title="Enter keycode"},
-            function(data, menu)
-                local value = tonumber(data.value)
-                if value < 0 or value > 9999 then
-                    exports['mythic_notify']:DoHudText('error', 'This code is invalid, please use number between 0 and 9999')
-                else
-                    currentHouse = v
-                    TriggerServerEvent('yp_housing:requestInterior', currentHouse.id, v.front, 'front')
-                    menu.close()
-                end
-            end,
-            function(data, menu)
-                menu.close()
-            end)
         end
     end
 end)
@@ -143,11 +224,12 @@ RegisterCommand('exit', function(source, args)
                 RemoveAnimDict('mp_common')
 
                 SetEntityCoords(GetPlayerPed(-1), currentHouse.front.x, currentHouse.front.y, currentHouse.front.z)--Remove player from house
-                TriggerServerEvent('yp_housing:leaveHouse', currentHouse.id)--Unload model if you are the last one out
+                TriggerServerEvent('yp_housing:leaveHouse', houseId)--Unload model if you are the last one out
                 --Update vars/resync with outside time
                 inside = false
                 TriggerEvent('vSync:resync')
                 currentHouse = nil
+                houseId = nil
             elseif houseData.back then--Same thing for back door
                 local back = {}
                 back.x, back.y, back.z = table.unpack(GetEntityCoords(model))
@@ -161,10 +243,11 @@ RegisterCommand('exit', function(source, args)
                     Citizen.Wait(1500)
                     RemoveAnimDict('mp_common')
                     SetEntityCoords(GetPlayerPed(-1), currentHouse.back.x, currentHouse.back.y, currentHouse.back.z)
-                    TriggerServerEvent('yp_housing:leaveHouse', currentHouse.id)
+                    TriggerServerEvent('yp_housing:leaveHouse', houseId)
                     inside = false
                     TriggerEvent('vSync:resync')
                     currentHouse = nil
+                    houseId = nil
                 end
             end
         end
@@ -181,6 +264,9 @@ RegisterCommand('houseInfo', function(source, args)
             else
                 TriggerEvent("chat:addMessage", {color = {100, 200, 0}, multiline = false, args = {"House Info", "This house is not owned"}})
             end
+            if DEBUG then
+                TriggerEvent("chat:addMessage", {color = {100, 200, 0}, multiline = false, args = {"House Info", "ID:" .. v.id}})
+            end
             return
         end
     end
@@ -190,7 +276,7 @@ RegisterCommand('sellHouse', function(source, args)
     local pos = GetEntityCoords(GetPlayerPed(-1))
     for i, v in pairs(houses) do
         if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then
-            TriggerServerEvent('yp_housing:sellHouse', tonumber(args[1]), v.id)
+            TriggerServerEvent('yp_housing:sellHouse', tonumber(args[1]), i)
             return
         end
     end
@@ -199,18 +285,18 @@ end)
 RegisterCommand('lock', function(source, args)
     local pos = GetEntityCoords(GetPlayerPed(-1))
     for i, v in pairs(houses) do
-        if v.owner == id then
-            if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then
+        if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then
+            if v.owner == id then
                 if v.locked == 0 then
                     exports['mythic_notify']:DoHudText('inform', 'House locked')
                 else
                     exports['mythic_notify']:DoHudText('inform', 'House unlocked')
                 end
-                TriggerServerEvent('yp_housing:toggleLock', v.id)
-                return
+                TriggerServerEvent('yp_housing:toggleLock', i)
+            else
+                exports['mythic_notify']:DoHudText('error', 'You do not own this house')
             end
-        else
-            exports['mythic_notify']:DoHudText('error', 'You do not own this house')
+            return
        end
     end
 end)
@@ -218,9 +304,9 @@ end)
 RegisterCommand('setlock', function(source, args)
     local pos = GetEntityCoords(GetPlayerPed(-1))
     for i, v in pairs(houses) do
-        if v.owner == id then
-            if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then
-                setHouseLockCode(v.id)
+        if Vdist(pos.x, pos.y, pos.z, v.front.x, v.front.y, v.front.z) < 1 then
+            if v.owner == id then
+                setHouseLockCode(i)
                 return
             end
         end
@@ -232,6 +318,11 @@ RegisterNetEvent('yp_housing:receiveHouseData')
 AddEventHandler('yp_housing:receiveHouseData', function(data, steam)
     houses = data
     id = steam
+    for i, v in ipairs(houses) do
+        if v.owner == id then --If this house is owned by the user add a blip
+            addBlip(i)
+        end
+    end
 end)
 
 RegisterNetEvent('yp_housing:enterHouse')
@@ -260,8 +351,8 @@ AddEventHandler('yp_housing:pullItem', function(houseInv)
         function(data2, menu2)
             local numVal = tonumber(data2.value)
             if (numVal <= data.current.value and numVal > 0) then
-                TriggerServerEvent('yp_housing:removeItemFromHouse', currentHouse.id, {name = data.current.name, value = numVal})
-                TriggerServerEvent('yp_housing:getHouseInv', currentHouse.id)
+                TriggerServerEvent('yp_housing:removeItemFromHouse', houseId, {name = data.current.name, value = numVal})
+                TriggerServerEvent('yp_housing:getHouseInv', houseId)
                 menu.close()
                 menu2.close()
             else
@@ -280,6 +371,7 @@ end)
 RegisterNetEvent('yp_housing:getHouse')
 AddEventHandler('yp_housing:getHouse', function(houseNum)
     TriggerEvent("chat:addMessage", {color = {100, 200, 0}, multiline = false, args = {"House Info", "You now own a house!"}})
+    addBlip(houseNum)
     setHouseLockCode(houseNum)
 end)
 
@@ -296,7 +388,7 @@ AddEventHandler('yp_housing:depositItem', function(inv)
         function(data2, menu2)
             local numVal = tonumber(data2.value)
             if (numVal <= data.current.value and numVal > 0) then
-                TriggerServerEvent('yp_housing:addItemToHouse', currentHouse.id, {name = data.current.name, value = numVal})
+                TriggerServerEvent('yp_housing:addItemToHouse', houseId, {name = data.current.name, value = numVal})
                 TriggerServerEvent('yp_housing:getPlayerInv')
                 menu.close()
                 menu2.close()
@@ -323,6 +415,30 @@ AddEventHandler('yp_housing:sendHouseBill', function(target, amount)
     TriggerServerEvent('esx_billing:sendBill', target, 'society_realty', 'House', amount)
 end)
 
+RegisterNetEvent('yp_housing:showVacantHouses')
+AddEventHandler('yp_housing:showVacantHouses', function()
+    TriggerEvent('yp_housing:hideVacantHouses')
+    for i, v in pairs(houses) do
+        if not v.owner then
+            addVacantBlip(i)
+        elseif v.owner ~= id then
+            addSoldBlip(i)
+        else
+            addBlip(i)
+        end
+    end
+end)
+
+RegisterNetEvent('yp_housing:hideVacantHouses')
+AddEventHandler('yp_housing:hideVacantHouses', function()
+    for i, v in pairs(houses) do
+        if v.owner ~= id then
+            removeBlip(i)
+        end
+    end
+end)
+
+--Thread
 Citizen.CreateThread(function(source, args)
     while true do
         if inside then
@@ -344,10 +460,11 @@ end)
 --Dev Remove before release
 if DEBUG then
     RegisterCommand('addhouse', function(source, args)
+        if not args[1] or not args[2] then print('invalid command') return end
         addingHouse = true
         newHouse['@model'] = tonumber(args[1])
         newHouse['@price'] = tonumber(args[2])
-        newHouse['@locked'] = false
+        newHouse['@locked'] = true
         newHouse['@inv'] = json.encode({})
     end)
 

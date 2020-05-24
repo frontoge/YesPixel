@@ -2,7 +2,7 @@ local houses = {} --Holds all the info from the database retrieved at the start 
 local loaded = {} --Holds interiors that are currently loaded to prevent duplicate rendering
 local modified = false --State of the data in houses table, true if modified
 
-local DEBUG = true
+local DEBUG = false
 
 ---Framework---
 ESX = nil
@@ -163,10 +163,11 @@ AddEventHandler('yp_housing:sellHouse', function(target, houseId)
         local targetPlayer = ESX.GetPlayerFromId(target) --Get target player
         local amount = houses[houseId].price
         TriggerClientEvent('yp_housing:sendHouseBill', source, target, amount * 0.95)
-        xPlayer.addAccountMoney('bank', amount * 5)
+        xPlayer.addAccountMoney('bank', amount * 0.05)
         houses[houseId].owner = targetPlayer.getIdentifier() --Set house owner
         TriggerClientEvent('yp_housing:getHouse', target, houseId)
         modified = true
+        TriggerClientEvent('yp_housing:showVacantHouses', source)
     end
 end)
 
@@ -182,6 +183,21 @@ AddEventHandler('yp_housing:toggleLock', function(houseId)
     houses[houseId].locked = (houses[houseId].locked + 1) % 2
     modified = true
     TriggerClientEvent('yp_housing:updateHouse', -1, houseId, houses[houseId])
+end)
+
+--Commands
+RegisterCommand('showHouses', function(source, args)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if xPlayer.job.name ~= 'realtor' then return end
+
+    TriggerClientEvent('yp_housing:showVacantHouses', source)
+end)
+
+RegisterCommand('hideHouses', function(source, args)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if xPlayer.job.name ~= 'realtor' then return end
+
+    TriggerClientEvent('yp_housing:hideVacantHouses', source)
 end)
 
 --Threads
@@ -208,6 +224,26 @@ end)
 
 --Dev Remove before release
 if DEBUG then
+
+    function refreshDB()
+        MySQL.Async.fetchAll('SELECT * FROM houses', {}, function(results)
+            for i, v in ipairs(results) do
+                houses[i] = v
+                houses[i].front = json.decode(houses[i].front)
+                if (houses[i].back) then
+                    houses[i].back = json.decode(houses[i].back)
+                end
+                houses[i].inv = json.decode(houses[i].inv)
+                loaded[i] = 0
+            end
+            local xPlayers = ESX.GetPlayers()
+            for i = 1, #xPlayers, 1 do
+                local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
+                TriggerClientEvent('yp_housing:receiveHouseData', xPlayers[i], houses, xPlayer.getIdentifier())
+            end
+        end)
+    end
+
     RegisterServerEvent('finishHouse')
     AddEventHandler('finishHouse', function(house)
         if house['@back'] and house['@garage'] then
@@ -219,19 +255,12 @@ if DEBUG then
         else
             MySQL.Async.execute("INSERT INTO houses (model, front, inv, locked, price) VALUES(@model, @front, @inv, @locked, @price)", house, function()end)
         end
+        refreshDB()
+        
     end)
 
     RegisterCommand('getdb', function(source, args)
-        MySQL.Async.fetchAll('SELECT * FROM houses', {}, function(results)
-            for i, v in ipairs(results) do
-                houses[i] = v
-                houses[i].front = json.decode(houses[i].front)
-                houses[i].back = json.decode(houses[i].back)
-                houses[i].inv = json.decode(houses[i].inv)
-                loaded[i] = 0
-                print(houses[i].code)
-            end
-        end)
+        refreshDB()
     end)
 
     RegisterCommand('getPlayer', function(source, args)
