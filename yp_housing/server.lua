@@ -18,7 +18,15 @@ AddEventHandler('onMySQLReady', function()
         for i, v in ipairs(results) do
             houses[i] = v
             houses[i].front = json.decode(houses[i].front)
-            houses[i].back = json.decode(houses[i].back)
+            if (houses[i].back) then
+                houses[i].back = json.decode(houses[i].back)
+            end
+            if (houses[i].closetInv) then
+                houses[i].closetInv = json.decode(houses[i].closetInv)
+            end
+            if (houses[i].cars) then
+                houses[i].cars = json.decode(houses[i].cars)
+            end
             houses[i].inv = json.decode(houses[i].inv)
             loaded[i] = 0
         end
@@ -28,6 +36,9 @@ end)
 --Events
 RegisterServerEvent('yp_housing:requestHouseData')
 AddEventHandler('yp_housing:requestHouseData', function()
+    while not ESX do
+
+    end
     local xPlayer = ESX.GetPlayerFromId(source)
     TriggerClientEvent('yp_housing:receiveHouseData', source, houses, xPlayer.getIdentifier())
 end)
@@ -185,6 +196,21 @@ AddEventHandler('yp_housing:toggleLock', function(houseId)
     TriggerClientEvent('yp_housing:updateHouse', -1, houseId, houses[houseId])
 end)
 
+RegisterServerEvent('yp_housing:addOutfit')
+AddEventHandler('yp_housing:addOutfit', function(houseId, name, data)
+    print('adding house')
+    houses[houseId].closetInv[name] = data
+    modified = true
+    TriggerClientEvent('yp_housing:updateHouse', -1, houseId, houses[houseId])
+end)
+
+RegisterServerEvent('yp_housing:removeOutfit')
+AddEventHandler('yp_housing:removeOutfit', function(houseId, name)
+    houses[houseId].closetInv[name] = nil
+    modified = true
+    TriggerClientEvent('yp_housing:updateHouse', -1, houseId, houses[houseId])
+end)
+
 --Commands
 RegisterCommand('showHouses', function(source, args)
     local xPlayer = ESX.GetPlayerFromId(source)
@@ -212,8 +238,10 @@ Citizen.CreateThread(function() --Push the houses into the Database
                 values['@front'] = json.encode(values['@front'])
                 values['@back'] = json.encode(values['@back'])
                 values['@inv'] = json.encode(values['@inv'])
+                values['@closetInv'] = json.encode(values['@closetInv'])
+                values['@cars'] = json.encode(values['@cars'])
 
-                MySQL.Async.execute('UPDATE houses SET owner = @owner, model = @model, front = @front, back = @back, inv = @inv, locked = @locked, code = @code WHERE id = @id', values,
+                MySQL.Async.execute('UPDATE houses SET owner = @owner, model = @model, front = @front, back = @back, inv = @inv, locked = @locked, code = @code, closetInv = @closetInv, cars = @cars WHERE id = @id', values,
                 function()  end)
             end
             modified = false
@@ -233,6 +261,12 @@ if DEBUG then
                 if (houses[i].back) then
                     houses[i].back = json.decode(houses[i].back)
                 end
+                if (houses[i].closetInv) then
+                    houses[i].closetInv = json.decode(houses[i].closetInv)
+                end
+                if (houses[i].cars) then
+                    houses[i].cars = json.decode(houses[i].cars)
+                end
                 houses[i].inv = json.decode(houses[i].inv)
                 loaded[i] = 0
             end
@@ -246,6 +280,8 @@ if DEBUG then
 
     RegisterServerEvent('finishHouse')
     AddEventHandler('finishHouse', function(house)
+        house['@closetInv'] = json.encode({})
+        house['@cars'] = json.encode({})
         if house['@back'] and house['@garage'] then
             MySQL.Async.execute("INSERT INTO houses (model, front, back, inv, locked, price, garage) VALUES(@model, @front, @back, @inv, @locked, @price, @garage)", house, function()end)
         elseif house['@back'] then

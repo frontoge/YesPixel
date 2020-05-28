@@ -171,6 +171,99 @@ function attemptToEnter(id, houseData, position)
     end
 end
 
+function removeOutfit(houseNum, name)
+    houses[houseNum].closetInv[name] = nil
+    TriggerServerEvent('yp_housing:removeOutfit', houseNum, name)
+end
+
+function addOutfit(houseNum, name, outfit)
+    houses[houseNum].closetInv[name] = outfit
+    TriggerServerEvent('yp_housing:addOutfit', houseNum, name, outfit)
+end
+
+--Closet
+function openHouseCloset(houseNum)
+    ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'closet_menu', {
+        title = 'Closet',
+        align = 'bottom-right',
+        elements = {
+            {label = 'Add Outfit', value = 'add'},
+            {label = 'Manage Outfits', value = 'change'}}},
+        function(data, menu)
+            if data.current.value == 'add' then
+                ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'add_outfit', {title = 'Name'},
+                function(data2, menu2)
+                    local name = data2.value
+                    TriggerEvent('skinchanger:getSkin', function(skin)
+                        addOutfit(houseNum, name, skin)
+                    end)
+                    exports['mythic_notify']:DoHudText('inform', 'Your current Outfit was added', 3000)
+                    menu2.close()
+                end,
+                function(data2, menu2)
+                    menu2.close()
+                end)
+                
+            else
+                --Get List of outfits
+                if not next(houses[houseNum].closetInv) then
+                    exports['mythic_notify']:DoHudText('error', 'You have no outfits stored at this location')
+                else
+                    local elements = {}
+                    for i, v in pairs(houses[houseNum].closetInv) do
+                        table.insert(elements, {label = i})
+                    end
+                    ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'outfit_list', {
+                        title = 'Outfits', 
+                        align = 'bottom-right',
+                        elements = elements},
+                    function(data2, menu2)
+                        ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_outfit', {
+                            title = 'Manage',
+                            align = 'bottom-right',
+                            elements = {
+                                {label = 'Wear', value = 'wear'},
+                                {label = 'Remove', value = 'remove'},
+                                {label = 'Rename', value = 'rename'}
+                            }
+                        },
+                        function(data3, menu3)
+                            if data3.current.value == 'wear' then
+                                TriggerEvent('skinchanger:loadSkin', houses[houseNum].closetInv[data2.current.label])
+                            elseif data3.current.value == 'remove' then
+                                removeOutfit(houseNum, data2.current.label)
+                                menu2.close()
+                                menu3.close()
+                            elseif data3.current.value == 'rename' then
+                                ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'name_outfit', {title = 'Enter name'},
+                                function(data4, menu4)
+                                    local old = houses[houseNum].closetInv[data2.current.label]
+                                    removeOutfit(houseNum, data2.current.label)
+                                    addOutfit(houseNum, data4.value, old)
+                                    menu2.close()
+                                    menu3.close()
+                                    menu4.close()
+                                end,
+                                function(data4, menu4)
+                                    menu4.close()
+                                end)
+                            end
+                        end,
+                        function(data3, menu3)
+                            menu3.close()
+                        end)
+                    end,
+                    function(data2, menu2)
+                        menu2.close()
+                    end)
+                end
+            end
+        end,
+        function(data, menu)
+            menu.close()
+        end)
+end
+
 --Commands
 RegisterCommand('enter', function(source, args)
     local pos = GetEntityCoords(GetPlayerPed(-1))
@@ -398,15 +491,18 @@ end)
 RegisterNetEvent('yp_housing:showVacantHouses')
 AddEventHandler('yp_housing:showVacantHouses', function()
     TriggerEvent('yp_housing:hideVacantHouses')
-    for i, v in pairs(houses) do
-        if not v.owner then
-            addVacantBlip(i)
-        elseif v.owner ~= id then
-            addSoldBlip(i)
-        else
-            addBlip(i)
+    Citizen.CreateThread(function()
+        for i, v in pairs(houses) do
+            if not v.owner then
+                addVacantBlip(i)
+            elseif v.owner ~= id then
+                addSoldBlip(i)
+            else
+                addBlip(i)
+            end
         end
-    end
+        Citizen.Wait(10)
+    end)
 end)
 
 RegisterNetEvent('yp_housing:hideVacantHouses')
@@ -425,11 +521,16 @@ Citizen.CreateThread(function(source, args)
             local houseData = houseInteriors[currentHouse.model]
             local pos = GetEntityCoords(GetPlayerPed(-1))
             local inv = {}
-            inv.x, inv.y, inv.z = table.unpack(GetEntityCoords(model))
-            if Vdist(pos.x, pos.y, pos.z, inv.x + houseData.inv.xoff, inv.y + houseData.inv.yoff, inv.z + houseData.inv.zoff) < 1 then
+            x, y, z = table.unpack(GetEntityCoords(model))
+            if Vdist(pos.x, pos.y, pos.z, x + houseData.inv.xoff, y + houseData.inv.yoff, z + houseData.inv.zoff) < 1 then
                 exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to Open Storage')
                 if IsControlJustPressed(0, 51) then
                     openHouseInvMenu()
+                end
+            elseif Vdist(pos.x, pos.y, pos.z, x + houseData.closet.xoff, y + houseData.closet.yoff, z + houseData.closet.zoff) < 1 then
+                exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to open closet')
+                if IsControlJustPressed(0, 51) then
+                    openHouseCloset(houseId)
                 end
             end
         end
@@ -445,6 +546,7 @@ if DEBUG then
         newHouse['@model'] = tonumber(args[1])
         newHouse['@price'] = tonumber(args[2])
         newHouse['@locked'] = true
+        newHouse['@code'] = 1310
         newHouse['@inv'] = json.encode({})
     end)
 
