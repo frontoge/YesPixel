@@ -174,7 +174,13 @@ AddEventHandler('putInVehicle', function()
 		local vehicle = GetClosestVehicle(coords, 5.0, 0, 71)
 
 		if DoesEntityExist(vehicle) then
-      SetPedIntoVehicle(playerPed, vehicle, -2)
+      for i = 2, 0, -1 do
+        
+        if not IsVehicleSeatFree(i) then
+          SetPedIntoVehicle(playerPed, vehicle, i)
+          return
+        end
+      end
 		end
 	end
 end)
