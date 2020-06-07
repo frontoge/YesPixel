@@ -51,7 +51,7 @@ function goInside(pos, door, load)
             model = GetClosestObjectOfType(pos.x, pos.y, pos.z - houseData.down, 10.0, GetHashKey(houseData.name))
         end
         FreezeEntityPosition(model, true)
-        SetEntityCoords(GetPlayerPed(-1), pos.x + houseData[door].xoff, pos.y + houseData[door].yoff, pos.z - houseData.down + 1)
+        SetEntityCoords(GetPlayerPed(-1), pos.x + houseData[door].xoff, pos.y + houseData[door].yoff, pos.z - houseData.down + houseData[door].zoff)
         SetEntityHeading(model, 100.0)
         SetEntityHeading(GetPlayerPed(-1), 100.0)
         inside = true
@@ -584,9 +584,5 @@ if DEBUG then
             TriggerServerEvent('finishHouse', newHouse)
         end
     end)
-
-    RegisterNetEvent('addPlayer')
-    AddEventHandler('addPlayer', function(player)
-        PlayerData = player
-    end)
+    
 end

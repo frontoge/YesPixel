@@ -11,7 +11,6 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 ---*********---
 
-
 --Init
 AddEventHandler('onMySQLReady', function()
     MySQL.Async.fetchAll('SELECT * FROM houses', {}, function(results)
@@ -37,7 +36,7 @@ end)
 RegisterServerEvent('yp_housing:requestHouseData')
 AddEventHandler('yp_housing:requestHouseData', function()
     while not ESX do
-
+        
     end
     local xPlayer = ESX.GetPlayerFromId(source)
     TriggerClientEvent('yp_housing:receiveHouseData', source, houses, xPlayer.getIdentifier())
@@ -173,7 +172,7 @@ AddEventHandler('yp_housing:sellHouse', function(target, houseId)
     if xPlayer.job.name == 'realtor' then
         local targetPlayer = ESX.GetPlayerFromId(target) --Get target player
         local amount = houses[houseId].price
-        TriggerClientEvent('yp_housing:sendHouseBill', source, target, amount * 0.95)
+        TriggerClientEvent('yp_housing:sendHouseBill', source, target, amount)
         xPlayer.addAccountMoney('bank', amount * 0.05)
         houses[houseId].owner = targetPlayer.getIdentifier() --Set house owner
         TriggerClientEvent('yp_housing:getHouse', target, houseId)
