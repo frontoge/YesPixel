@@ -1,9 +1,3 @@
---[[ Copyright (C) Matthew Widenhouse - All Rights Reserved
- * Unauthorized copying of this file, without written consent from the owner, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
-]]--
-
 local YPlayer = nil
 local lawbook = {}
 
@@ -22,8 +16,10 @@ end)
 RegisterNetEvent('yp_cad:storeLawbook')
 AddEventHandler('yp_cad:storeLawbook', function(laws)
 	lawbook = laws
-	print(laws)
-	print(lawbook)
+	SendNUIMessage({
+		type = 'laws',
+		laws = lawbook,
+	})
 end)
 
 RegisterNetEvent('yp_cad:getPlayerInfo')
@@ -47,11 +43,7 @@ function enableUI(enable, job, name)
 		job = job,
 		name = name
 	})
-	SendNUIMessage({
-		type = 'laws',
-		laws = lawbook,
-		size = #lawbook
-	})
+	
 end
 
 --NUI callbacks
@@ -61,22 +53,12 @@ RegisterNUICallback('exit', function(data, cb)
 	cb('ok')
 end)
 
---[[RegisterNUICallback('getLaws', function(data, cb)
-	SendNUIMessage({
-		type = 'laws',
-		laws = lawbook,
-		size = #lawbook
-	})
-	cb('ok')
-end)]]
-
 RegisterNUICallback('searchRecords', function(data, cb)	
 	TriggerServerEvent('yp_cad:findPlayerInfo', data.name, data.type)
 	cb('ok')
 end)
 
 RegisterNUICallback('fileReport', function(data, cb)
-	print('report filed')
 	TriggerServerEvent('yp_cad:updateRecords', data.target, data.charges)
 	cb('ok')
 end)

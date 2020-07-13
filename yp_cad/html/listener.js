@@ -51,11 +51,11 @@ $(function() {
 		if (job != 'police') {
 			$('#warrants_button').hide();
 			$('#bolos_button').hide();
-			$('#reports_button').hide();
+			$('#citation_button').hide();
 		}else {
 			$('#warrants_button').show();
 			$('#bolos_button').show();
-			$('#reports_button').show();
+			$('#citation_button').show();
 		}
 		$('#nav').fadeIn(500);
 
@@ -98,17 +98,19 @@ $(function() {
 		$(reportPage).show();
 		chargeList.empty();
 		
+		const keys = Object.keys(lawbook);
 		if (reportPage == '#reports_traffic_head') {
-			for (let i = 0; i < lawbook['length']; i++) {
-				if (lawbook[i]['code'][0] == '1') {
-					chargeList.append(loadLaw(i))//.attr('id', 'charge' + toString(i));
+			for (const key of keys) {
+
+				if (lawbook[key]['code'][0] == '1') {
+					chargeList.append(loadLaw(key))//.attr('id', 'charge' + toString(i));
 				}
 			}
 		}
 		else {
-			for (let i = 0; i < lawbook['length']; i++) {
-				if (lawbook[i]['code'][0] != '1') {
-					chargeList.append(loadLaw(i))//.attr('id', 'charge' + toString(i));
+			for (const key of keys) {
+				if (lawbook[key]['code'][0] != '1') {
+					chargeList.append(loadLaw(key))//.attr('id', 'charge' + toString(i));
 				}
 			}
 		}
@@ -185,32 +187,37 @@ $(function() {
 
 	function displayRecords(data, type) {
 		var felon = data['felon'] ? 'Yes' : 'No';
-		var record = undefined;
-		if (data['record'] != undefined) {
-			record = JSON.parse(data['record']);
-		}
+		var record = data['record'];
+		$('#pr_r_dmv').css('color', '#c9a211');//Display the DMV points in default color
+		
+
 		if (type == 'public') {
 			//load at public records page
 			$('#pr_r_record_list').empty();
 			$('#pr_r_name').html('Name: ' + data['firstname'] + ' ' + data['lastname']);
 			$('#pr_r_dob').html('DOB: ' + data['dateofbirth']);
 			$('#pr_r_sex').html('Sex: ' + data['sex']);
-			$('#pr_r_dmv').html('DMV points: ' + data['dmv']);
+			if (data['points']) {
+				$('#pr_r_dmv').html('DMV points: ' + data['points']);
+				if (data['points'] >= 18) {
+					$('#pr_r_dmv').css('color', 'rgb(177, 6, 6)');
+				}
+				else if(data['points'] >= 12) {
+					$('#pr_r_dmv').css('color', 'rgb(177, 177, 6)');
+				}
+			}
+			else {
+				$('#pr_r_dmv').html('DMV points: ' + '0');
+			}
 			$('#pr_r_felon').html('Felon: ' + felon);
 
 			if (record != undefined){
 				const keys = Object.keys(record);
 				for (const key of keys) {
-					if (record[key] != 0) {
-						for (var i = 0; i < lawbook['length']; i++) {
-							if (lawbook[i]['code'] == key) {
-								$('#pr_r_record_list').append("<li class='pr_r_record_item'><p class='pr_r_record_item_label'>" + lawbook[i]['name'] + ' x' + record[key] + "</p></li>");
-							}
-						}
-					}
+					$('#pr_r_record_list').append("<li class='pr_r_record_item'><p class='pr_r_record_item_label'>" + record[key] + "</p></li>");
 				}
 			} else {
-				$('#pr_r_record_list').append("<li class='pr_r_record_item'><p class='pr_r_record_item_label'>" + lawbook[i]['name'] + ' x' + record[key] + "</p></li>");
+				$('#pr_r_record_list').append("<li class='pr_r_record_item'><p class='pr_r_record_item_label'>" + record[key] + "</p></li>");
 			}
 
 		}else if (type == 'arrest') {
@@ -218,7 +225,12 @@ $(function() {
 			$('#reports_r_name').html('Name: ' + data['firstname'] + ' ' + data['lastname']);
 			$('#reports_r_dob').html('DOB: ' + data['dateofbirth']);
 			$('#reports_r_sex').html('Sex: ' + data['sex']);
-			$('#reports_r_dmv').html('DMV points: ' + data['dmv']);
+			if (data['points']) {
+				$('#pr_r_dmv').html('DMV points: ' + data['points']);
+			}
+			else {
+				$('#pr_r_dmv').html('DMV points: ' + '0');
+			}
 			$('#reports_r_felon').html('Felon: ' + felon);
 			target = data['identifier'];
 		}
@@ -285,11 +297,11 @@ $(function() {
 
 	function goBolos() {}
 
-	function goReports() {
+	function goCitations() {
 		if (!lawbook) {
 			$.post("http://yp_cad/getLaws", JSON.stringify({}));
 		}
-		swapPage('#reports_page');
+		swapPage('#citations_page');
 	}
 
 	/*
@@ -308,7 +320,6 @@ $(function() {
 			}
 		}else if(item.type == 'laws'){
 			lawbook = item.laws;
-			lawbook['length'] = item.size;
 			reportsTab = '#reports_arrest_head';
 			setReports('#reports_arrest_head');
 		}else if(item.type == 'records') {
@@ -335,7 +346,7 @@ $(function() {
 	document.getElementById('records_button').addEventListener('click', goRecords);
 	document.getElementById('warrants_button').addEventListener('click', goWarrants);
 	document.getElementById('bolos_button').addEventListener('click', goBolos);
-	document.getElementById('reports_button').addEventListener('click', goReports);
+	document.getElementById('citation_button').addEventListener('click', goCitations);
 
 	//Public Record Page listeners
 	document.getElementById('pr_searchbutton').addEventListener('click', function(){

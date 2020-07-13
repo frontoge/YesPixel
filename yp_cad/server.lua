@@ -54,6 +54,31 @@ function initRecord(identifier)
     MySQL.Async.execute('INSERT INTO user_crimes (identifier, record, felon, dmvpoints) VALUES(@id, @lawbook, 0, 0)', {['@id'] = identifier, ['@lawbook'] = json.encode(record)},function() end)
 end
 
+function validPoints(dateStr)
+    local oldDate = {} --Convert to table 
+    oldDate.day = string.sub(dateStr, 1, string.find(dateStr, '/')-1) --Get the date
+    oldDate.month = tonumber(string.sub(dateStr, #oldDate.day+2, string.find(dateStr, '/', #oldDate.day+2)-1)) --find the month
+    oldDate.year = tonumber(string.sub(dateStr, -4))
+    oldDate.day = tonumber(oldDate.day)
+
+    --Calculate the number of days past
+    local time = os.time()
+    local oldTime = os.time{year = oldDate.year, month = oldDate.month, day = oldDate.day}
+
+    if time - oldTime >= 1209600 then --If this charge was more than 14 days old ignore it
+        return false 
+    end
+    return true
+end
+
+function getChargeFromCode(code)
+    for i, v in pairs(lawbook) do
+        if code == v.code then
+            return v
+        end
+    end
+end
+
 AddEventHandler('onMySQLReady', function()
     MySQL.Async.fetchAll('SELECT * FROM lawbook', {}, 
     function(results)
@@ -63,7 +88,6 @@ end)
 
 RegisterServerEvent('yp_cad:getLawbook')
 AddEventHandler('yp_cad:getLawbook', function()
-    print(lawbook)
     TriggerClientEvent('yp_cad:storeLawbook', source, lawbook)
     local identifiers = GetPlayerIdentifiers(source)
     local steam
@@ -116,18 +140,28 @@ AddEventHandler('yp_cad:findPlayerInfo', function(name, type)
     local count = 0
 
     for i, v in ipairs(players) do
-        MySQL.Async.fetchAll('SELECT record, felon, dmvpoints FROM user_crimes WHERE identifier = @id', {['@id'] = v.identifier},
+        players[i].record = {}
+        players[i].points = 0
+        players[i].felon = false
+
+        MySQL.Async.fetchAll('SELECT charge, points, felony, date FROM criminal_records WHERE owner = @id', {['@id'] = v.identifier}, --Get the record of each player
             function(results)
-                if results[1] then
-                    players[i].dmv = results[1].dmvpoints
-                    players[i].record = results[1].record
-                    players[i].felon = results[1].felon
+                if results[1] then --If the user has a record
+                    for index, value in ipairs(results) do
+                        if validPoints(value.date) then
+                            players[i].points = players[i].points + value.points--Add the points for this charge
+                        end
+                        if not players[i].felon and value.felony == 1 then
+                            players[i].felon = true
+                        end
+                        table.insert(players[i].record, value.charge .. ' ' .. value.date) --Get the charge/Date
+                    end
                 end
                 count = count + 1
             end)
     end
 
-    while count < #players do
+    while count < #players do --Wait for the SQL callbacks to finish
         Wait(0)
     end
 
@@ -136,30 +170,30 @@ end)
 
 RegisterServerEvent('yp_cad:updateRecords')
 AddEventHandler('yp_cad:updateRecords', function(id, data)
-    local charges = json.decode(data)
-    local record = {}
-    local fetching = true
-    MySQL.Async.fetchAll('SELECT record FROM user_crimes WHERE identifier = @id', {['@id'] = id},
-        function(results)
-            record = json.decode(results[1].record)
-            --print(results[1].record)
-            fetching = false
-        end)
+    local chargeList = {}
+    local chargesRaw = json.decode(data)
+    for i, v in pairs(chargesRaw) do --For each charge
+        if v > 0 then --If this charge was acutally filed
+            --Format the charge for storage
+            local charge = getChargeFromCode(i)--Get the charge info from the lawbook
+            local date = os.date('*t') --Get the current date of the charge
+            local values = {}
+            values['@owner'] = id --Store values in a table for SQL statement
+            values['@charge'] = charge.name
+            values['@points'] = charge.points
+            if string.sub(i, 1, 1) == '4' or string.sub(i, 1, 1) == '5' then
+                values['@felony'] = 1
+            else
+                values['@felony'] = 0
+            end
 
-    while fetching do
-        Wait(0)
-    end
+            values['@date'] = date.day .. '/' .. date.month .. '/' .. date.year
 
-    for i, v in pairs(record) do
-        if (charges[i]) then
-            print(i .. ' ' .. v .. ' + ' .. charges[i])
-            record[i] = v + charges[i]
+            for count = 1, v, 1 do
+                MySQL.Async.execute('INSERT INTO criminal_records (owner, charge, points, felony, date) VALUES(@owner, @charge, @points, @felony, @date)', values, function()end)
+            end
         end
     end
-
-    --print(json.encode(record))
-
-    MySQL.Async.execute('UPDATE user_crimes SET record = @rec WHERE identifier = @id', {['@rec'] = json.encode(record), ['@id'] = id}, function()end)
 
 end)
 
@@ -167,5 +201,33 @@ RegisterCommand('getlaw', function(source, args)
     MySQL.Async.fetchAll('SELECT * FROM lawbook', {}, 
     function(results)
         lawbook = results
+        --[[for i, v in ipairs(results) do
+            lawbook[v.code] = v
+        end]]--
+    end)
+end)
+
+RegisterCommand('convert', function(source, args)
+    MySQL.Async.fetchAll('SELECT * FROM user_crimes', {}, function(results)
+        for i, v in ipairs(results) do
+            local record = json.decode(v.record)
+            for index, value in pairs(record) do
+                if value > 0 then
+                    values = {}
+                    values['@owner'] = v.identifier
+                    values['@charge'] = lawbook[index].name
+                    values['@points'] = lawbook[index].points
+                    if string.sub(index, 1, 1) == '4' or string.sub(index, 1, 1) == '5' then
+                        values['@felony'] = 1
+                    else
+                        values['@felony'] = 0
+                    end
+
+                    local date = os.date('*t')
+                    values['@date'] = date.day .. '/' .. date.month .. '/' .. date.year
+                    MySQL.Async.execute('INSERT INTO criminal_records (owner, charge, points, felony, date) VALUES(@owner, @charge, @points, @felony, @date)', values, function()end)
+                end
+            end
+        end
     end)
 end)
