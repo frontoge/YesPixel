@@ -74,6 +74,7 @@ AddEventHandler('yp_swedbank:startLockpick', function(doorNum)
 		if not onCooldown then
 			if exports['yp_police']:getNumCops() >= copsMin then
 				TriggerClientEvent('yp_swedbank:lockpick', src, doorNum)
+				xPlayer.removeInventoryItem('blackcard', 1)
 				if not beingRobbed then
 					beingRobbed = true
 					TriggerEvent('yp_swedbank:tripAlarm')

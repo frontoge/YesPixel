@@ -55,19 +55,21 @@ end
 function canRob(src, bankNum, time)
 	local user = ESX.GetPlayerFromId(src)
 	local hasCard = false
+	local item = ''
 	if Banks[bankNum].name ~= 'Blaine County Savings' then
 		if time >= 7 and time < 10 then
-			hasCard = user.getInventoryItem('bluecard').count > 0
+			item = 'bluecard'
 		elseif time >= 12 and time < 15 then
-			hasCard = user.getInventoryItem('redcard').count > 0
+			item = 'redcard'
 		elseif time >= 16 and time < 19 then
-			hasCard = user.getInventoryItem('purplecard').count > 0
+			item = 'purplecard'
 		end
 	else
-		hasCard = user.getInventoryItem('goldcard').count > 0
+		item = 'goldcard'
 	end
 
-	if exports['yp_police']:getNumCops() >= CopsMin and robberyCount == 0 and hasCard then
+	if exports['yp_police']:getNumCops() >= CopsMin and robberyCount == 0 and user.getInventoryItem(item).count > 0 then
+		user.removeInventoryItem(item, 1)
 		robberyCount = 1
 		return true
 	else
