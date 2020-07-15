@@ -13,13 +13,7 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 function enoughCops()
 	local players = ESX.GetPlayers()
-	local count = 0
-	for i = 1, #players, 1 do
-		local xPlayer = ESX.GetPlayerFromId(players[i])
-		if xPlayer.job.name == 'police' then
-			count = count + 1
-		end
-	end
+	local count = exports['yp_police']:getNumCops()
 	if count > minCops and not robberies then
 		robberies = true
 		return true
