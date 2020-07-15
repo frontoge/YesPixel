@@ -82,6 +82,7 @@ function modelVehicle(vehicle, list, plate)--Called when spawning vehicle
 	DecorSetFloat(vehicle, "_FUEL_LEVEL", GetVehicleFuelLevel(vehicle))
 	SetVehicleExtraColours(vehicle, list.pearlescent, list.wheelColor)
 	SetVehicleNumberPlateTextIndex(vehicle, list.plateType)
+	SetVehicleTyreSmokeColor(vehicle, list.tireSmoke.r, list.tireSmoke.g, list.tireSmoke.b)
 
 	--Add Mods DO NOT PUT ANYTHING BELOW THIS
 	SetVehicleModKit(vehicle, 0)
@@ -115,6 +116,9 @@ function getVehicleData(vehicle)--Called when storing vehicle, gets all the vehi
 	data['fuelLevel'] = GetVehicleFuelLevel(vehicle)
 	data['pearlescent'], data['wheelColor'] = GetVehicleExtraColours(vehicle)
 	data['plateType'] = GetVehicleNumberPlateTextIndex(vehicle)
+	data['tireSmoke'] = {}
+	data['tireSmoke'].r, data['tireSmoke'].g, data['tireSmoke'].b = GetVehicleTyreSmokeColor(vehicle)
+
 
 
 	for i = 0, #vehMods-2, 1 do
@@ -246,7 +250,9 @@ AddEventHandler('yp_garage:openInsureMenu', function(data, garageName)
 								end,
 								function(data3, menu3)
 
-								end)
+								end)	
+						elseif action.value == 'impound' then
+							exports['mythic_notify']:DoHudText('error', 'Your car is in the impound. You must get it from there.', 4000)
 						else
 							if action.value ~= garageName then
 								ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'moveveh',{

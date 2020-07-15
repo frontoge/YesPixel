@@ -94,7 +94,11 @@ AddEventHandler('yp_garage:getAllVehicles', function(garageName)
 
 					--Format garage name
 					local garage = results[i].garage_name
-					garage = string.sub(garage, 1, string.find(garage, 'garage')-2)
+					local startname = string.find(garage, 'garage')
+					if startname then
+						garage = string.sub(garage, 1, startname-2)
+					end
+					
 					--[[
 					Make garage name look prettier later.
 					for v = 1, #garage, 1 do
