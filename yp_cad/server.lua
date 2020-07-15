@@ -1,9 +1,3 @@
---[[ Copyright (C) Matthew Widenhouse - All Rights Reserved
- * Unauthorized copying of this file, without written consent from the owner, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
-]]--
-
 local lawbook = {}
 
 function calcDistance(str1, str2)
@@ -196,6 +190,42 @@ AddEventHandler('yp_cad:updateRecords', function(id, data)
     end
 
 end)
+
+RegisterServerEvent('yp_cad:addWarrant')
+AddEventHandler('yp_cad:addWarrant', function(data)
+    local date = os.date('*t')
+    local values = {}
+    values ['@type'] = data.type
+    values['@target'] = data.target
+    values['@officer'] = data.officer
+    values['@badgenum'] = data.badge
+    values['@charges'] = data.charges
+    values['@lastloc'] = data.location 
+    values['@description'] = data.description
+    values['@approval'] = 'UNAPPROVED'
+    values['@date'] = date.month .. '/' .. date.day .. '/' .. date.year
+    MySQL.Async.execute('INSERT INTO warrants (type, target, officer, badgenum, charges, lastloc, approvedby, description, date) VALUES(@type, @target, @officer, @badgenum, @charges, @lastloc, @approval, @description, @date)', values,function(r)end)
+end)
+
+RegisterServerEvent('yp_cad:fetchWarrants')
+AddEventHandler('yp_cad:fetchWarrants', function(param)
+    local src = source
+    MySQL.Async.fetchAll('SELECT * FROM warrants', {}, function(results)
+        if param then
+            local newResults = {}
+            for i, v in ipairs(results) do
+                if calcDistance(param, v.target)/#param <=0.2 then
+                    table.insert(newResults, v)
+                end
+            end
+            TriggerClientEvent('yp_cad:getWarrants', src, newResults)
+        else
+            TriggerClientEvent('yp_cad:getWarrants', src, results)
+        end
+    end)
+end)
+
+--Dev stuff only below this point
 
 RegisterCommand('getlaw', function(source, args)
     MySQL.Async.fetchAll('SELECT * FROM lawbook', {}, 

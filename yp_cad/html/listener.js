@@ -11,8 +11,7 @@ $(function() {
 
 	//Game Data
 	var lawbook;
-	var trafficLaws;
-	var criminalLaws;
+	var warrants;
 	var job;
 
 	var suggestions;
@@ -48,7 +47,7 @@ $(function() {
 		logedin = true;
 		$('#login_page').hide();
 
-		if (job != 'police') {
+		if (job != 'police' && job != 'doj') {
 			$('#warrants_button').hide();
 			$('#bolos_button').hide();
 			$('#citation_button').hide();
@@ -56,6 +55,11 @@ $(function() {
 			$('#warrants_button').show();
 			$('#bolos_button').show();
 			$('#citation_button').show();
+
+			if (job != 'judge') {
+				$('#approveWarrant').hide();
+				$('#denyWarrant').hide();
+			}
 		}
 		$('#nav').fadeIn(500);
 
@@ -293,15 +297,46 @@ $(function() {
 		swapPage('#public_page');
 	}
 
-	function goWarrants() {}
+	function goWarrants() {
+		$.post('http://yp_cad/requestWarrants', JSON.stringify({}));
+		swapPage('#warrants_page');
+	}
 
-	function goBolos() {}
+	function goBolos() {
+		swapPage('#bolos_page');
+	}
 
 	function goCitations() {
 		if (!lawbook) {
 			$.post("http://yp_cad/getLaws", JSON.stringify({}));
 		}
 		swapPage('#citations_page');
+	}
+
+/************************
+ * Warrant Page Functions
+ ************************/
+
+	function clearWarrant() {
+		$('#arrestBox').val('');
+		$('#searchBox').val('');
+		$('#targetName').val('');
+		$('#officer').val('');
+		$('#badge').val('');
+		$('#chargesInput').val('');
+		$('#location').val('');
+		$('#description').val('');
+
+		$('#searchBox').prop('checked', false);
+		$('#arrestBox').prop('checked', false);
+	}
+
+	function loadWarrants() {
+		const keys = Object.keys(warrants);
+		for (const key of keys) {
+			console.log('<li><b>#' + warrants[key]['id'] + '</b> ' + warrants[key]['target'] + ', ' + warrants[key]['date'] + '</li>');
+			$('#warrantList').append('<li><b>#' + warrants[key]['id'] + '</b> ' + warrants[key]['target'] + ', ' + warrants[key]['date'] + '</li>');
+		}
 	}
 
 	/*
@@ -325,6 +360,9 @@ $(function() {
 		}else if(item.type == 'records') {
 			displaySuggestions(item.results, item.category);
 			//displayRecords(item.results, item.category);
+		}else if (item.type == 'warrants') {
+			warrants = item.results;
+			loadWarrants();
 		}
 	});
 
@@ -367,7 +405,48 @@ $(function() {
 
 	$('#reports_submit').on('click', submitReport);
 
-	
+	//Warrants Page Listeners
+	//Go to warrant editor
+	$('#startNewWarrant').on('click', function() {
+		$('#warrantViewer').hide();
+		$('#activeWarrants').hide();
+		$('#warrantEditor').show();
+	});
 
+	//Listen for a complete form
+	$('#warrantForm > div > input, #warrantForm > div > textarea').on('input', function(){
+		var finished = ($("#typeSelection > #arrestBox").is(':checked') || $("#typeSelection > #searchBox").is(':checked')) && $('#targetName').val() && $('#officer').val() && $("#badge").val() && $("#chargesInput").val() && $("#location").val() && $("#description").val();
+		if (finished) {
+			$('#warrantForm > #finish').attr('disabled', false);
+		}
+		else {
+			$('#warrantForm > #finish').attr('disabled', true);
+		}
 
+	});
+
+	//Go back to warrant browser
+	$('#warrantForm > #back').on('click', function() {
+		$('#warrantViewer').show();
+		$('#activeWarrants').show();
+		$('#warrantEditor').hide();
+	});
+
+	//Clear the current warrant
+	$('#warrantForm > #clear').on('click', clearWarrant);
+
+	//Submit the warrant in the warrant editor
+	$('#warrantForm > #finish').on('click', function(){
+		var type = $("#typeSelection > #arrestBox").is(':checked') ? "Arrest" : "Search";
+		$.post('http://yp_cad/createWarrant', JSON.stringify({
+			type: type, 
+			target: $("#targetName").val(),
+			officer: $("#officer").val(),
+			badge: $('#badge').val(),
+			charges: $('#chargesInput').val(),
+			location: $('#location').val(),
+			description: $('#description').val()
+		}));
+		clearWarrant();
+	});
 });

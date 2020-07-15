@@ -18,6 +18,11 @@ ul {
 	list-style: none;
 }
 
+textarea {
+	resize: none;
+	background: #FFFFFF58;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -70,7 +75,7 @@ ul {
 #container {
 	display: none;
 	position: absolute;
-	border-radius: 5%;
+	border-radius: 0.5%;
 	border-color: #000000;
 	margin: 0;
 	padding: 0;
@@ -553,3 +558,171 @@ Start Public Records*/
 .reports_results_r_item:hover {
 	background-color: rgba(245, 12, 12, 0.267);
 }
+
+/*Warrants Page */
+#warrants_page {
+	display: none;
+}
+
+#warrantLabel {
+	text-align: center;
+	color: #c9a211;
+	font-size: 22pt;
+	font-weight: bold;
+}
+
+#activeWarrants {
+	display: block;
+    position: absolute;
+    left: 5%;
+    bottom: 5%;
+    height: 70%;
+    width: 35%;
+}
+
+#warrantList {
+	position: relative;
+	height: 80%;
+	padding-left: 20px;
+	padding-right: 0;
+	overflow-x: none;
+	overflow-y: auto;
+}
+
+#warrantListLabel, #warrantViewerLabel, #createWarrantLabel {
+	color: #c9a211;
+	text-align: center;
+	font-size: 18pt;
+}
+
+#warrantSearch {
+	margin-left: 20px;
+	font-size: 14pt;
+	border-right: none;
+}
+
+#searchWarrantButton {
+	font-size: 14pt;
+}
+
+#warrantList > li {
+	color: #c9a211;
+	font-size: 14pt;
+	margin-bottom: 2px;
+}
+
+#warrantList > li:hover {
+	background: rgba(255, 255, 255, 0.267);
+	padding-left: 20px;
+}
+
+#startNewWarrant {
+    position: relative;
+    left: 40%;
+    width: 20%;
+    height: 5%;
+    font-size: 12pt;
+	margin: auto;
+	font-weight: bold;
+}
+
+#warrantViewer {
+	display: block;
+	position: absolute;
+	right: 5%;
+	width: 50%;
+	bottom: 5%;
+	height: 70%;
+	padding-left: 20px;
+	padding-right: 0;
+	color: #c9a211;
+}
+
+#warrantViewer > p {
+	font-size: 14pt;
+}
+
+#warrantId {
+	font-weight: bold;
+	font-size: 16pt;
+}
+
+#closeWarrant, #approveWarrant, #denyWarrant {
+	position: absolute;
+	font-size: 13pt;
+    height: 7%;
+    width: 20%;
+    font-weight: bold;
+    bottom: 5%;
+}
+
+#closeWarrant {
+	position: absolute;
+	right: 5%;
+}
+
+#approveWarrant {
+	left: 5%;
+}
+
+#denyWarrant {
+	left: 30%;
+}
+
+#warrantEditor {
+	display: none;
+	position: absolute;
+	width: 40%;
+	left: 30%;
+	bottom: 5%;
+	height: 70%;
+	color: #c9a211;
+	padding-left: 20px;
+}
+
+#warrantForm > div {
+	margin-bottom: 5px;
+}
+
+#warrantForm > div > label {
+	font-weight: bold;
+	font-size: 14pt;
+}
+
+#warrantForm > div > textarea {
+	font-size: 14pt;
+}
+
+.lineinput {
+	background: none;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid #c9a211;
+	outline: none;
+	color: #c9a211;
+	font-size: 14pt;
+}
+
+#warrantForm > button {
+	font-size: 12pt;
+    position: absolute;
+    width: 20%;
+    height: 5%;
+    font-weight: bold;
+	bottom: 15%;
+}
+
+#warrantForm > #back {
+	left: 30%;
+}
+
+#warrantForm > #clear {
+	left: 55%;
+}
+
+/*Bolos Page */
+#bolos_page {
+	display: none;
+}
+

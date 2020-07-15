@@ -31,6 +31,15 @@ AddEventHandler('yp_cad:getPlayerInfo', function(data, type)
 	})
 end)
 
+RegisterNetEvent('yp_cad:getWarrants')
+AddEventHandler('yp_cad:getWarrants', function(warrantList)
+	print(#warrantList)
+	SendNUIMessage({
+		type = 'warrants',
+		results = warrantList
+	})
+end)
+
 local uiEnabled = false
 
 --UI Functions
@@ -60,6 +69,19 @@ end)
 
 RegisterNUICallback('fileReport', function(data, cb)
 	TriggerServerEvent('yp_cad:updateRecords', data.target, data.charges)
+	cb('ok')
+end)
+
+
+--Warrant Callbacks
+RegisterNUICallback('createWarrant', function(data, cb)
+	print('created a warrant')
+	TriggerServerEvent('yp_cad:addWarrant', data)
+	cb('ok')
+end)
+
+RegisterNUICallback('requestWarrants', function(data, cb)
+	TriggerServerEvent('yp_cad:fetchWarrants', nil)
 	cb('ok')
 end)
 
