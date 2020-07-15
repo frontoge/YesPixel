@@ -1,23 +1,3 @@
-Citizen.CreateThread(function()
-    while true do
-        for ped in EnumeratePeds() do
-            if DoesEntityExist(ped) then
-				for i,model in pairs(cfg.noguns) do
-					if (GetEntityModel(ped) == GetHashKey(model)) then
-						RemoveAllPedWeapons(ped, true)
-					end
-				end
-				for i,model in pairs(cfg.nodrops) do
-					if (GetEntityModel(ped) == GetHashKey(model)) then
-						SetPedDropsWeaponsWhenDead(ped,false) 
-					end
-				end
-			end
-		end
-		Citizen.Wait(1000) 
-    end
-end)
-
 Citizen.CreateThread(function() 
     while true do
     	SetCreateRandomCops(false)
@@ -26,12 +6,18 @@ Citizen.CreateThread(function()
 		RemoveAllPickupsOfType(GetHashKey('PICKUP_WEAPON_PISTOL'))
 		RemoveAllPickupsOfType(GetHashKey('PICKUP_WEAPON_PUMPSHOTGUN'))
 		RemoveAllPickupsOfType(GetHashKey('PICKUP_WEAPON_COMBATPISTOL'))
-		--Limit Number of Peds
-        SetPedDensityMultiplierThisFrame(cfg.density.peds)
-        SetScenarioPedDensityMultiplierThisFrame(cfg.density.peds, cfg.density.peds)
-        SetVehicleDensityMultiplierThisFrame(cfg.density.vehicles)
-        SetRandomVehicleDensityMultiplierThisFrame(cfg.density.vehicles)
-        SetParkedVehicleDensityMultiplierThisFrame(cfg.density.vehicles)
+
+		--Limit Number of Peds	
+        SetParkedVehicleDensityMultiplierThisFrame(0.1)
+        SetVehicleDensityMultiplierThisFrame(0.3)
+        SetRandomVehicleDensityMultiplierThisFrame(0.3)
+        SetPedDensityMultiplierThisFrame(0.5)
+		SetScenarioPedDensityMultiplierThisFrame(0.1, 0.1)
+		
+		for i, v in ipairs(NoSpawn) do
+			SetPedModelIsSuppressed(v, true)
+		end
+
         --Prevent Vehicles from dropping Weapons
         DisablePlayerVehicleRewards(PlayerId())
         --Prevent Dispatched NPC's
