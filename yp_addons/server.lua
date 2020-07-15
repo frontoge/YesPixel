@@ -24,6 +24,7 @@ end)
 
 RegisterServerEvent('yp_addons:send911Info')
 AddEventHandler('yp_addons:send911Info', function(pos, args)
+	local src = source
 	local xPlayer = ESX.GetPlayerFromId(source)
 	MySQL.Async.fetchAll('SELECT firstname, lastname FROM users WHERE identifier = @identifier', {--Get Data to be displayed on ID
 			['@identifier'] = xPlayer.identifier }, function(result)
@@ -32,11 +33,10 @@ AddEventHandler('yp_addons:send911Info', function(pos, args)
 			for i, v in ipairs(xPlayers) do
 				local xPlayer = ESX.GetPlayerFromId(v)
 				if xPlayer.job.name == 'police' or xPlayer.job.name == 'ems' then
-					TriggerClientEvent('yp_addons:create911Blip', v, name, pos, args)
+					TriggerClientEvent('yp_addons:create911Blip', v, name, src, pos, args)
 				end
 			end
-          
-          TriggerClientEvent('yp_police:viewId', src, data)--Send Data Back to client for display
+        
       end)
 	
 end)
@@ -76,8 +76,21 @@ ESX.RegisterUsableItem('cigpack', function(source)
 	end
 end)
 
-RegisterCommand('911', function(source, args)
-	TriggerClientEvent('yp_addons:find911Blip', source, args)
+RegisterCommand('911r', function(source, args)
+	if not args[1] then return end
+
+	local xPlayer = ESX.GetPlayerFromId(source)
+	if xPlayer.job.name == 'ems' or xPlayer.job.name == 'police' or xPlayer.job.name == 'dispatch' then
+		TriggerClientEvent('chat:addMessage', args[1], {color = {255, 0, 0}, multiline = true, args = {"Dispatch: ", table.concat(args, ' ', 2)}})
+		local xPlayers = ESX.GetPlayers()
+		for i, v in pairs(xPlayers) do
+			local player = ESX.GetPlayerFromId(v)
+			if player.job.name == 'police' or player.job.name == 'ems' or player.job.name == 'dispatch' then
+				TriggerClientEvent('chat:addMessage', v, {color = {255, 0, 0}, multiline = true, args = {"Dispatch: (To " .. args[1] .. ")" , table.concat(args, ' ', 2)}})
+			end
+		end
+		
+	end
 end)
 
 ESX.RegisterUsableItem('arAmmo', function(source)
@@ -104,6 +117,24 @@ ESX.RegisterUsableItem('sgAmmo', function(source)
 	xPlayer.removeInventoryItem('sgAmmo', 1)
 end)
 
+ESX.RegisterUsableItem('breathalyzer', function(source)
+	TriggerClientEvent('yp_addons:giveBACTest', source)
+end)
+
+RegisterServerEvent('yp_addons:BAC:requestDrunk')
+AddEventHandler('yp_addons:BAC:requestDrunk', function(target)
+	TriggerClientEvent('yp_addons:BAC:getDrunk', target, source)
+end)
+
+RegisterServerEvent('yp_addons:BAC:sendDrunk')
+AddEventHandler('yp_addons:BAC:sendDrunk', function(target, value)
+	local BAC = 0.0
+	if value.val ~= 0 then BAC = 0.01 end
+	BAC = BAC + (0.4 / 1000000 * value.val)
+	BAC = math.floor(BAC * 1000)
+	BAC = BAC / 1000
+	TriggerClientEvent('mythic_notify:client:SendAlert', target, {type = 'inform', text = 'Their BAC is: ' .. BAC .. '%', length = 4000})
+end)
 
 
 
