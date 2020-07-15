@@ -15,6 +15,7 @@ local isCuffed = false
 local keys = {}
 local dragStatus = {}
 
+local blackListKeys = {}
 
 dragStatus.isDragged = false
 
@@ -35,6 +36,23 @@ end)
 AddEventHandler('esx:onPlayerDeath', function(data)
   isDead = true
 end)
+
+function isKeyBlacklisted(plate)
+  for i, v in ipairs(blackListKeys) do
+    if v == plate then return true end
+  end
+  return false
+end
+
+function playLockAnim(vehicle)
+  Citizen.CreateThread(function()
+    RequestAnimDict('anim@mp_player_intmenu@key_fob@')
+    while not HasAnimDictLoaded('anim@mp_player_intmenu@key_fob@') do 
+      Citizen.Wait(0)
+    end
+    TaskPlayAnim(GetPlayerPed(-1), 'anim@mp_player_intmenu@key_fob@', "fob_click_fp", 8.0, 8.0, -1, 48, 1, false, false, false)
+  end)
+end
 
 --Events
 RegisterNetEvent('showmyid')
@@ -95,7 +113,7 @@ AddEventHandler('yp_userinteraction:lockpickvehicle', function()
         exports['progressBars']:startUI(timer, "Stage " .. count + 1)
         Citizen.Wait(timer)
         count = count + 1
-        Citizen.Wait(100)
+        Citizen.Wait(300)
       end
       
       local chance = math.random(0, 100)
@@ -396,6 +414,7 @@ function OpenInteractionMenu()
             elseif action2 == 'uncuff' then
               local closestPlayer, distance = ESX.Game.GetClosestPlayer()
               if closestPlayer ~= -1 and distance <= 1 then
+                menu2.close()
                 TriggerServerEvent('uncuff', GetPlayerServerId(closestPlayer))
               else
                 exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')
@@ -445,9 +464,7 @@ function OpenInteractionMenu()
         ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_menu', {--Create Vehicle Interaction Menu
             title = 'Vehicles Menu',
             align = 'bottom-right',
-            elements = {{label = 'Grab Keys', value = 'grab_keys'},
-              {label = 'Lock Vehicle', value = 'lock_vehicle'},
-              {label = 'Unlock Vehicle', value = 'unlock_vehicle'},
+            elements = {
               {label = 'Lockpick Vehicle', value = 'lockpick'},
               {label = 'Open/Close Hood', value = 'open_hood'},
               {label = 'Open/Close Trunk', value = 'open_trunk'},
@@ -460,33 +477,20 @@ function OpenInteractionMenu()
             function (data2, menu2)
               local action2 = data2.current.value
               
-              if action2 == 'grab_keys' then
-                local keysfound = false
-                if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                  keysfound = checkForKeys(vehicle)
-                  if not keysfound then
-                    table.insert(keys, vehicle)
-                    exports['mythic_notify']:DoHudText('inform', 'You grabbed the keys')
-                  else
-                    exports['mythic_notify']:DoHudText('error', 'You already have the keys!')
-                  end
-                else
-                  exports['mythic_notify']:DoHudText('error', 'You are not in a Vehicle!')
-                end
-                  
-              elseif action2 == 'lock_vehicle' then--Lock Vehicle Option SetVehicleDoorsLockedForAllPlayers(vehicle, true)
+              if action2 == 'lock_vehicle' then--Lock Vehicle Option SetVehicleDoorsLockedForAllPlayers(vehicle, true)
                 local vehicle = ESX.Game.GetVehicleInDirection()
                 if IsPedInAnyVehicle(GetPlayerPed(-1)) then
                   vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
                   menu2.close()
                   SetVehicleDoorsLockedForAllPlayers(vehicle, true)
                   exports['mythic_notify']:DoHudText('inform', 'Doors Locked')
+                  playLockAnim()
                 elseif DoesEntityExist(vehicle) then
                   if checkForKeys(vehicle) then
                     menu2.close()
                     SetVehicleDoorsLockedForAllPlayers(vehicle, true)
                     exports['mythic_notify']:DoHudText('inform', 'Doors Locked')
+                    playLockAnim()
                   else
                     exports['mythic_notify']:DoHudText('error', 'No Keys!')
                   end
@@ -786,30 +790,49 @@ Citizen.CreateThread(function()
     if IsControlJustReleased(0, useKey) and not isDead and not isCuffed then
       OpenInteractionMenu()
     end
-    if IsControlJustReleased(0, 301) then
-      local vehicle = ESX.Game.GetVehicleInDirection()
+
+    if IsControlJustReleased(0, 301) then --If M is pressed
+      local vehicle = ESX.Game.GetClosestVehicle() --Get Vehicle
       if IsPedInAnyVehicle(GetPlayerPed(-1)) then
         vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-        if not checkForKeys(vehicle) then
-          table.insert(keys, vehicle)
-          exports['mythic_notify']:DoHudText('inform', 'You grabbed the keys')
-        else
-          if GetVehicleDoorsLockedForPlayer(vehicle, GetPlayerPed(-1)) then
+        local plate = GetVehicleNumberPlateText(vehicle)
+        if not exports['EngineToggle']:hasKey(plate) and not isKeyBlacklisted(plate) then -- If you dont have the keys and you havent already tried to grab them
+          local num = math.random(0, 100)
+          if num < 15 then -- 15% chance of finding keys in the car
+            exports['mythic_notify']:DoHudText('inform', 'You grabbed the keys')
+            exports['EngineToggle']:addKey(plate) --Give the keys
+          else
+            exports['mythic_notify']:DoHudText('error', 'You were unable to find the keys')
+            table.insert(blackListKeys, plate)
+          end
+        elseif exports['EngineToggle']:hasKey(plate) then--If you have the keys already
+          if GetVehicleDoorsLockedForPlayer(vehicle, GetPlayerPed(-1)) then --If the doors are locked
             SetVehicleDoorsLockedForAllPlayers(vehicle, false)
             exports['mythic_notify']:DoHudText('inform', 'Doors unlocked')
+            --playLockAnim(vehicle)
+            PlayVehicleDoorOpenSound(vehicle, 0)
           else
             SetVehicleDoorsLockedForAllPlayers(vehicle, true)
             exports['mythic_notify']:DoHudText('inform', 'Doors Locked')
+            PlayVehicleDoorCloseSound(vehicle, 1)
+            --playLockAnim(vehicle)
           end
         end
       elseif DoesEntityExist(vehicle) then
-        if checkForKeys(vehicle) then
+        local plate = GetVehicleNumberPlateText(vehicle)
+        if exports['EngineToggle']:hasKey(plate) then
           if GetVehicleDoorsLockedForPlayer(vehicle, GetPlayerPed(-1)) then
             SetVehicleDoorsLockedForAllPlayers(vehicle, false)
             exports['mythic_notify']:DoHudText('inform', 'Doors unlocked')
+            playLockAnim(vehicle)
+            PlayVehicleDoorOpenSound(vehicle, 0)
+            
           else
             SetVehicleDoorsLockedForAllPlayers(vehicle, true)
             exports['mythic_notify']:DoHudText('inform', 'Doors Locked')
+            playLockAnim(vehicle)
+            PlayVehicleDoorCloseSound(vehicle, 1)
+            SoundVehicleHornThisFrame(vehicle)
           end
         else
           exports['mythic_notify']:DoHudText('error', 'No Keys!')
@@ -819,4 +842,5 @@ Citizen.CreateThread(function()
       end
     end
   end
+
 end)

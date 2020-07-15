@@ -10,6 +10,7 @@ local isBoss = false
 local invData = {}
 local pdBlip = nil
 local cops = {}
+local spawnedItems = {}
 
 
 --ESX Init
@@ -225,10 +226,18 @@ function openJobMenu()
 					local coords = GetEntityCoords(playerPed)
 					local forward = GetEntityForwardVector(playerPed)
 					local x, y, z = table.unpack(coords + forward * 1.0)
+					Citizen.CreateThread(function()
+						local model = GetHashKey(data2.current.value)
+						RequestModel(model)
 
-					ESX.Game.SpawnObject(data2.current.value, {x = x, y = y, z = z}, function(obj)
-					SetEntityHeading(obj, GetEntityHeading(playerPed))
-					PlaceObjectOnGroundProperly(obj)
+						while not HasModelLoaded(model) do
+							Citizen.Wait(0)
+						end
+
+						local obj = CreateObject(model, x, y, z, true, true, false)
+						SetEntityHeading(obj, GetEntityHeading(playerPed))
+						PlaceObjectOnGroundProperly(obj)
+						table.insert(spawnedItems, obj)
 					end)
 				end,
 				function(data2, menu2)
@@ -564,18 +573,17 @@ Citizen.CreateThread(function()
 				openJobMenu()
 			end
 
-			local objects = pdObjects
-			if not IsPedInAnyVehicle(GetPlayerPed(-1)) then
-				for i, v in ipairs(objects) do
-					local entity = GetClosestObjectOfType(pos.x, pos.y, pos.z, 3.0, GetHashKey(v.value))
-					if entity ~= 0 then
-						DisplayHelpText('Press ~INPUT_CONTEXT~ to Delete Object')				
-						if IsControlJustPressed(0,51) then
-							ESX.Game.DeleteObject(entity)
-						end
+			for i, v in pairs(spawnedItems) do
+				local obj = GetEntityCoords(v)
+				if Vdist(pos.x, pos.y, pos.z, obj.x, obj.y, obj.z) < 2 then
+					DisplayHelpText('Press ~INPUT_CONTEXT~ to Delete Object')				
+					if IsControlJustPressed(0,51) then
+						ESX.Game.DeleteObject(v)
+						table.remove(spawnedItems, i)
 					end
 				end
 			end
+			
 
 			if Vdist(pos.x, pos.y, pos.z, 477.8778, -984.2165, 24.9147) < 1 then
 				DisplayHelpText("Press ~INPUT_CONTEXT~ to access Deposit Evidence")

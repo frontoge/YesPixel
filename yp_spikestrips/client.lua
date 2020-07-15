@@ -1,6 +1,6 @@
 function popTire(vehicle, tireNum)
 	local num = math.random(1, 100)
-	if num >= 85 then
+	if num >= 75 then
 		SetVehicleTyreBurst(vehicle, tireNum, true, 1000.0)
 	end
 end
