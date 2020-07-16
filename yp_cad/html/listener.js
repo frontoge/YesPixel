@@ -13,6 +13,7 @@ $(function() {
 	var lawbook;
 	var warrants;
 	var job;
+	var currentWarrant;
 
 	var suggestions;
 
@@ -55,11 +56,6 @@ $(function() {
 			$('#warrants_button').show();
 			$('#bolos_button').show();
 			$('#citation_button').show();
-
-			if (job != 'judge') {
-				$('#approveWarrant').hide();
-				$('#denyWarrant').hide();
-			}
 		}
 		$('#nav').fadeIn(500);
 
@@ -270,9 +266,9 @@ $(function() {
 
 	
 
-/*****************
-* Nav Bar functions
-*******************/
+/********************
+* Nav Bar functions *
+********************/
 	function swapPage(dest) {
 		if (currentPage != dest) {
 			$(currentPage).hide();
@@ -299,6 +295,7 @@ $(function() {
 
 	function goWarrants() {
 		$.post('http://yp_cad/requestWarrants', JSON.stringify({}));
+		formatWarrantView();
 		swapPage('#warrants_page');
 	}
 
@@ -331,11 +328,56 @@ $(function() {
 		$('#arrestBox').prop('checked', false);
 	}
 
+	function formatWarrantView() {
+		currentWarrant = -1;
+		$('#approveWarrant').hide();
+		$('#denyWarrant').hide();
+		$('#warrantId').html('Warrant #');
+		$('#warrantType').html('<b>Type:</b> ');
+		$('#target').html('<b>Name:</b> ');
+		$('#officerName').html('<b>Issuing officer:</b>');
+		$('#badgeNum').html('<b>Badge Number:</b>');
+		$('#chargesList').html('<b>Charges:</b> ');
+		$('#lastLoc').html('<b>Last Known Location:</b> ');
+		$('#approvedBy').html('<b>Approved By:</b> ');
+		$('#warrantDesc').html('<b>Description/Additional Info:</b> ');
+	}
+
+	function viewWarrant(key) {
+		if (warrants[key]['approvedby'] == 'PENDING' && job == 'doj') {
+			$('#approveWarrant').show();
+			$('#denyWarrant').show();
+		}
+		else {
+			$('#approveWarrant').hide();
+			$('#denyWarrant').hide();
+		}
+		var warrant = warrants[key];
+		currentWarrant = warrant['id'];
+		$('#warrantId').html('Warrant #' + warrant['id']);
+		$('#warrantType').html('<b>Type:</b> ' + warrant['type']);
+		$('#target').html('<b>Name:</b> ' + warrant['target']);
+		$('#officerName').html('<b>Issuing officer:</b> ' + warrant['officer']);
+		$('#badgeNum').html('<b>Badge Number:</b> ' + warrant['badgenum']);
+		$('#chargesList').html('<b>Charges:</b> ' + warrant['charges']);
+		$('#lastLoc').html('<b>Last Known Location:</b> ' + warrant['lastloc']);
+		$('#approvedBy').html('<b>Approved By:</b> ' + warrant['approvedby']);
+		$('#warrantDesc').html('<b>Description/Additional Info:</b> ' + warrant['description']);
+	}
+
 	function loadWarrants() {
+		$('#warrantList').empty();
 		const keys = Object.keys(warrants);
 		for (const key of keys) {
-			console.log('<li><b>#' + warrants[key]['id'] + '</b> ' + warrants[key]['target'] + ', ' + warrants[key]['date'] + '</li>');
-			$('#warrantList').append('<li><b>#' + warrants[key]['id'] + '</b> ' + warrants[key]['target'] + ', ' + warrants[key]['date'] + '</li>');
+			if (warrants[key]['approvedby'] == 'PENDING' || warrants[key]['approvedby'] == 'DENIED'){
+				$('#warrantList').append('<li id="warrant' + key + '"><b>#' + warrants[key]['id'] + '</b> ' + warrants[key]['target'] + ', ' + warrants[key]['date'] + ' (' + warrants[key]['approvedby'] + ')</li>');
+			} 
+			else {
+				$('#warrantList').append('<li id="warrant' + key + '"><b>#' + warrants[key]['id'] + '</b> ' + warrants[key]['target'] + ', ' + warrants[key]['date'] + '</li>');
+			}
+			$('#warrantList > #warrant' + key).on('click', function(){
+				viewWarrant(key);
+			})
 		}
 	}
 
@@ -430,6 +472,7 @@ $(function() {
 		$('#warrantViewer').show();
 		$('#activeWarrants').show();
 		$('#warrantEditor').hide();
+		$.post('http://yp_cad/requestWarrants', JSON.stringify({}));
 	});
 
 	//Clear the current warrant
@@ -449,4 +492,32 @@ $(function() {
 		}));
 		clearWarrant();
 	});
+
+	$('#searchWarrantButton').on('click', function(){
+		var name = $("#warrantSearch").val();
+		if (name) {//If a name was provided use it for the search otherwise, just refresh the warrants
+			$.post('http://yp_cad/requestWarrants', JSON.stringify({name: name}));
+		}else {
+			$.post('http://yp_cad/requestWarrants', JSON.stringify({}));
+		}
+	});
+
+	$('#approveWarrant').on('click', function(){
+		$.post('http://yp_cad/respondWarrant', JSON.stringify({type: 'approve', id: currentWarrant}));
+		formatWarrantView();
+		$.post('http://yp_cad/requestWarrants', JSON.stringify({}));
+	});
+
+	$('#denyWarrant').on('click', function(){
+		$.post('http://yp_cad/respondWarrant', JSON.stringify({type: 'deny', id: currentWarrant}));
+		formatWarrantView();
+		$.post('http://yp_cad/requestWarrants', JSON.stringify({}));
+	});
+
+	$('#closeWarrant').on('click', function(){
+		$.post('http://yp_cad/closeWarrant', JSON.stringify({id: currentWarrant}));
+		formatWarrantView();
+		$.post('http://yp_cad/requestWarrants', JSON.stringify({}));
+	});
+
 });

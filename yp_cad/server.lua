@@ -1,3 +1,7 @@
+ESX = nil
+
+TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+
 local lawbook = {}
 
 function calcDistance(str1, str2)
@@ -202,27 +206,69 @@ AddEventHandler('yp_cad:addWarrant', function(data)
     values['@charges'] = data.charges
     values['@lastloc'] = data.location 
     values['@description'] = data.description
-    values['@approval'] = 'UNAPPROVED'
+    values['@approval'] = 'PENDING'
     values['@date'] = date.month .. '/' .. date.day .. '/' .. date.year
     MySQL.Async.execute('INSERT INTO warrants (type, target, officer, badgenum, charges, lastloc, approvedby, description, date) VALUES(@type, @target, @officer, @badgenum, @charges, @lastloc, @approval, @description, @date)', values,function(r)end)
 end)
 
 RegisterServerEvent('yp_cad:fetchWarrants')
 AddEventHandler('yp_cad:fetchWarrants', function(param)
+    local paramSpace
+    local nameOne
+    local nameTwo
+
+    if param then
+        paramSpace = string.find(param, ' ')
+        nameOne = param
+        if paramSpace then --If they put two names in
+            nameOne = string.sub(param, 1, paramSpace-1)
+            nameTwo = string.sub(param, paramSpace+1)
+        end
+    end
+
     local src = source
     MySQL.Async.fetchAll('SELECT * FROM warrants', {}, function(results)
         if param then
             local newResults = {}
             for i, v in ipairs(results) do
-                if calcDistance(param, v.target)/#param <=0.2 then
-                    table.insert(newResults, v)
+                --Get info about current name from Database
+                local targetSpace = string.find(v.target, ' ')
+                local targetFirst = string.sub(v.target, 1, targetSpace-1)
+                local targetTwo = string.sub(v.target, targetSpace+1)
+
+                if paramSpace then --If there was more than one name input
+                    if calcDistance(nameOne, targetFirst)/#nameOne <= 0.2 and calcDistance(nameTwo, targetTwo)/#nameTwo <= 0.2 then --If first and last name are close enough
+                        table.insert(newResults, v) --Add this warrant
+                    end
+                elseif calcDistance(nameOne, targetFirst)/#nameOne <= 0.2 or calcDistance(nameOne, targetTwo)/#nameOne <= 0.2 then --If the name entered was close to the first or last name
+                    table.insert(newResults, v) --Add this warrant
                 end
+                
             end
             TriggerClientEvent('yp_cad:getWarrants', src, newResults)
         else
             TriggerClientEvent('yp_cad:getWarrants', src, results)
         end
     end)
+end)
+
+RegisterServerEvent('yp_cad:updateWarrantStatus')
+AddEventHandler('yp_cad:updateWarrantStatus', function(type, id)
+    if type == 'approve' then
+        local xPlayer = ESX.GetPlayerFromId(source).getIdentifier()
+        MySQL.Async.fetchAll('SELECT firstname, lastname FROM users WHERE identifier = @id', {['@id'] = xPlayer}, function(results)
+            local name = results[1].firstname .. ' ' .. results[1].lastname
+            MySQL.Async.execute('UPDATE warrants SET approvedby = @name WHERE id = @id', {['@name'] = name, ['@id'] = id}, function(r)end)
+        end)
+    else
+        MySQL.Async.execute('UPDATE warrants SET approvedby = @name WHERE id = @id', {['@name'] = 'DENIED', ['@id'] = id}, function(r)end)
+    end
+end)
+
+RegisterServerEvent('yp_cad:closeWarrant')
+AddEventHandler('yp_cad:closeWarrant', function(id)
+    print(id)
+    MySQL.Async.execute('DELETE FROM warrants WHERE id = @id', {['@id'] = id}, function(r)end)
 end)
 
 --Dev stuff only below this point

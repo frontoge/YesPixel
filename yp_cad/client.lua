@@ -33,7 +33,6 @@ end)
 
 RegisterNetEvent('yp_cad:getWarrants')
 AddEventHandler('yp_cad:getWarrants', function(warrantList)
-	print(#warrantList)
 	SendNUIMessage({
 		type = 'warrants',
 		results = warrantList
@@ -75,13 +74,22 @@ end)
 
 --Warrant Callbacks
 RegisterNUICallback('createWarrant', function(data, cb)
-	print('created a warrant')
 	TriggerServerEvent('yp_cad:addWarrant', data)
 	cb('ok')
 end)
 
 RegisterNUICallback('requestWarrants', function(data, cb)
-	TriggerServerEvent('yp_cad:fetchWarrants', nil)
+	TriggerServerEvent('yp_cad:fetchWarrants', data.name)
+	cb('ok')
+end)
+
+RegisterNUICallback('respondWarrant', function(data, cb)
+	TriggerServerEvent('yp_cad:updateWarrantStatus', data.type, data.id)
+	cb('ok')
+end)
+
+RegisterNUICallback('closeWarrant', function(data, cb)
+	TriggerServerEvent('yp_cad:closeWarrant', data.id)
 	cb('ok')
 end)
 

@@ -109,6 +109,7 @@
 				</div>
 			</div>
 
+			<!--Warrant Page-->
 			<div id='warrants_page'>
 				<h2 id='warrantLabel'>Warrants</h2>
 				<div class='box' id='activeWarrants'>
@@ -126,7 +127,7 @@
 					<p id='target'><b>Name:</b> Eric Andre</p>
 					<p id='officerName'><b>Issuing officer:</b> Flint Lockwood</p>
 					<p id='badgeNum'><b>Badge Number:</b> F1301</p>
-					<p id='charges'><b>Charges:</b> Evasion, Armed Robbery</p>
+					<p id='chargesList'><b>Charges:</b> Evasion, Armed Robbery</p>
 					<p id='lastLoc'><b>Last Known Location:</b> Carcer Way by LS Customs</p>
 					<p id='approvedBy'><b>Approved By:</b> Mickey Rudolf</p>
 					<p id='warrantDesc'><b>Description/Additional Info:</b> Suspect is armed and a convicted felon. Proceed with caution</p>
@@ -189,7 +190,21 @@
 			</div>
 
 			<div id='bolos_page'>
+				<h2>Bolos</h2>
+				<div class='box' id='activeBolos'>
+					<h3 id='boloListLabel'>Active Bolos</h3>
+					<input id='boloSearch' type='text'><button id='searchBoloButton'>Search</button>
+					<ul id='boloList'>
+						<!--<li>Example Warrant Item, 7/14/2020</li>-->
+					</ul>
+					<button id='startNewBolo'>Create New</button>
+				</div>
+				<div class='box' id='boloViewer'>
 
+				</div>
+				<div id='boloEditor'>
+
+				</div>
 			</div>
 
 			<script src="listener.js" type="text/javascript"></script>
