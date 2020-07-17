@@ -82,7 +82,19 @@ function modelVehicle(vehicle, list, plate)--Called when spawning vehicle
 	DecorSetFloat(vehicle, "_FUEL_LEVEL", GetVehicleFuelLevel(vehicle))
 	SetVehicleExtraColours(vehicle, list.pearlescent, list.wheelColor)
 	SetVehicleNumberPlateTextIndex(vehicle, list.plateType)
-	SetVehicleTyreSmokeColor(vehicle, list.tireSmoke.r, list.tireSmoke.g, list.tireSmoke.b)
+
+	if list.tireSmoke then
+		SetVehicleTyreSmokeColor(vehicle, list.tireSmoke.r, list.tireSmoke.g, list.tireSmoke.b)
+	end
+
+	if list.neonsOn then
+		for i = 0, 3, 1 do
+			SetVehicleNeonLightEnabled(vehicle, i, true)
+		end
+	end
+	if list.neons.r then
+		SetVehicleNeonLightsColour(vehicle, list.neons.r, list.neons.g, list.neons.b)
+	end
 
 	--Add Mods DO NOT PUT ANYTHING BELOW THIS
 	SetVehicleModKit(vehicle, 0)
@@ -118,6 +130,9 @@ function getVehicleData(vehicle)--Called when storing vehicle, gets all the vehi
 	data['plateType'] = GetVehicleNumberPlateTextIndex(vehicle)
 	data['tireSmoke'] = {}
 	data['tireSmoke'].r, data['tireSmoke'].g, data['tireSmoke'].b = GetVehicleTyreSmokeColor(vehicle)
+	data['neonsOn'] = IsVehicleNeonLightEnabled(vehicle, 0) or IsVehicleNeonLightEnabled(vehicle, 1) or IsVehicleNeonLightEnabled(vehicle, 2) or IsVehicleNeonLightEnabled(vehicle, 3)
+	data['neons'] = {}
+	data['neons'].r, data['neons'].g, data['neons'].b = GetVehicleNeonLightsColour(vehicle)
 
 
 
@@ -130,6 +145,10 @@ function getVehicleData(vehicle)--Called when storing vehicle, gets all the vehi
 	end
 	if GetVehicleLiveryCount(vehicle) ~= -1 then
 		data['modLivery'] = GetVehicleLivery(vehicle)
+	end
+
+	if GetVehicleRoofLiveryCount(vehicle) ~= -1 then
+		data['roofLivery'] = GetVehicleRoofLivery(vehicle)
 	end
 
 	return data
