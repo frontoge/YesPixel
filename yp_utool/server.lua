@@ -1,75 +1,49 @@
---[[ Copyright (C) Matthew Widenhouse - All Rights Reserved
- * Unauthorized copying of this file, without written consent from the owner, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
-]]--
-
 --ESX Init
 ESX = nil
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
-RegisterServerEvent('yp_utool:checkout')
-AddEventHandler('yp_utool:checkout', function(card, total, items)
+RegisterServerEvent('yp_utool:getLimits')
+AddEventHandler('yp_utool:getLimits', function(conf)
 	local xPlayer = ESX.GetPlayerFromId(source)
-	local canBuy = false
-	local enoughRoom = true
-	if items['repairs'] + xPlayer.getInventoryItem('repairkit').count > xPlayer.getInventoryItem('repairkit').limit then
-		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You can not hold that many repair kits!', length = 2500})
-		enoughRoom = false
+
+	local updatedItems = {}
+
+	for i, v in pairs(conf) do
+		local item = xPlayer.getInventoryItem(i)
+		updatedItems[i] = v
+		updatedItems[i].limit = item.limit - item.count
+		if updatedItems[i].limit < 0 then updatedItems[i].limit = 0 end
 	end
 
-	if items['radios'] + xPlayer.getInventoryItem('radio').count > xPlayer.getInventoryItem('radio').limit then
-		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You can not hold that many radios!', length = 2500})
-		enoughRoom = false
-	end
+	TriggerClientEvent('yp_utool:sendLimits', source, updatedItems)
+end)
 
-	if items['flares'] + xPlayer.getInventoryItem('roadflare').count > xPlayer.getInventoryItem('roadflare').limit then
-		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You can not hold that many road flares!', length = 2500})
-		enoughRoom = false
-	end
-
-	if items['pliers'] + xPlayer.getInventoryItem('pliers').count > xPlayer.getInventoryItem('pliers').limit then
-		TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'You can not hold that many pliers!', length = 2500})
-		enoughRoom = false
-	end
-
-	if enoughRoom then
-		if card then
-			if xPlayer.getAccount('bank').money >= total then
-				xPlayer.removeAccountMoney('bank', total)
-				canBuy = true
-			else
-				TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'Your card was declined.', length = 2500})
-			end
+RegisterServerEvent('yp_utool:checkout')
+AddEventHandler('yp_utool:checkout', function(items, price, card)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	if card then
+		if xPlayer.getAccount('bank').money >= price then
+			xPlayer.removeAccountMoney('bank', price)
 		else
-			if xPlayer.getMoney() >= total then
-				xPlayer.removeMoney(total)
-				canBuy = true
-			else
-				TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = "You don't have enough cash.", length = 2500})
-			end
+			TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'Not Enough in your bank.', length = 4000})
+			return
 		end
-
-		if canBuy then
-			if items['repairs'] then
-				xPlayer.addInventoryItem('repairkit', items['repairs'])
-			end
-			
-			if items['radios'] then
-				xPlayer.addInventoryItem('radio', items['radios'])
-			end
-
-			if items['flares'] then
-				xPlayer.addInventoryItem('roadflare', items['flares'])
-			end
-
-			if items['pliers'] then
-				xPlayer.addInventoryItem('pliers', items['pliers'])
-			end
-
-			TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'success', text = "You purchased items for $" .. total, length = 2500})
-			exports['yp_taxes']:applyTax(source, 'sales', total)
+	else
+		if xPlayer.getMoney() >= price then
+			xPlayer.removeMoney(price)
+		else
+			TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text = 'Not Enough cash.', length = 4000})
+			return
 		end
 	end
+
+	for i, v in pairs(items) do
+		if v > 0 then
+			xPlayer.addInventoryItem(i, v)
+		end
+	end
+	TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'success', text = 'Purchase Successful. You paid $' .. price, length = 4000})
+	TriggerClientEvent('yp_utool:clear', source)
+
 end)

@@ -1,210 +1,121 @@
-.container {
-	position: absolute;
-	left: 30%;
-	width: 38%;
-	bottom: 23%;
-	height: 67.5%;
-	background-color: #0e4c5da1;
-	border: 4px solid black;
-	border-radius: 5%;
-}
-
-.itemimg {
-	position: absolute;
-	max-width: 50%;
-	height: auto;
-	left: 25%;
-	top: 10%;
+* {
+	outline: none;
+	font-family: 'Tomorrow', sans-serif;
 }
 
 #container {
 	display: none;
-}
-
-#frame {
-	display: block;
-}
-
-#checkoutframe {
-	display: none;
-}
-
-#repairbox, #flarebox, #radiobox, #plierbox {
 	position: absolute;
-	background-color: #000000d4;
-	border: 2px solid white;
+	background: rgba(212, 212, 212, 0.87);
+	border: 2px solid black;
+	border-radius: 0.5%;
+	left: 30%;
 	width: 40%;
-	height: 42%;
-}
-
-#repairbox {
-	left: 5.5%;
-    bottom: 56%;
-}
-
-#flarebox {
-	right: 5.5%;
-	bottom: 56%;
-}
-
-#radiobox {
-	left: 5.5%;
-	bottom: 10.5%;
-}
-
-#plierbox {
-	right: 5.5%;
-	bottom: 10.5%;
-}
-
-#checkout {
-	position: absolute;
-	right: 4%;
-	width: 20%;
-	bottom: 1.25%;
-	padding: 0;
-	background-color: green;
-	height: 8%;
-	border-radius: 15%;
-	border-color: black;
-	font-size: 18pt;
-}
-
-#total {
-	position: absolute;
-	font-size: 30pt;
-	bottom: 0.6%;
-	padding: 0;
-	margin: 0;
-	border: 2px solid black;
-	background-color: yellow;
-	border-radius: 2%;
-	left: 10%;
-}
-
-#plusbutton, #minusbutton {
-	border: 2px solid black;
-	bottom: 4%;
-	height: 16%;
-	width: 15%;
-	border-radius: 100%;
-	font-size: 15pt;
-	border: 2px solid white;
-	color: white;
-}
-
-#plusbutton {
-	right: 5%;
-	background-color: green;
-}
-
-#minusbutton {
-	left: 5%;
-	background-color: red;
-}
-
-
-#caption {
-	position: absolute;
-	text-align: right;
-	left: 3%;
-	margin-top: 1%;
-	padding: 0;
-	color: white;
-	font-size: 20px;
-}
-
-#totaldisplay {
-	text-align: center;
-	font-size: 30px;
-}
-
-#cashbox, #cardbox {
-	position: absolute;
-	border: 3px solid black;
-	border-radius: 7%;
-	bottom: 10%;
+	bottom: 15%;
 	height: 70%;
-	width: 40%;
 }
 
-#cardbox {
-	left: 5%;
+#container > h2 {
+	text-align: center;
+	font-weight: bold;
+	text-decoration: underline;
 }
 
-#cashbox {
-	right: 5%;
-}
-
-
-
-#cardimg, #cashimg {
+#items {
 	position: absolute;
+    padding: 0;
+    width: 90%;
+    left: 5%;
+	height: 80%;
+	bottom: 10%;
+	list-style: none;
+	font-size: 16pt;
+	font-weight: bold;
+	overflow-x: none;
+	overflow-y: auto;
+	
 }
 
-#cardimg {
-	max-width: 100%;
-	height: auto;
-	left: 17%;
-	bottom: 30%;
+#items > li {
+	position: relative;
+    margin-bottom: 1%;
+    width: 99%;
+    font-size: 16pt;
+    height: 7.5%;
+    border-width: 2px;
+    border-style: solid;
+	border-color: rgb(30, 30, 30);
+	padding-top: 11px;
 }
 
-#cashimg {
-	max-width: 80%;
-	height: auto;
-	right: 10%;
-	bottom: 20%;
-}
-
-#cashcaption, #cardcaption {
+#items > li > #increase {
 	position: absolute;
-	bottom: 65%;
-	color: lightgray;
-	font-size: 30pt;
+    right: 3%;
+    height: 55%;
+    width: 5%;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    background: none;
+    font-weight: bold;
+    outline: none;
+    background: rgba(163, 255, 163, 0.9);
 }
 
-#cashcaption {
-	right: 10%;
+#items > li > #increase:hover {
+	background: rgba(131, 216, 131, 0.9);
 }
 
-#cardcaption {
-	left: 10%;
-}
-
-#totaldisplay {
-	background-color: yellow;
-	border: 2px solid black;
-	border-left, border-right: 0;
-}
-
-#dividerline {
-	bottom: 90%;
-	border: 4px solid black;
-}
-
-button {
+#items > li > #count {
 	position: absolute;
+    right: 9%;
+    width: 9%;
+    font-size: 16pt;
+    background: none;
+    margin-top: 2px;
+    margin-bottom: 2px;
+	outline: none;
+	text-align: center;
+
 }
 
-input {
+#items > li > #decrease {
+	position: absolute;
+    right: 20%;
+    height: 55%;
+    width: 5%;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    background: none;
+    font-weight: bold;
+    outline: none;
+    background: rgba(255, 163, 163, 0.9);
+}
+
+#items > li > #decrease:hover {
+	background: rgba(216, 131, 131, 0.9);
+}
+
+#checkout > button {
+	font-size: 16pt;
 	position: absolute;
 	bottom: 5%;
-	height: 10%;
-	padding: 0;
-	left: 32.5%;
-	width: 35%;
-	text-align: center;
-	background: none;
-	border: 2px solid white;
-	color: white;
+	width: 20%;
 }
 
-body {
-	font-family: 'Abel', sans-serif;
+#price {
+	position: absolute;
+	right: 5%;
+	bottom: 5%;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+#payCash {
+	left: 5%
+}
+
+#payCard {
+	left: 30%;
+}
+
+#clear {
+	left: 55%;
 }

@@ -1,55 +1,65 @@
-local guiEnabled = false
-local blip = nil
-
-function EnableGui(enable)
-	SetNuiFocus(enable, enable)
-	guiEnabled = enable
+function EnableUi(items)
+	SetNuiFocus(true, true)
 
 	SendNUIMessage({
-		type = "enableui",
-		enable = enable
+		type = "enable",
+		items = items
 	})
 end
 
+function DrawText3D(x,y,z, text)
+    local onScreen, _x, _y = GetScreenCoordFromWorldCoord(x, y, z)
+    local p = GetGameplayCamCoords()
+    local distance = GetDistanceBetweenCoords(p.x, p.y, p.z, x, y, z, 1)
+    local scale = (1 / distance) * 2
+    local fov = (1 / GetGameplayCamFov()) * 100
+    local scale = scale * fov
+    if onScreen then
+        SetTextScale(0.4, 0.4)
+        SetTextFont(4)
+        SetTextProportional(1)
+        SetTextDropShadow(50, 50, 50, 50)
+        SetTextColour(255, 255, 255, 215)
+        SetTextEntry("STRING")
+        SetTextCentre(1)
+        AddTextComponentString(text)
+        DrawText(_x,_y)
+        local factor = (string.len(text)) / 370
+        DrawRect(_x,_y+0.0125, 0.015+ factor, 0.03, 30, 11, 30, 68)
+    end
+end
+
 RegisterNUICallback('exit', function(data, cb)
-	EnableGui(false)
-	cb('ok')
-end)
-
-RegisterNUICallback('buyWithCash', function(data, cb)
-	local items = {['repairs'] = data.repairs, ['flares'] = data.flares, ['radios'] = data.radios, ['pliers'] = data.pliers}
-	TriggerServerEvent('yp_utool:checkout', false, data.total, items)
-	cb('ok')
-end)
-
-RegisterNUICallback('buyWithCard', function(data, cb)
-	local items = {['repairs'] = data.repairs, ['flares'] = data.flares, ['radios'] = data.radios, ['pliers'] = data.pliers}
-	TriggerServerEvent('yp_utool:checkout', true, data.total, items)
+	print('exit')
+	SetNuiFocus(false, false)
 	cb('ok')
 end)
 
 Citizen.CreateThread(function() -- Create Blip for store
-	blip = AddBlipForCoord(39.7347, -1735.2628, 29.3033)
-	SetBlipSprite(blip, 566)
-	SetBlipDisplay(blip, 4)
-	SetBlipScale(blip, 1.0)
-	SetBlipColour(blip, 2)
-	SetBlipAsShortRange(blip, true)
-	BeginTextCommandSetBlipName("STRING")
-	AddTextComponentString("Hardware store")
-	EndTextCommandSetBlipName(blip)
+	for i, v in ipairs(StoreBlips) do
+		local blip = AddBlipForCoord(v.x, v.y, v.z)
+		SetBlipSprite(blip, 566)
+		SetBlipDisplay(blip, 4)
+		SetBlipScale(blip, 1.0)
+		SetBlipColour(blip, 2)
+		SetBlipAsShortRange(blip, true)
+		BeginTextCommandSetBlipName("STRING")
+		AddTextComponentString("Hardware store")
+		EndTextCommandSetBlipName(blip)
+	end
 end)
 
-Citizen.CreateThread(function() -- Create Blip for store
-	blip = AddBlipForCoord(2772.6096, 3458.3854, 55.6730)
-	SetBlipSprite(blip, 566)
-	SetBlipDisplay(blip, 4)
-	SetBlipScale(blip, 1.0)
-	SetBlipColour(blip, 2)
-	SetBlipAsShortRange(blip, true)
-	BeginTextCommandSetBlipName("STRING")
-	AddTextComponentString("Hardware store")
-	EndTextCommandSetBlipName(blip)
+RegisterNetEvent('yp_utool:sendLimits')
+AddEventHandler('yp_utool:sendLimits', function(itemData)
+	EnableUi(itemData)
+end)
+
+RegisterNetEvent('yp_utool:clear')
+AddEventHandler('yp_utool:clear', function()
+	TriggerServerEvent('yp_utool:getLimits', ItemData)
+	SendNUIMessage({
+		type='clear'
+	})
 end)
 
 Citizen.CreateThread(function()
@@ -57,46 +67,44 @@ Citizen.CreateThread(function()
 		local playerPed = GetPlayerPed(-1)
 		local pos = GetEntityCoords(playerPed)
 
-		if guiEnabled then
-			DisableControlAction(0, 1, guiEnabled) -- LookLeftRight
-            DisableControlAction(0, 2, guiEnabled) -- LookUpDown
-
-            DisableControlAction(0, 142, guiEnabled) -- MeleeAttackAlternate
-
-            DisableControlAction(0, 106, guiEnabled) -- VehicleMouseControlOverride
-		end
-		local dist = Vdist(pos.x, pos.y, pos.z, 45.5686, -1748.8684, 29.5975)
-		local dist2 = Vdist(pos.x, pos.y, pos.z, 53.9046, -1738.3624, 29.5325)
-		local dist3 = Vdist(pos.x, pos.y, pos.z, 2748.8974, 3472.4056, 54.6730)
-		if dist < 20 then
-			DrawMarker(1, 45.5686, -1748.8684, 28.5975, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.5, 2.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
-			if dist < 2 then
-				exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to shop')
-				if IsControlJustPressed(0,51) then
-					EnableGui(true)
+		for i, v in ipairs(Stores) do 
+			local dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
+			if dist < 20 then
+				DrawMarker(27, v.x, v.y, v.z-0.99, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.00, 1.00, 1.0, 255, 255, 255, 100, false, false, 2, false, nil, nil, false)
+				if dist < 2 then 
+					DrawText3D(v.x, v.y, v.z, "Press E to shop")
+					if IsControlJustPressed(0, 51) then
+						TriggerServerEvent('yp_utool:getLimits', ItemData)
+					end
 				end
 			end
 		end
 
-		if dist2 < 20 then
-			DrawMarker(1, 53.9046, -1738.3624, 28.5325, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.5, 2.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
-			if dist2 < 2 then
-				exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to shop')
-				if IsControlJustPressed(0,51) then
-					EnableGui(true)
-				end
-			end
-		end
-
-		if dist3 < 20 then
-			DrawMarker(1, 2748.8974, 3472.4056, 54.6730, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.5, 2.5, 1.0, 0, 0, 255, 100, false, false, 2, false, nil, nil, false)
-			if dist3 < 2 then
-				exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to shop')
-				if IsControlJustPressed(0,51) then
-					EnableGui(true)
-				end
-			end
-		end
 		Citizen.Wait(0)
 	end
+end)
+
+--NUI Callbacks
+RegisterNUICallback('checkoutCash', function(data, cb)
+	local price = 0
+
+	for i, v in pairs(data) do
+		price = price + (ItemData[i].price * v)
+	end
+
+	TriggerServerEvent('yp_utool:checkout', data, price, false)
+
+	cb('ok')
+end)
+
+RegisterNUICallback('checkoutCard', function(data, cb)
+	local price = 0
+
+	for i, v in pairs(data) do
+		price = price + (ItemData[i].price * v)
+	end
+
+	TriggerServerEvent('yp_utool:checkout', data, price, true)
+
+	cb('ok')
 end)
