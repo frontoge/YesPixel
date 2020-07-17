@@ -29,7 +29,11 @@ SupplyItems =
 	{label = 'Vicodin', value = 'vicodin', price = 40},
 	{label = 'Radio', value = 'radio', price = 60},
 	{label = 'Cold Meds', value = 'coldmeds', price = 15},
-	{label = 'Lidocaine', value = 'lidocaine', price = 40}
+	{label = 'Lidocaine', value = 'lidocaine', price = 40},
+	{label = 'Breathalyzer', value = 'breathalyzer', price = 25}
+	{label = 'Scuba Tank', value = 'scubatank', cost = 200},
+	{label = 'Rebreather', value = 'rebreather', cost = 100},
+	{label = 'Parachute', value = 'GADGET_PARACHUTE', cost = 50}
 }
 
 Vehicles = 
@@ -40,7 +44,8 @@ Vehicles =
 	{label = 'Tahoe', value = 'fire1'},
 	{label = 'Crown Vic', value = 'fire2'},
 	{label = 'Silverado', value = 'fire4'},
-	{label = 'Firetruck', value = 'firetruk'}
+	{label = 'Firetruck', value = 'firetruk'},
+	{label = 'ATV', value = 'blazer2'}
 }
 
 DutyToggle = 

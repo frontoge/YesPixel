@@ -1,8 +1,10 @@
 weapons = {{label = 'Pistol', value = 'WEAPON_PISTOL', cost = 400},
 		   {label = 'Combat Pistol', value = 'WEAPON_COMBATPISTOL', cost = 700},
 		   {label = 'Pump Shotgun', value = 'WEAPON_PUMPSHOTGUN', cost = 950}, 
-		   {label = 'Carbine Rifle', value = 'WEAPON_CARBINERIFLE', cost = 1200}}
-
+		   {label = 'Carbine Rifle', value = 'WEAPON_CARBINERIFLE', cost = 1200},
+		   {label = 'Weapon Flashlight', value = 'flashlight', cost = 300},
+		   {label = 'Weapon Grip', value = 'grip', cost = 400}
+		}
 
 equip = 
 {
@@ -14,7 +16,11 @@ equip =
 	{label = 'Flare', value = 'WEAPON_FLARE', cost = 15},
 	{label = 'Flaregun', value = 'WEAPON_FLAREGUN', cost = 50},
 	{label = 'Jerry Can', value = 'WEAPON_PETROLCAN', cost = 20},
-	{label = 'Fire Extinguisher', value = 'WEAPON_FIREXTINGUISHER', cost = 35}
+	{label = 'Fire Extinguisher', value = 'WEAPON_FIREXTINGUISHER', cost = 35},
+	{label = 'Breathalyzer', value = 'breathalyzer', cost = 25},
+	{label = 'Scuba Tank', value = 'scubatank', cost = 200},
+	{label = 'Rebreather', value = 'rebreather', cost = 100},
+	{label = 'Parachute', value = 'GADGET_PARACHUTE', cost = 50}
 }
 
 medSupplies = {{label = 'Bandages', value = 'bandage', cost = 10},
