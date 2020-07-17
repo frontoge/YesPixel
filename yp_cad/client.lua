@@ -39,6 +39,14 @@ AddEventHandler('yp_cad:getWarrants', function(warrantList)
 	})
 end)
 
+RegisterNetEvent('yp_cad:getBolos')
+AddEventHandler('yp_cad:getBolos', function(boloList)
+	SendNUIMessage({
+		type = 'bolos',
+		results = boloList
+	})
+end)
+
 local uiEnabled = false
 
 --UI Functions
@@ -90,6 +98,22 @@ end)
 
 RegisterNUICallback('closeWarrant', function(data, cb)
 	TriggerServerEvent('yp_cad:closeWarrant', data.id)
+	cb('ok')
+end)
+
+--Bolo Callbacks
+RegisterNUICallback('createBolo', function(data, cb)
+	TriggerServerEvent('yp_cad:addBolo', data)
+	cb('ok')
+end)
+
+RegisterNUICallback('requestBolos', function(data, cb)
+	TriggerServerEvent('yp_cad:fetchBolos')
+	cb('ok')
+end)
+
+RegisterNUICallback('clearBolo', function(data, cb)
+	TriggerServerEvent('yp_cad:clearBolo', data.id)
 	cb('ok')
 end)
 

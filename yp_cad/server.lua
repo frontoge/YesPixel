@@ -267,8 +267,33 @@ end)
 
 RegisterServerEvent('yp_cad:closeWarrant')
 AddEventHandler('yp_cad:closeWarrant', function(id)
-    print(id)
     MySQL.Async.execute('DELETE FROM warrants WHERE id = @id', {['@id'] = id}, function(r)end)
+end)
+
+RegisterServerEvent('yp_cad:addBolo')
+AddEventHandler('yp_cad:addBolo', function(data)
+    local values = {}
+    values['@type'] = data.type
+    values['@officer'] = data.officer
+    values['@badge'] = data.badge
+    values['@description'] = data.description
+    values['@reason'] = data.reason
+    local date = os.date('*t')
+    values['@date'] = date.month .. '/' .. date.day .. '/' .. date.year
+    MySQL.Async.execute('INSERT INTO bolos (type, officer, badgenum, description, reason, date) VALUES(@type, @officer, @badge, @description, @reason, @date)', values,function(r)end)
+end)
+
+RegisterServerEvent('yp_cad:fetchBolos')
+AddEventHandler('yp_cad:fetchBolos', function()
+    local src = source
+    MySQL.Async.fetchAll('SELECT * FROM bolos', {}, function(results)
+        TriggerClientEvent('yp_cad:getBolos', src, results)
+    end)
+end)
+
+RegisterServerEvent('yp_cad:clearBolo')
+AddEventHandler('yp_cad:clearBolo', function(id)
+    MySQL.Async.execute('DELETE FROM bolos WHERE id = @id', {['@id'] = id}, function(r)end)
 end)
 
 --Dev stuff only below this point

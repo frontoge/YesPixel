@@ -12,8 +12,10 @@ $(function() {
 	//Game Data
 	var lawbook;
 	var warrants;
+	var bolos;
 	var job;
 	var currentWarrant;
+	var currentBolo;
 
 	var suggestions;
 
@@ -300,6 +302,8 @@ $(function() {
 	}
 
 	function goBolos() {
+		$.post('http://yp_cad/requestBolos', JSON.stringify({}));
+		formatBoloView();
 		swapPage('#bolos_page');
 	}
 
@@ -315,17 +319,17 @@ $(function() {
  ************************/
 
 	function clearWarrant() {
-		$('#arrestBox').val('');
-		$('#searchBox').val('');
-		$('#targetName').val('');
-		$('#officer').val('');
-		$('#badge').val('');
-		$('#chargesInput').val('');
-		$('#location').val('');
-		$('#description').val('');
+		$('#warrantTargetName').val('');
+		$('#warrantOfficer').val('');
+		$('#warrantBadge').val('');
+		$('#warrantChargesInput').val('');
+		$('#warrantLocation').val('');
+		$('#warrantDescription').val('');
 
-		$('#searchBox').prop('checked', false);
-		$('#arrestBox').prop('checked', false);
+		$('#warrantTypeSelection > #searchBox').prop('checked', false);
+		$('#warrantTypeSelection > #arrestBox').prop('checked', false);
+
+		$('#warrantForm > #finish').prop('disabled', true);
 	}
 
 	function formatWarrantView() {
@@ -381,6 +385,55 @@ $(function() {
 		}
 	}
 
+/************************
+ * Bolo Page Functions
+ ************************/
+
+	function clearBolo() {
+		$("#boloOfficer").val('');
+		$('#boloBadge').val('');
+		$('#boloDescriptionInput').val('');
+		$('#boloReason').val('');
+
+		$('#boloTypeSelection > #personBox').prop('checked', false);
+		$('#boloTypeSelection > #vehicleBox').prop('checked', false);
+
+		$('#boloForm > #finish').prop('disabled', true);
+	}
+
+	function formatBoloView() {
+		currentBolo = -1;
+		$('#boloViewer > #boloId').html('Bolo #');
+		$('#boloViewer > #boloType').html('<b>Type:</b> ');
+		$('#boloViewer > #officerName').html('<b>Issuing officer:</b>');
+		$('#boloViewer > #badgeNum').html('<b>Badge Number:</b>');
+		$('#boloViewer > #description').html('<b>Description:</b>');
+		$('#boloViewer > #reason').html('<b>Reason:</b>')
+	}
+
+	function viewBolo(key) {
+		currentBolo = key;
+		var bolo = bolos[key];
+		$('#boloViewer > #boloId').html('Bolo #' + bolo['id']);
+		$('#boloViewer > #boloType').html('<b>Type:</b> ' + bolo['type']);
+		$('#boloViewer > #officerName').html('<b>Issuing officer:</b> ' + bolo['officer']);
+		$('#boloViewer > #badgeNum').html('<b>Badge Number:</b> ' + bolo['badgenum']);
+		$('#boloViewer > #description').html('<b>Description:</b> ' + bolo['description']);
+		$('#boloViewer > #reason').html('<b>Reason:</b> ' + bolo['reason']);
+	}
+
+	function loadBolos() {
+		$('#boloList').empty();
+		const keys = Object.keys(bolos);
+		for (const key of keys) {
+			$('#boloList').append('<li id="bolo' + key + '"><b>#' + bolos[key]['id'] + '</b> ' + bolos[key]['type'] + ', ' + bolos[key]['date'] + '</li>');
+			$('#boloList > #bolo' + key).on('click', function(){
+				currentBolo = key;
+				viewBolo(key);
+			})
+		}
+	}
+
 	/*
 	* Callback listeners
 	*/
@@ -405,6 +458,9 @@ $(function() {
 		}else if (item.type == 'warrants') {
 			warrants = item.results;
 			loadWarrants();
+		}else if (item.type == 'bolos') {
+			bolos = item.results;
+			loadBolos();
 		}
 	});
 
@@ -457,7 +513,7 @@ $(function() {
 
 	//Listen for a complete form
 	$('#warrantForm > div > input, #warrantForm > div > textarea').on('input', function(){
-		var finished = ($("#typeSelection > #arrestBox").is(':checked') || $("#typeSelection > #searchBox").is(':checked')) && $('#targetName').val() && $('#officer').val() && $("#badge").val() && $("#chargesInput").val() && $("#location").val() && $("#description").val();
+		var finished = ($("#warrantTypeSelection > #arrestBox").is(':checked') || $("#warrantTypeSelection > #searchBox").is(':checked')) && $('#warrantTargetName').val() && $('#warrantOfficer').val() && $("#warrantBadge").val() && $("#warrantChargesInput").val() && $("#warrantLocation").val() && $("#warrantDescription").val();
 		if (finished) {
 			$('#warrantForm > #finish').attr('disabled', false);
 		}
@@ -480,15 +536,15 @@ $(function() {
 
 	//Submit the warrant in the warrant editor
 	$('#warrantForm > #finish').on('click', function(){
-		var type = $("#typeSelection > #arrestBox").is(':checked') ? "Arrest" : "Search";
+		var type = $("#warrantTypeSelection > #arrestBox").is(':checked') ? "Arrest" : "Search";
 		$.post('http://yp_cad/createWarrant', JSON.stringify({
 			type: type, 
-			target: $("#targetName").val(),
-			officer: $("#officer").val(),
-			badge: $('#badge').val(),
-			charges: $('#chargesInput').val(),
-			location: $('#location').val(),
-			description: $('#description').val()
+			target: $("#warrantTargetName").val(),
+			officer: $("#warrantOfficer").val(),
+			badge: $('#warrantBadge').val(),
+			charges: $('#warrantChargesInput').val(),
+			location: $('#warrantLocation').val(),
+			description: $('#warrantDescription').val()
 		}));
 		clearWarrant();
 	});
@@ -520,4 +576,52 @@ $(function() {
 		$.post('http://yp_cad/requestWarrants', JSON.stringify({}));
 	});
 
+
+	//Bolo page
+	//Go to bolo editor
+	$('#startBolo').on('click', function() {
+		$('#boloViewer').hide();
+		$('#activeBolos').hide();
+		$('#boloEditor').show();
+	});
+
+	$('#boloForm > #back').on('click', function() {
+		$('#boloViewer').show();
+		$('#activeBolos').show();
+		$('#boloEditor').hide();
+		$.post('http://yp_cad/requestBolos', JSON.stringify({}));
+	});
+
+	//Clear the current bolo
+	$('#boloForm > #clear').on('click', clearBolo);
+
+	//Submit the bolo in the bolo editor
+	$('#boloForm > #finish').on('click', function(){
+		var type = $("#boloTypeSelection > #personBox").is(':checked') ? "Person" : "Vehicle";
+		$.post('http://yp_cad/createBolo', JSON.stringify({
+			type: type, 
+			officer: $("#boloOfficer").val(),
+			badge: $('#boloBadge').val(),
+			description: $('#boloDescriptionInput').val(),
+			reason: $('#boloReason').val()
+		}));
+		clearBolo();
+	});
+
+	$('#clearBolo').on('click', function(){
+		$.post('http://yp_cad/clearBolo', JSON.stringify({id: bolos[currentBolo]['id']}));
+		formatBoloView();
+		$.post('http://yp_cad/requestBolos', JSON.stringify({}));
+	});
+
+	//Listen for a completed bolo form
+	$('#boloForm > div > input, #boloForm > div > textarea').on('input', function(){
+		var finished = ($("#boloTypeSelection > #personBox").is(':checked') || $("#boloTypeSelection > #vehicleBox").is(':checked')) && $('#boloOfficer').val() && $('#boloBadge').val() && $("#boloDescriptionInput").val() && $("#boloReason").val();
+		if (finished) {
+			$('#boloForm > #finish').attr('disabled', false);
+		}
+		else {
+			$('#boloForm > #finish').attr('disabled', true);
+		}
+	});
 });

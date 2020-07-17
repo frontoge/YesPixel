@@ -122,15 +122,15 @@
 				</div>
 				<div class='box' id='warrantViewer'>
 					<h3 id='warrantViewerLabel'>Warrant Viewer</h3>
-					<h4 id='warrantId'>Warrant #1</h4>
-					<p id='warrantType'><b>Type:</b> Arrest</p>
-					<p id='target'><b>Name:</b> Eric Andre</p>
-					<p id='officerName'><b>Issuing officer:</b> Flint Lockwood</p>
-					<p id='badgeNum'><b>Badge Number:</b> F1301</p>
-					<p id='chargesList'><b>Charges:</b> Evasion, Armed Robbery</p>
-					<p id='lastLoc'><b>Last Known Location:</b> Carcer Way by LS Customs</p>
-					<p id='approvedBy'><b>Approved By:</b> Mickey Rudolf</p>
-					<p id='warrantDesc'><b>Description/Additional Info:</b> Suspect is armed and a convicted felon. Proceed with caution</p>
+					<h4 id='warrantId'>Warrant #</h4>
+					<p id='warrantType'><b>Type:</b> </p>
+					<p id='target'><b>Name:</b> </p>
+					<p id='officerName'><b>Issuing officer:</b> </p>
+					<p id='badgeNum'><b>Badge Number:</b> </p>
+					<p id='chargesList'><b>Charges:</b> </p>
+					<p id='lastLoc'><b>Last Known Location:</b> </p>
+					<p id='approvedBy'><b>Approved By:</b> </p>
+					<p id='warrantDesc'><b>Description/Additional Info:</b> </p>
 					<button id='approveWarrant'>Approve Warrant</button>
 					<button id='denyWarrant'>Deny Warrant</button>
 					<button id='closeWarrant'>Close Warrant</button>
@@ -138,7 +138,7 @@
 				<div class='box' id='warrantEditor'>
 					<h3 id='createWarrantLabel'>Create Warrant</h3>
 						<form id='warrantForm'>
-							<div id='typeSelection'>
+							<div id='warrantTypeSelection'>
 								<label for="arrestBox">Arrest</label>
 								<input id='arrestBox' type="radio" name='type'>
 								<label for='searchBox'>Search</label>
@@ -147,38 +147,38 @@
 							</div>
 
 							<div id='targetSelection'>
-								<label id='targetLabel' for='targetName'>Target: </label>
-								<input class='lineinput' id='targetName' type='text'>
+								<label id='targetLabel' for='warrantTargetName'>Target: </label>
+								<input class='lineinput' id='warrantTargetName' type='text'>
 								<br>
 							</div>
 
 							<div id='officerSelection'>
-								<label id='officerLabel' for='officer'>Officer Name: </label>
-								<input class='lineinput' id='officer' type='text'>
+								<label id='officerLabel' for='warrantOfficer'>Officer Name: </label>
+								<input class='lineinput' id='warrantOfficer' type='text'>
 								<br>
 							</div>
 
 							<div id='badgeSelection'>
-								<label id='badgeLabel' for='badge'>Badge Number: </label>
-								<input class='lineinput' id='badge' type='text'>
+								<label id='badgeLabel' for='warrantBadge'>Badge Number: </label>
+								<input class='lineinput' id='warrantBadge' type='text'>
 								<br>
 							</div>
 
 							<div id='chargeSelection'>
-								<label id='chargesLabel' for='chargesInput'>Charges: </label>
-								<textarea id='chargesInput' rows='2' cols='60'></textarea>
+								<label id='chargesLabel' for='warrantChargesInput'>Charges: </label>
+								<textarea id='warrantChargesInput' rows='2' cols='60'></textarea>
 								<br>
 							</div>
 
 							<div id='locationSelection'>
-								<label id='locationLabel' for='location'>Last Known Location: </label>
-								<textarea id='location' rows='2' cols='60'></textarea>
+								<label id='locationLabel' for='warrantLocation'>Last Known Location: </label>
+								<textarea id='warrantLocation' rows='2' cols='60'></textarea>
 								<br>
 							</div>
 
 							<div id='descriptionLabel'>
-								<label id='descriptionLabel' for='description'>Description/Additional Info: </label>
-								<textarea id='description' rows='5' cols='60'></textarea>
+								<label id='descriptionLabel' for='warrantDescription'>Description/Additional Info: </label>
+								<textarea id='warrantDescription' rows='5' cols='60'></textarea>
 								<br>
 							</div>
 							<button id='finish' type='button' disabled>Submit</button>
@@ -190,20 +190,63 @@
 			</div>
 
 			<div id='bolos_page'>
-				<h2>Bolos</h2>
+				<h2 id='boloLabel'>Bolos</h2>
 				<div class='box' id='activeBolos'>
 					<h3 id='boloListLabel'>Active Bolos</h3>
-					<input id='boloSearch' type='text'><button id='searchBoloButton'>Search</button>
 					<ul id='boloList'>
-						<!--<li>Example Warrant Item, 7/14/2020</li>-->
+						
 					</ul>
-					<button id='startNewBolo'>Create New</button>
+					<button id='startBolo'>Create New</button>
 				</div>
 				<div class='box' id='boloViewer'>
-
+					<h3 id='boloViewerLabel'>Bolo Viewer</h3>
+					<h4 id='boloId'>Bolo #</h4>
+					<p id='boloType'><b>Type:</b> </p>
+					<p id='officerName'><b>Issuing officer:</b> </p>
+					<p id='badgeNum'><b>Badge Number:</b> </p>
+					<p id='description'><b>Description:</b> </p>
+					<p id='reason'><b>Reason:</b> </p>
+					<button id='clearBolo'>Clear Bolo</button>
 				</div>
-				<div id='boloEditor'>
+				<div class='box' id='boloEditor'>
+					<h3 id='createBoloLabel'>Create Bolo</h3>
+						<form id='boloForm'>
+							<div id='boloTypeSelection'>
+								<label for="personBox">Person</label>
+								<input id='personBox' type="radio" name='type'>
+								<label for='vehicleBox'>Vehicle</label>
+								<input id='vehicleBox' type="radio" name='type'>
+								<br>
+							</div>
 
+							<div id='boloOfficerSelection'>
+								<label id='officerLabel' for='boloOfficer'>Officer Name: </label>
+								<input class='lineinput' id='boloOfficer' type='text'>
+								<br>
+							</div>
+
+							<div id='boloBadgeSelection'>
+								<label id='badgeLabel' for='boloBadge'>Badge Number: </label>
+								<input class='lineinput' id='boloBadge' type='text'>
+								<br>
+							</div>
+
+							<div id='boloDescriptionSelection'>
+								<label id='boloDescriptionLabel' for='boloDescriptionInput'>Description/Details: </label>
+								<textarea id='boloDescriptionInput' rows='4' cols='60'></textarea>
+								<br>
+							</div>
+
+							<div id='boloReasonSelection'>
+								<label id='boloReasonLabel' for='boloReason'>Reason for Bolo: </label>
+								<textarea id='boloReason' rows='4' cols='60'></textarea>
+								<br>
+							</div>
+							<button id='finish' type='button' disabled>Submit</button>
+							<button id='back' type='button'>Back</button>
+							<button id='clear' type='button'>Clear</button>
+						</form>
+					</h3>
 				</div>
 			</div>
 

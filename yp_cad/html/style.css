@@ -582,11 +582,18 @@ Start Public Records*/
 
 #warrantList, #boloList {
 	position: relative;
-	height: 80%;
 	padding-left: 20px;
 	padding-right: 0;
 	overflow-x: none;
 	overflow-y: auto;
+}
+
+#warrantList {
+	height: 72.5%;
+}
+
+#boloList {
+	height: 80%;
 }
 
 #warrantListLabel, #warrantViewerLabel, #createWarrantLabel, #boloListLabel, #boloViewerLabel, #createBoloLabel {
@@ -605,18 +612,18 @@ Start Public Records*/
 	font-size: 14pt;
 }
 
-#warrantList > li {
+#warrantList > li, #boloList > li {
 	color: #c9a211;
 	font-size: 14pt;
 	margin-bottom: 2px;
 }
 
-#warrantList > li:hover {
+#warrantList > li:hover, #boloList > li:hover {
 	background: rgba(255, 255, 255, 0.267);
 	padding-left: 20px;
 }
 
-#startNewWarrant {
+#startNewWarrant, #startBolo {
     position: relative;
     left: 40%;
     width: 20%;
@@ -626,7 +633,7 @@ Start Public Records*/
 	font-weight: bold;
 }
 
-#warrantViewer {
+#warrantViewer, #boloViewer {
 	display: block;
 	position: absolute;
 	right: 5%;
@@ -638,16 +645,16 @@ Start Public Records*/
 	color: #c9a211;
 }
 
-#warrantViewer > p {
+#warrantViewer > p, #boloViewer > p {
 	font-size: 14pt;
 }
 
-#warrantId {
+#warrantId, #boloId {
 	font-weight: bold;
 	font-size: 16pt;
 }
 
-#closeWarrant, #approveWarrant, #denyWarrant {
+#closeWarrant, #approveWarrant, #denyWarrant, #clearBolo {
 	position: absolute;
 	font-size: 13pt;
     height: 7%;
@@ -660,7 +667,7 @@ Start Public Records*/
 	display: none;
 }
 
-#closeWarrant {
+#closeWarrant, #clearBolo {
 	position: absolute;
 	right: 5%;
 }
@@ -673,7 +680,7 @@ Start Public Records*/
 	left: 30%;
 }
 
-#warrantEditor {
+#warrantEditor, #boloEditor {
 	display: none;
 	position: absolute;
 	width: 40%;
@@ -684,16 +691,16 @@ Start Public Records*/
 	padding-left: 20px;
 }
 
-#warrantForm > div {
+#warrantForm > div, #boloForm > div {
 	margin-bottom: 5px;
 }
 
-#warrantForm > div > label {
+#warrantForm > div > label, #boloForm > div > label {
 	font-weight: bold;
 	font-size: 14pt;
 }
 
-#warrantForm > div > textarea {
+#warrantForm > div > textarea, #boloForm > div > textarea {
 	font-size: 14pt;
 }
 
@@ -708,7 +715,7 @@ Start Public Records*/
 	font-size: 14pt;
 }
 
-#warrantForm > button {
+#warrantForm > button, #boloForm > button {
 	font-size: 12pt;
     position: absolute;
     width: 20%;
@@ -717,11 +724,11 @@ Start Public Records*/
 	bottom: 15%;
 }
 
-#warrantForm > #back {
+#warrantForm > #back, #boloForm > #back {
 	left: 30%;
 }
 
-#warrantForm > #clear {
+#warrantForm > #clear, #boloForm > #clear {
 	left: 55%;
 }
 
