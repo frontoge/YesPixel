@@ -54,6 +54,102 @@ function playLockAnim(vehicle)
   end)
 end
 
+function OpenBodySearchMenu(player)
+  TriggerEvent("esx_inventoryhud:openPlayerInventory", GetPlayerServerId(player), GetPlayerName(player))
+end
+
+--Radial Menu
+RegisterCommand("search", function()
+    local ped = GetPlayerPed(-1)
+    local pos = GetEntityCoords(ped)
+    local target, distance = ESX.Game.GetClosestPlayer()
+    if distance > 1.5 then return end
+    --local dist = Vdist(target.x, target.y, target.z, pos, pos, pos)
+    RequestAnimDict('combat@aim_variations@arrest')
+    while not HasAnimDictLoaded('combat@aim_variations@arrest') do
+      Citizen.Wait(0)
+    end
+    TaskPlayAnim(GetPlayerPed(-1), 'combat@aim_variations@arrest', 'cop_med_arrest_01', 8.0, -8,3750, 2, 0, 0, 0, 0)
+    exports['yp_progressbar']:startBar({{"Searching", 4500}}, nil, nil, 1, nil) 
+    Citizen.Wait(5000)
+    OpenBodySearchMenu(target)
+end)
+
+RegisterCommand('flipvehicle', function(source, args)
+  local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
+  if IsPedInAnyVehicle(GetPlayerPed(-1)) then
+    vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
+  end
+  if DoesEntityExist(vehicle) then
+    menu2.close()
+    inspectVehicle(vehicle)
+  else
+    exports['mythic_notify']:DoHudText('error', 'No Vehicle Nearby!')
+  end
+end)
+
+RegisterCommand('cuff', function(source, args)
+  local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+  if closestPlayer ~= -1 and distance <= 1 then
+    TriggerServerEvent('cuff', GetPlayerServerId(closestPlayer))
+  else
+    exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')
+  end
+end)
+
+RegisterCommand('uncuff', function(source, args)
+  local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+  if closestPlayer ~= -1 and distance <= 1 then
+
+    TriggerServerEvent('uncuff', GetPlayerServerId(closestPlayer))
+  else
+    exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')
+  end
+end)
+
+RegisterCommand('dragout', function(source, args)
+  local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+  if closestPlayer ~= -1 and distance <= 2 then
+    TriggerServerEvent('yp_userinteraction:pullOutVehicle', GetPlayerServerId(closestPlayer))
+  end
+end)
+
+RegisterCommand('putinveh', function(source, args)
+  local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+  if closestPlayer ~= -1 and distance <= 2 then
+    TriggerServerEvent('yp_userinteraction:putInVehicle', GetPlayerServerId(closestPlayer))
+  end
+end)
+
+RegisterCommand('viewid', function(source, args)
+  TriggerServerEvent('getplayerdata')
+end)
+
+RegisterCommand('escort', function(source, args)
+  local closestPlayer, distance = ESX.Game.GetClosestPlayer()
+  if closestPlayer ~= -1 and distance <= 2 then
+    TriggerServerEvent('escort', GetPlayerServerId(closestPlayer))
+  else
+    exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')
+  end
+end)
+
+RegisterCommand('inspect', function(source, args)
+  local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
+  if IsPedInAnyVehicle(GetPlayerPed(-1)) then
+    vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
+  end
+  if DoesEntityExist(vehicle) then
+    inspectVehicle(vehicle)
+  else
+    exports['mythic_notify']:DoHudText('error', 'No Vehicle Nearby!')
+  end
+end)
+
+RegisterCommand('lockpick', function(source, args)
+  TriggerServerEvent('checkforpick')
+end)
+
 --Events
 RegisterNetEvent('showmyid')
 AddEventHandler('showmyid', function(data)
@@ -291,70 +387,6 @@ function checkForKeys(vehicle)
     return found
 end
 
-function toggleWindow(vehicle, window, state)
-    if state then
-      RollUpWindow(vehicle, window)
-    else
-      RollDownWindow(vehicle, window)
-    end
-end
-
-function OpenBodySearchMenu(player)
-	ESX.TriggerServerCallback('getOtherPlayerData', function(data)
-		local elements = {}
-
-		for i=1, #data.accounts, 1 do
-			if data.accounts[i].name == 'black_money' and data.accounts[i].money > 0 then
-				table.insert(elements, {
-					label    = _U('confiscate_dirty', ESX.Math.Round(data.accounts[i].money)),
-					value    = 'black_money',
-					itemType = 'item_account',
-					amount   = data.accounts[i].money
-				})
-
-				break
-			end
-		end
-
-		table.insert(elements, {label = _U('guns_label')})
-
-		for i=1, #data.weapons, 1 do
-			table.insert(elements, {
-				label    = _U('confiscate_weapon', ESX.GetWeaponLabel(data.weapons[i].name), data.weapons[i].ammo),
-				value    = data.weapons[i].name,
-				itemType = 'item_weapon',
-				amount   = data.weapons[i].ammo
-			})
-		end
-
-		table.insert(elements, {label = _U('inventory_label')})
-
-		for i=1, #data.inventory, 1 do
-			if data.inventory[i].count > 0 then
-				table.insert(elements, {
-					label    = _U('confiscate_inv', data.inventory[i].count, data.inventory[i].label),
-					value    = data.inventory[i].name,
-					itemType = 'item_standard',
-					amount   = data.inventory[i].count
-				})
-			end
-		end
-
-		ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'body_search', {
-			title    = _U('search'),
-			align    = 'bottom-right',
-			elements = elements
-		}, function(data, menu)
-			if data.current.value then
-				TriggerServerEvent('confiscatePlayerItem', GetPlayerServerId(player), data.current.itemType, data.current.value, data.current.amount)
-				OpenBodySearchMenu(player)
-			end
-		end, function(data, menu)
-			menu.close()
-		end)
-	end, GetPlayerServerId(player))
-end
-
 function inspectVehicle(vehicle)
   local body = GetVehicleBodyHealth(vehicle) / 10.0
   local engine = GetVehicleEngineHealth(vehicle) / 10.0
@@ -399,60 +431,25 @@ function OpenInteractionMenu()
             local action2 = data2.current.value
             if action2 == 'view_id' then
               menu2.close()
-              TriggerServerEvent('getplayerdata') --Get player data of the current user
+               --Get player data of the current user
               
             --elseif action2 == 'viewbills' then
               
             elseif action2 == 'cuff' then
-              local closestPlayer, distance = ESX.Game.GetClosestPlayer()
-              if closestPlayer ~= -1 and distance <= 1 then
-                TriggerServerEvent('cuff', GetPlayerServerId(closestPlayer))
-              else
-                exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')
-              end
+              
               
             elseif action2 == 'uncuff' then
-              local closestPlayer, distance = ESX.Game.GetClosestPlayer()
-              if closestPlayer ~= -1 and distance <= 1 then
-                menu2.close()
-                TriggerServerEvent('uncuff', GetPlayerServerId(closestPlayer))
-              else
-                exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')
-              end
+              
               
             elseif action2 == 'escort' then
-              local closestPlayer, distance = ESX.Game.GetClosestPlayer()
-              if closestPlayer ~= -1 and distance <= 2 then
-                TriggerServerEvent('escort', GetPlayerServerId(closestPlayer))
-              else
-                exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')
-              end
+              
               
             elseif action2 == 'put_vehicle' then
-              local closestPlayer, distance = ESX.Game.GetClosestPlayer()
-              if closestPlayer ~= -1 and distance <= 2 then
-                TriggerServerEvent('yp_userinteraction:putInVehicle', GetPlayerServerId(closestPlayer))
-              end
+              
             elseif action2 == 'pull_vehicle' then
-              local closestPlayer, distance = ESX.Game.GetClosestPlayer()
-              if closestPlayer ~= -1 and distance <= 2 then
-                TriggerServerEvent('yp_userinteraction:pullOutVehicle', GetPlayerServerId(closestPlayer))
-              end
+              
             elseif action2 == 'search' then
-              local closestPlayer, distance = ESX.Game.GetClosestPlayer()
-              if closestPlayer ~= -1 and distance <= 3 then
-                if cuffsToSearch then
-                  if IsPedCuffed(GetPlayerPed(closestPlayer)) then
-                    TriggerServerEvent('yp_userinteraction:getPlayerInventory', GetPlayerServerId(closestPlayer))
-                  else
-                    exports['mythic_notify']:DoHudText('error', 'Player not Cuffed!')
-                  end
-                else
-                  TriggerServerEvent('yp_userinteraction:getPlayerInventory', GetPlayerServerId(closestPlayer))
-                end
-              else
-                exports['mythic_notify']:DoHudText('error', 'No Players Nearby!')
-              end
+    
             end
           end,
           function (data2, menu2)
@@ -534,147 +531,18 @@ function OpenInteractionMenu()
                 end
                 
               elseif action2 == 'open_trunk' then
-                local vehicle = ESX.Game.GetVehicleInDirection()
-                if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                  menu2.close()
-                  toggleDoor(vehicle, 5)
-                elseif DoesEntityExist(vehicle) then
-                  menu2.close()
-                  toggleDoor(vehicle, 5)
-                else
-                  exports['mythic_notify']:DoHudText('error', 'No Vehicle Nearby!')
-                end
                 
               elseif action2 == 'door_menu' then
-                if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'door_menu', {
-                      title = 'Doors',
-                      align = 'bottom-right',
-                      elements = {{label = 'Door 1', value = 'door1'},
-                        {label = 'Door 2', value = 'door2'},
-                        {label = 'Door 3', value = 'door3'},
-                        {label = 'Door 4', value = 'door4'}
-                      }},
-                    function(data3,menu3)
-                      local action3 = data3.current.value
-                      if action3 == 'door1' then
-                        menu3.close()
-                        local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                        toggleDoor(vehicle, 0)
-                      elseif action3 == 'door2' then
-                        menu3.close()
-                        local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                        toggleDoor(vehicle, 1)
-                        
-                      elseif action3 == 'door3' then
-                        menu3.close()
-                        local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                        toggleDoor(vehicle, 2)
-                        
-                      elseif action3 == 'door4' then
-                        menu3.close()
-                        local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                        toggleDoor(vehicle, 3)
-                      end
-                    end,
-                    function(data3, menu3)
-                      menu3.close()
-                    end)
-                else
-                  exports['mythic_notify']:DoLongHudText('error', 'Not in a Vehicle!')
-                end
+                
               elseif action2 == 'windowup_menu' then
-                if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'windowup_menu', {
-                    title = 'Windows',
-                    align = 'bottom-right',
-                    elements = {{label = 'Window 1', value = 'window1'},
-                      {label = 'Window 2', value = 'window2'},
-                      {label = 'Window 3', value = 'window3'},
-                      {label = 'Window 4', value = 'window4'}
-                    }},
-                  function(data3,menu3)
-                    local action3 = data3.current.value
-                    local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                    if action3 == 'window1' then
-                      menu3.close()
-                      toggleWindow(vehicle, 0, true)
-                      
-                    elseif action3 == 'window2' then
-                      menu3.close()
-                      toggleWindow(vehicle, 1, true)
-                      
-                    elseif action3 == 'window3' then
-                      menu3.close()
-                      toggleWindow(vehicle, 2, true)
-                      
-                    elseif action3 == 'window4' then
-                      menu3.close()
-                      toggleWindow(vehicle, 3, true)
-                    end
-                  end,
-                  function(data3, menu3)
-                    menu3.close()
-                  end)
-                else
-                  exports['mythic_notify']:DoLongHudText('error', 'Not in a Vehicle!')
-                end
+                
               elseif action2 == 'windowdown_menu' then
-                if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'windowdown_menu', {
-                    title = 'Windows',
-                    align = 'bottom-right',
-                    elements = {{label = 'Window 1', value = 'window1'},
-                      {label = 'Window 2', value = 'window2'},
-                      {label = 'Window 3', value = 'window3'},
-                      {label = 'Window 4', value = 'window4'}
-                    }},
-                  function(data3,menu3)
-                    local action3 = data3.current.value
-                    local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                    if action3 == 'window1' then
-                      menu3.close()
-                      toggleWindow(vehicle, 0, false)
-                      
-                    elseif action3 == 'window2' then
-                      menu3.close()
-                      toggleWindow(vehicle, 1, false)
-                      
-                    elseif action3 == 'window3' then
-                      menu3.close()
-                      toggleWindow(vehicle, 2, false)
-                      
-                    elseif action3 == 'window4' then
-                      menu3.close()
-                      toggleWindow(vehicle, 3, false)
-                    end
-                  end,
-                  function(data3, menu3)
-                    menu3.close()
-                  end)
-                else
-                  exports['mythic_notify']:DoLongHudText('error', 'Not in a Vehicle!')
-                end
+                
                 
               elseif action2 == 'toggle_engine' then
-                if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  TriggerEvent('EngineToggle:Engine')
-                else
-                  exports['mythic_notify']:DoHudText('error', 'Not in a Vehicle!')
-                end
                 
               elseif action2 == 'inspect_vehicle' then
-                local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                  vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-                end
-                if DoesEntityExist(vehicle) then
-                  menu2.close()
-                  inspectVehicle(vehicle)
-                else
-                  exports['mythic_notify']:DoHudText('error', 'No Vehicle Nearby!')
-                end
+                
               end
             end,
             
@@ -788,7 +656,7 @@ Citizen.CreateThread(function()
     Citizen.Wait(0)
       
     if IsControlJustReleased(0, useKey) and not isDead and not isCuffed then
-      OpenInteractionMenu()
+      --OpenInteractionMenu()
     end
 
     if IsControlJustReleased(0, 301) then --If M is pressed

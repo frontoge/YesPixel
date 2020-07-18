@@ -177,46 +177,6 @@ RegisterCommand('trunk', function(source, args)
   
 end, false)
 
-RegisterCommand('wu', function(source, args)
-  TriggerClientEvent('userinteraction:windowcommand', source, 0, true)
-  
-end, false)
-
-RegisterCommand('wu2', function(source, args)
-  TriggerClientEvent('userinteraction:windowcommand', source, 1, true)
-  
-end, false)
-
-RegisterCommand('wu3', function(source, args)
-  TriggerClientEvent('userinteraction:windowcommand', source, 2, true)
-  
-end, false)
-
-RegisterCommand('wu4', function(source, args)
-  TriggerClientEvent('userinteraction:windowcommand', source, 3, true)
-  
-end, false)
-
-RegisterCommand('wd', function(source, args)
-  TriggerClientEvent('userinteraction:windowcommand', source, 0, false)
-  
-end, false)
-
-RegisterCommand('wd2', function(source, args)
-  TriggerClientEvent('userinteraction:windowcommand', source, 1, false)
-  
-end, false)
-
-RegisterCommand('wd3', function(source, args)
-  TriggerClientEvent('userinteraction:windowcommand', source, 2, false)
-  
-end, false)
-
-RegisterCommand('wd4', function(source, args)
-  TriggerClientEvent('userinteraction:windowcommand', source, 3, false)
-  
-end, false)
-
 --Items
 ESX.RegisterUsableItem('idcard', function(source)
   TriggerClientEvent('startid', source)

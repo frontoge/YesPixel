@@ -115,38 +115,37 @@ AddEventHandler('yp_addons:BAC:getDrunk', function(target)
 	end)
 end)
 
-function moveSeat(seatNum)
+RegisterCommand('shuff', function(source, args)
+    local seatindex = args[1] or 1
+    seatindex = tonumber(seatindex)-2
 	local ped = GetPlayerPed(-1)
-	if IsPedInAnyVehicle(ped, false) then
-		local vehicle = GetVehiclePedIsIn(ped)
-		if GetPedInVehicleSeat(vehicle, seatNum-1) ~= ped then
-			if IsVehicleSeatFree(vehicle, seatNum-1) then
-				SetPedIntoVehicle(ped, vehicle, seatNum-1)
-			else
-				exports['mythic_notify']:DoHudText('error', 'Someone is alreay in this seat!')
-			end
-		else
-			exports['mythic_notify']:DoHudText('error', 'You are already in this seat')
-		end
+	local veh = GetVehiclePedIsIn(ped, false)
+	if veh then
+		if seatindex >= GetVehicleMaxNumberOfPassengers(veh) then return end        
+		ClearPedTasksImmediately(ped)
+        SetPedIntoVehicle(ped, veh, seatindex)
+    end
+end) --False, allow everyone to run it
+
+RegisterCommand('wu', function(source, args)
+	local ped = GetPlayerPed(-1)
+	local vehicle = GetVehiclePedIsIn(ped, false)
+	local window = args[1] or 1
+	window = window - 1
+	if vehicle then 
+		RollUpWindow(vehicle, windowIndex)
 	end
-end
+end)
 
-RegisterCommand("shuff", function(source, args, raw) --change command here
-	moveSeat(0)
-    TriggerEvent("SeatShuffle")
-end, false) --False, allow everyone to run it
-
-RegisterCommand('shuff2', function(source, args)
-	moveSeat(1)
-end, false)
-
-RegisterCommand('shuff3', function(source, args)
-	moveSeat(2)
-end, false)
-
-RegisterCommand('shuff4', function(source, args)
-	moveSeat(3)
-end, false)
+RegisterCommand('wd', function(source, args)
+	local ped = GetPlayerPed(-1)
+	local vehicle = GetVehiclePedIsIn(ped, false)
+	local window = args[1] or 1
+	window = window - 1
+	if vehicle then 
+		RollDownWindow(vehicle, windowIndex)
+	end
+end)
 
 Citizen.CreateThread(function()
 	while true do
