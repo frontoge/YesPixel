@@ -46,7 +46,8 @@ pdVehicles =
 	{label = 'Cruiser 2', value = 'police3', extras = nil},
 	{label = 'Unmarked Vic', value = 'police4', extras = nil},
 	{label = "Bike", value = 'policeb', extras = nil},
-	{label = 'SWAT Bearcat', value = 'riot', extras = nil}
+	{label = 'SWAT Bearcat', value = 'riot', extras = nil},
+	{label = "Mustang", value = '2015polstang', extras = nil}
 }
 
 pdObjects = {{label = 'Spike Strip', value = 'p_ld_stinger_s'},
