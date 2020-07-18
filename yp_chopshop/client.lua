@@ -59,7 +59,7 @@ Citizen.CreateThread(function()
 						if not onCooldown then
 							local class = GetVehicleClass(vehicle)
 							TriggerServerEvent('yp_chopshop:chopVehicle', class, GetVehicleNumberPlateText(vehicle))
-							ESX.Game.DeleteVehicle(vehicle)
+							Citizen.InvokeNative(0xEA386986E786A54F, Citizen.PointerValueIntInitialized(vehicle))
 							doCooldown()
 						else
 							exports['mythic_notify']:DoHudText('error', 'You have already chopped a vehicle, come back in ' .. cooldownTime .. ' seconds')
