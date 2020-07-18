@@ -92,7 +92,7 @@ function modelVehicle(vehicle, list, plate)--Called when spawning vehicle
 			SetVehicleNeonLightEnabled(vehicle, i, true)
 		end
 	end
-	if list.neons.r then
+	if list.neons and list.neons.r then
 		SetVehicleNeonLightsColour(vehicle, list.neons.r, list.neons.g, list.neons.b)
 	end
 
