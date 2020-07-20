@@ -6,7 +6,7 @@
 
 --Config Locals
 local cooldownMax = 60 * 60
-local copsMin = 0
+local copsMin = 4
 
 --ESX Init
 ESX = nil
