@@ -30,8 +30,11 @@ local pressed = false
 local listening = false
 local updatedDoors = false
 local bankcard = false
+local isRobbing = false
 
 local buttonsPick = {{char = 'Up', value = 172}, {char = 'Down', value = 173}, {char = 'Left', value = 174}, {char = 'Right', value = 175}}
+local buttonsHax = {{char = 'Q', value = 52}, {char = 'W', value = 77}, {char = 'E', value = 51}, {char = 'Z', value = 48}, {char = 'X', value = 105}, {char = 'C', value = 26}}
+local buttonsThermite = {{char = 'Q', value = 52}, {char = 'W', value = 77}, {char = 'E', value = 51}, {char = 'A', value = 34}, {char = 'S', value = 31}, {char = 'D', value = 30}}
 
 --ESX init
 ESX = nil
@@ -76,6 +79,54 @@ function resetBank()
 	
 end
 
+Citizen.CreateThread(function()
+	while true do
+		Citizen.Wait(0)
+
+		if isRobbing then
+			DisableControlAction(0, 24, true) -- Attack
+			DisableControlAction(0, 257, true) -- Attack 2
+			DisableControlAction(0, 25, true) -- Aim
+			DisableControlAction(0, 263, true) -- Melee Attack 1
+			DisableControlAction(0, 32, true) -- W
+			DisableControlAction(0, 34, true) -- A
+			DisableControlAction(0, 31, true) -- S
+			DisableControlAction(0, 30, true) -- D
+			DisableControlAction(0, 51, true) -- E
+			DisableControlAction(0, 26, true) -- C
+
+			DisableControlAction(0, 45, true) -- Reload
+			DisableControlAction(0, 22, true) -- Jump
+			DisableControlAction(0, 44, true) -- Cover
+			DisableControlAction(0, 37, true) -- Select Weapon
+			DisableControlAction(0, 23, true) -- Also 'enter'?
+
+			DisableControlAction(0, 289, true) -- Inventory
+			DisableControlAction(0, 167, true) -- Job
+      		DisableControlAction(0, 137, true) -- Job
+
+
+			DisableControlAction(0, 73, true) -- Disable clearing animation
+
+			DisableControlAction(0, 59, true) -- Disable steering in vehicle
+			DisableControlAction(0, 71, true) -- Disable driving forward in vehicle
+			DisableControlAction(0, 72, true) -- Disable reversing in vehicle
+
+			DisableControlAction(2, 36, true) -- Disable going stealth
+
+			DisableControlAction(0, 47, true)  -- Disable weapon
+			DisableControlAction(0, 264, true) -- Disable melee
+			DisableControlAction(0, 257, true) -- Disable melee
+			DisableControlAction(0, 140, true) -- Disable melee
+			DisableControlAction(0, 141, true) -- Disable melee
+			DisableControlAction(0, 142, true) -- Disable melee
+			DisableControlAction(0, 143, true) -- Disable melee
+			DisableControlAction(0, 75, true)  -- Disable exit vehicle
+			DisableControlAction(27, 75, true) -- Disable exit vehicle
+		end
+	end
+end)
+
 function DisplayHelpText(str)
 	SetTextComponentFormat("STRING")
 	AddTextComponentString(str)
@@ -85,7 +136,7 @@ end
 function listenForPress(key)
   Citizen.CreateThread(function()
     while listening do
-      if IsControlJustPressed(0, key) then
+      if IsControlJustPressed(0, key) or IsDisabledControlJustPressed(0, key) then
         pressed = true
       end
       Citizen.Wait(0)
@@ -157,9 +208,10 @@ AddEventHandler('yp_swedbank:lockpick', function(doorNum)
 	local failed = 0
 	local correct = 0
 	Citizen.CreateThread(function()--Main Thread for the lockpicking
+		isRobbing = true
 	Citizen.Wait(2500)
 		while failed < 1  and correct < 5 do 
-			local letter = math.random(1,4)
+			local letter = math.random(1,#buttonsPick)
 			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
 			listening = true
 			listenForPress(buttonsPick[letter].value)
@@ -178,10 +230,12 @@ AddEventHandler('yp_swedbank:lockpick', function(doorNum)
 					exports['mythic_notify']:DoShortHudText('success', 'Rotating Cylinder')
 				else
 					exports['mythic_notify']:DoShortHudText('success', 'Door unlocked')
+					isRobbing = false
 				end
 			else
 				exports['mythic_notify']:DoShortHudText('error', 'Your Lockpick broke!')
 				failed = failed + 1
+				isRobbing = false
 			end
 			pressed = false
 			Citizen.Wait(2500)
@@ -202,12 +256,13 @@ AddEventHandler('yp_swedbank:hack', function(doorNum)
 	local failed = 0
 	local correct = 0
 	Citizen.CreateThread(function()--Main Thread for the hack
+		isRobbing = true
 		Citizen.Wait(2500)
 		while failed < 3  and correct < 10 and not bankcard do 
-			local letter = math.random(1,#buttonsPick)
-			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
+			local letter = math.random(1,#buttonsHax)
+			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsHax[letter].char)
 			listening = true
-			listenForPress(buttonsPick[letter].value)
+			listenForPress(buttonsHax[letter].value)
 			Citizen.Wait(850) --Timer to press Key
 			listening = false
 			--Parsing the results of the loop
@@ -233,10 +288,12 @@ AddEventHandler('yp_swedbank:hack', function(doorNum)
 					exports['mythic_notify']:DoShortHudText('success', 'Clearing Footprints')
 				else
 					exports['mythic_notify']:DoShortHudText('success', 'Access Granted')
+					isRobbing = false
 				end
 			else
 				failed = failed + 1
 				exports['mythic_notify']:DoShortHudText('error', 'Failed to make progress')
+				isRobbing = false
 			end
 			pressed = false
 			Citizen.Wait(2500)
@@ -371,12 +428,13 @@ AddEventHandler('yp_swedbank:thermiteGame', function(drillNum)
 	local failed = 0
 	local correct = 0
 	Citizen.CreateThread(function()--Main Thread for the lockpicking
+		isRobbing = true
 	Citizen.Wait(2500)
 		while failed < 1  and correct < 5 do 
-			local letter = math.random(1,4)
-			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
+			local letter = math.random(1,#buttonsThermite)
+			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsThermite[letter].char)
 			listening = true
-			listenForPress(buttonsPick[letter].value)
+			listenForPress(buttonsThermite[letter].value)
 			Citizen.Wait(850) --Timer to press Key
 			listening = false
 			--Parsing the results of the loop
@@ -392,10 +450,12 @@ AddEventHandler('yp_swedbank:thermiteGame', function(drillNum)
 					exports['mythic_notify']:DoShortHudText('success', 'Preparing Ignition')
 				else
 					exports['mythic_notify']:DoShortHudText('success', 'Ignition Successful!')
+					isRobbing = false
 				end
 			else
 				exports['mythic_notify']:DoShortHudText('error', 'Thermite Prep Unsuccessful...')
 				failed = failed + 1
+				isRobbing = false
 			end
 			pressed = false
 			Citizen.Wait(2500)
@@ -512,7 +572,7 @@ Citizen.CreateThread(function( )
 			end
 		elseif Vdist(pos.x, pos.y, pos.z, bank.hack1.x, bank.hack1.y, bank.hack1.z) < 0.75 and (bank.startOne.picked or bank.startTwo.picked) and not bank.hack1.hacked then --Hack to go downstairs
 			DisplayHelpText('Press ~INPUT_CONTEXT~ to hack')
-			if IsControlJustPressed(0,51) then
+			if not isRobbing and IsControlJustPressed(0,51) then
 				TriggerServerEvent('yp_swedbank:startHack', 3)
 			end
 		elseif Vdist(pos.x, pos.y, pos.z, bank.drawerOne.x, bank.drawerOne.y, bank.drawerOne.z) < 0.5 and (bank.startOne.picked or bank.startTwo.picked) and not bank.drawerOne.searched then--Cash Drawer 1
@@ -537,7 +597,7 @@ Citizen.CreateThread(function( )
 			end
 		elseif Vdist(pos.x, pos.y, pos.z, bank.hack2.x, bank.hack2.y, bank.hack2.z) < 0.75 and not bank.hack2.hacked then
 			DisplayHelpText('Press ~INPUT_CONTEXT~ to hack')
-			if IsControlJustPressed(0,51) then
+			if not isRobbing and IsControlJustPressed(0,51) then
 				TriggerServerEvent('yp_swedbank:startHack', 4)
 			end
 		elseif Vdist(pos.x, pos.y, pos.z, bank.lockpick1.x, bank.lockpick1.y, bank.lockpick1.z) < 0.75 and not bank.lockpick1.picked then
@@ -552,27 +612,27 @@ Citizen.CreateThread(function( )
 			end
 		elseif Vdist(pos.x, pos.y, pos.z, bank.drill1.x, bank.drill1.y, bank.drill1.z) < 0.75 and not bank.drill1.drilling and not bank.drill1.drilled then
 			DisplayHelpText('Press ~INPUT_CONTEXT~ to use thermite')
-			if IsControlJustPressed(0,51) then
+			if not isRobbing and IsControlJustPressed(0,51) then
 				TriggerServerEvent('yp_swedbank:startThermite', 1)
 			end
 		elseif Vdist(pos.x, pos.y, pos.z, bank.drill2.x, bank.drill2.y, bank.drill2.z) < 0.75 and not bank.drill2.drilling and not bank.drill2.drilled then
 			DisplayHelpText('Press ~INPUT_CONTEXT~ to use thermite')
-			if IsControlJustPressed(0,51) then
+			if not isRobbing and IsControlJustPressed(0,51) then
 				TriggerServerEvent('yp_swedbank:startThermite', 2)
 			end
 		elseif Vdist(pos.x, pos.y, pos.z, bank.drill3.x, bank.drill3.y, bank.drill3.z) < 0.75 and not bank.drill3.drilling and not bank.drill3.drilled then
 			DisplayHelpText('Press ~INPUT_CONTEXT~ to use thermite')
-			if IsControlJustPressed(0,51) then
+			if not isRobbing and IsControlJustPressed(0,51) then
 				TriggerServerEvent('yp_swedbank:startThermite', 3)
 			end
 		elseif Vdist(pos.x, pos.y, pos.z, bank.drill4.x, bank.drill4.y, bank.drill4.z) < 0.75 and not bank.drill4.drilling and not bank.drill4.drilled then
 			DisplayHelpText('Press ~INPUT_CONTEXT~ to use thermite')
-			if IsControlJustPressed(0,51) then
+			if not isRobbing and IsControlJustPressed(0,51) then
 				TriggerServerEvent('yp_swedbank:startThermite', 4)
 			end
 		elseif Vdist(pos.x, pos.y, pos.z, bank.drill5.x, bank.drill5.y, bank.drill5.z) < 0.75 and not bank.drill5.drilling and not bank.drill5.drilled then
 			DisplayHelpText('Press ~INPUT_CONTEXT~ to use thermite')
-			if IsControlJustPressed(0,51) then
+			if not isRobbing and IsControlJustPressed(0,51) then
 				TriggerServerEvent('yp_swedbank:startThermite', 5)
 			end
 		elseif Vdist(pos.x, pos.y, pos.z, bank.exit.x, bank.exit.y, bank.exit.z) < 0.75 then

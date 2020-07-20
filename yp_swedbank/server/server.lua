@@ -235,6 +235,7 @@ AddEventHandler('yp_swedbank:finishDrilling', function(drillNum)
 		index = #Drops
 	else
 		index = math.random(1, #Drops - 2)
+	end
 	local dropItem = Drops[index].item
 	local dropAmount = math.random(Drops[index].lower, Drops[index].upper)
 

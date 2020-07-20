@@ -6,7 +6,6 @@ Drops =
 	['rolex'] = {lower = 15, upper = 25}, --15%
 	['goldchain'] = {lower = 15, upper = 20}, --15%
 	['valuablegoods'] = {lower = 1, upper = 2}, --5%
-	['armor'] = {lower = 1, upper = 2}, --5%
 	['cash'] = {item = 'cash', lower = 8000, upper = 12000}, --50%
 	['card'] = {lower = 1, upper = 5} --10%
 }

@@ -1,9 +1,3 @@
---[[ Copyright (C) Matthew Widenhouse - All Rights Reserved
- * Unauthorized copying of this file, without written consent from the owner, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Matthew Widenhouse <widenhousematthew@gmail.com>, September 2019
-]]--
-
 --ESX INIT
 local ESX = nil
 
@@ -15,6 +9,8 @@ Citizen.CreateThread(function()
 end)
  
 local buttonsPick = {{char = 'Up', value = 172}, {char = 'Down', value = 173}, {char = 'Left', value = 174}, {char = 'Right', value = 175}}
+local buttonsHax = {{char = 'Q', value = 52}, {char = 'W', value = 77}, {char = 'E', value = 51}, {char = 'Z', value = 48}, {char = 'X', value = 105}, {char = 'C', value = 26}}
+local buttonsThermite = {{char = 'Q', value = 52}, {char = 'W', value = 77}, {char = 'E', value = 51}, {char = 'A', value = 34}, {char = 'S', value = 31}, {char = 'D', value = 30}}
 
 local result = nil
 local updatedDoors = false
@@ -22,12 +18,13 @@ local listening = false
 local pressed = false
 local blip = nil
 local isRobber = false
+local isRobbing = false
 
 --Functions
 function listenForPress(key)
   Citizen.CreateThread(function()
 	while listening do
-	  if IsControlJustPressed(1, key) then
+	  if IsControlJustPressed(1, key) or IsDisabledControlJustPressed(0, key) then
 		pressed = true
 	  end
 	  Citizen.Wait(0)
@@ -42,18 +39,69 @@ function loadAnimDict(dict)
     end
 end 
 
+Citizen.CreateThread(function()
+	while true do
+		Citizen.Wait(0)
+
+		if isRobbing then
+			DisableControlAction(0, 24, true) -- Attack
+			DisableControlAction(0, 257, true) -- Attack 2
+			DisableControlAction(0, 25, true) -- Aim
+			DisableControlAction(0, 263, true) -- Melee Attack 1
+			DisableControlAction(0, 32, true) -- W
+			DisableControlAction(0, 34, true) -- A
+			DisableControlAction(0, 31, true) -- S
+			DisableControlAction(0, 30, true) -- D
+			DisableControlAction(0, 51, true) -- E
+			DisableControlAction(0, 26, true) -- C
+
+			DisableControlAction(0, 45, true) -- Reload
+			DisableControlAction(0, 22, true) -- Jump
+			DisableControlAction(0, 44, true) -- Cover
+			DisableControlAction(0, 37, true) -- Select Weapon
+			DisableControlAction(0, 23, true) -- Also 'enter'?
+
+			DisableControlAction(0, 289, true) -- Inventory
+			DisableControlAction(0, 167, true) -- Job
+      		DisableControlAction(0, 137, true) -- Job
+
+
+			DisableControlAction(0, 73, true) -- Disable clearing animation
+
+			DisableControlAction(0, 59, true) -- Disable steering in vehicle
+			DisableControlAction(0, 71, true) -- Disable driving forward in vehicle
+			DisableControlAction(0, 72, true) -- Disable reversing in vehicle
+
+			DisableControlAction(2, 36, true) -- Disable going stealth
+
+			DisableControlAction(0, 47, true)  -- Disable weapon
+			DisableControlAction(0, 264, true) -- Disable melee
+			DisableControlAction(0, 257, true) -- Disable melee
+			DisableControlAction(0, 140, true) -- Disable melee
+			DisableControlAction(0, 141, true) -- Disable melee
+			DisableControlAction(0, 142, true) -- Disable melee
+			DisableControlAction(0, 143, true) -- Disable melee
+			DisableControlAction(0, 75, true)  -- Disable exit vehicle
+			DisableControlAction(27, 75, true) -- Disable exit vehicle
+		end
+	end
+end)
+
+
+
 function hack()
 	exports['mythic_notify']:DoHudText('inform', 'Hacking starting')
   	local failed = 0
   	local correct = 0
   	Citizen.CreateThread(function()--Main Thread for the hack
+		isRobbing = true
 		Citizen.Wait(2500)
 		while failed < 3  and correct < 10 do 
-	  	local letter = math.random(1,#buttonsPick)
-	  	exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
+	  	local letter = math.random(1,#buttonsHax)
+	  	exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsHax[letter].char)
 	  	listening = true
-	  	listenForPress(buttonsPick[letter].value)
-		Citizen.Wait(900) --Timer to press Key
+	  	listenForPress(buttonsHax[letter].value)
+		Citizen.Wait(800) --Timer to press Key
 	  	listening = false
 	  	--Parsing the results of the loop
 	  	if pressed then
@@ -69,19 +117,21 @@ function hack()
 		elseif correct == 5 then
 		  	exports['mythic_notify']:DoShortHudText('success', 'Firewall Found')
 		elseif correct == 6 then
-		  exports['mythic_notify']:DoShortHudText('success', 'Disabling Firewall')
+		  	exports['mythic_notify']:DoShortHudText('success', 'Disabling Firewall')
 		elseif correct == 7 then
-		  exports['mythic_notify']:DoShortHudText('success', 'Firewall Disabled')
+		  	exports['mythic_notify']:DoShortHudText('success', 'Firewall Disabled')
 		elseif correct == 8 then
-		  exports['mythic_notify']:DoShortHudText('success', 'Checking for footprints')
+		  	exports['mythic_notify']:DoShortHudText('success', 'Checking for footprints')
 		elseif correct == 9 then
-		  exports['mythic_notify']:DoShortHudText('success', 'Clearing footprints')
+		  	exports['mythic_notify']:DoShortHudText('success', 'Clearing footprints')
 		else
-		  exports['mythic_notify']:DoShortHudText('success', 'Access Granted')
+		  	exports['mythic_notify']:DoShortHudText('success', 'Access Granted')
+		  	isRobbing = false
 		end
 	  else
 		failed = failed + 1
 		exports['mythic_notify']:DoShortHudText('error', 'Failed to make progress')
+		isRobbing = false
 	  end
 	  pressed = false
 	  Citizen.Wait(2500)
@@ -94,14 +144,16 @@ function lockpick()
 	exports['mythic_notify']:DoHudText('inform', 'Lockpicking starting')
 	local failed = 0
 	local correct = 0
+
 	Citizen.CreateThread(function()--Main Thread for the lockpicking
+		isRobbing = true
 	Citizen.Wait(2500)
 		while failed < 1  and correct < 5 do 
 			local letter = math.random(1,#buttonsPick)
 			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
 			listening = true
 			listenForPress(buttonsPick[letter].value)
-			Citizen.Wait(850) --Timer to press Key
+			Citizen.Wait(800) --Timer to press Key
 			listening = false
 			--Parsing the results of the loop
 			if pressed then
@@ -116,10 +168,12 @@ function lockpick()
 					exports['mythic_notify']:DoShortHudText('success', 'Rotating Cylinder')
 				else
 					exports['mythic_notify']:DoShortHudText('success', 'Door unlocked')
+					isRobbing = false
 				end
 			else
 				exports['mythic_notify']:DoShortHudText('error', 'Your Lockpick broke!')
 				failed = failed + 1
+				isRobbing = false
 			end
 			pressed = false
 			Citizen.Wait(2500)
@@ -133,13 +187,14 @@ function thermite()
 	local failed = 0
 	local correct = 0
 	Citizen.CreateThread(function()--Main Thread for the thermite
+		isRobbing = true
 	Citizen.Wait(2500)
 		while failed < 1  and correct < 5 do 
-			local letter = math.random(1,#buttonsPick)
-			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsPick[letter].char)
+			local letter = math.random(1,#buttonsThermite)
+			exports['mythic_notify']:DoHudText('inform', 'Press ' .. buttonsThermite[letter].char)
 			listening = true
-			listenForPress(buttonsPick[letter].value)
-			Citizen.Wait(850) --Timer to press Key
+			listenForPress(buttonsThermite[letter].value)
+			Citizen.Wait(800) --Timer to press Key
 			listening = false
 			--Parsing the results of the loop
 			if pressed then
@@ -154,10 +209,12 @@ function thermite()
 					exports['mythic_notify']:DoShortHudText('success', 'Preparing Ignition')
 				else
 					exports['mythic_notify']:DoShortHudText('success', 'Ignition Successful!')
+					isRobbing = false
 				end
 			else
 				exports['mythic_notify']:DoShortHudText('error', 'Thermite Prep Unsuccessful...')
 				failed = failed + 1
+				isRobbing = false
 			end
 			pressed = false
 			Citizen.Wait(2500)
@@ -379,7 +436,7 @@ Citizen.CreateThread(function()
 				for i2, v2 in ipairs(v.hacks) do
 					if Vdist(pos.x, pos.y, pos.z, v2.x, v2.y, v2.z) < 0.5 then
 						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to hack')
-						if IsControlJustPressed(0, 51) then
+						if not isRobbing and IsControlJustPressed(0, 51) then
 							TriggerServerEvent('yp_bankrob:startHack', i, i2, GetClockHours())
 						end
 					end
@@ -404,7 +461,7 @@ Citizen.CreateThread(function()
 				for i2, v2 in ipairs(v.drills) do
 					if Vdist(pos.x, pos.y, pos.z, v2.x, v2.y, v2.z) < 1 then
 						exports['yp_base']:DisplayHelpText('Press ~INPUT_CONTEXT~ to use thermite on the boxes')
-						if IsControlJustPressed(0, 51) then
+						if not isRobbing and IsControlJustPressed(0, 51) then
 							TriggerServerEvent('yp_bankrob:startThermite', i, i2)
 						end
 					end
