@@ -39,9 +39,10 @@ local pedspawns = {
 
 local isRunActive = false
 local onCooldown = false
-local cooldowntime = 30000 --in seconds
+local cooldowntime = 30000 --in miliseconds
 local Pedinsession = {}
 local blips = {}
+local tyringToBuy = false
 
 
 Citizen.CreateThread(function()
@@ -54,7 +55,7 @@ Citizen.CreateThread(function()
 		if dist < 0.5 then 
 			exports['yp_base']:DisplayHelpText('Press E to buy some oxy')
 			if IsControlJustPressed(0, 51) then
-				if not onCooldown and not isRunActive then
+				if not onCooldown and not isRunActive and not tryingToBuy then
 						TriggerServerEvent('yp_oxyruns:checkitem')
 				else 
 					exports['mythic_notify']:DoHudText('inform', 'No one is looking for Oxy')
@@ -64,12 +65,6 @@ Citizen.CreateThread(function()
 	end
 	Citizen.Wait(0)
 end
-end)
-
-
-RegisterNetEvent('additem')
-AddEventHandler('additem', function()
-	TriggerServerEvent('yp_oxyruns:addoxy')
 end)
 
 
@@ -84,11 +79,7 @@ end
 
 RegisterNetEvent('Bolls')
 AddEventHandler('Bolls', function()
-
-
 	Citizen.CreateThread(function()
-		
-		isRunActive = true
 
 		LoadModel('ig_russiandrunk')
 
@@ -123,7 +114,7 @@ AddEventHandler('Bolls', function()
 		    SetBlipSprite(blips[index], 51)
 		end
 
-		while #Pedinsession > 0 do
+		while next(Pedinsession) do
 
 			for index, value in pairs(Pedinsession) do
 				if DoesEntityExist(value.id) then
@@ -140,7 +131,7 @@ AddEventHandler('Bolls', function()
 							TriggerServerEvent('yp_oxyruns:sellOxy', index)
 							Citizen.Wait(2000)
 							TaskWanderStandard(value.id, 10.0, 10)
-							print(#Pedinsession > 0)
+							Citizen.InvokeNative(0xB736A491E64A32CF, Citizen.PointerValueIntInitialized(value.id))
 	            			--break
 	        			end
 	    			end
@@ -150,7 +141,6 @@ AddEventHandler('Bolls', function()
 		end
 
 		Citizen.Wait(2500)
-		isRunActive = false
 		exports['mythic_notify']:DoHudText('success', 'Sold Oxy to all clients')
 		TriggerServerEvent('yp_oxyruns:cooldown')
 	end)
@@ -159,6 +149,7 @@ end)
 RegisterNetEvent('removePepega')
 AddEventHandler('removePepega', function(index)
 	Pedinsession[index] = nil
+	print(#Pedinsession)
 	RemoveBlip(blips[index])
 end)
 
@@ -169,4 +160,9 @@ AddEventHandler('yp_oxyruns:client:cooldown', function()
 		Citizen.Wait(cooldowntime)
 		onCooldown = false
     end)
+end)
+
+RegisterNetEvent('yp_oxyruns:toggleRun')
+AddEventHandler('yp_oxyruns:toggleRun', function(state)
+	isRunActive = state
 end)

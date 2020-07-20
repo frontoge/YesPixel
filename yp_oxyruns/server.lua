@@ -12,10 +12,12 @@ AddEventHandler('yp_oxyruns:addoxy', function()
 RegisterServerEvent('yp_oxyruns:checkitem')
 AddEventHandler('yp_oxyruns:checkitem', function()
     local xPlayer = ESX.GetPlayerFromId(source)
-    if xPlayer.getInventoryItem('oxy').count <= 30 then
+    print(xPlayer.getInventoryItem('oxy').count + 20)
+    if xPlayer.getInventoryItem('oxy').count + 20 <= xPlayer.getInventoryItem('oxy').limit then
     	xPlayer.addInventoryItem('oxy', 20)	
         TriggerClientEvent('Bolls', source)
-    elseif xPlayer.getInventoryItem('oxy').count >= 31 then
+        TriggerClientEvent('yp_oxyruns:toggleRun', -1, true)
+    else
     	TriggerClientEvent('mythic_notify:client:SendAlert', source, {type = 'error', text ='You have too much Oxy', length = 5000})
     end
  end)
@@ -37,8 +39,8 @@ RegisterServerEvent('yp_oxyruns:sellOxy')
     end
 end)
 
-
 RegisterServerEvent('yp_oxyruns:cooldown')
 AddEventHandler('yp_oxyruns:cooldown', function()
     TriggerClientEvent('yp_oxyruns:client:cooldown', -1)
+    TriggerClientEvent('yp_oxyruns:toggleRun', -1, false)
 end)
